@@ -19,7 +19,6 @@ final class PrivacyController extends ControllerBase {
 
     return [
       '#theme' => 'mel_privacy_page',
-      'title' => $this->t('Privacy'),
       'content' => [
         '#markup' => '<div class="mel-prose">' . $html . '</div>',
       ],

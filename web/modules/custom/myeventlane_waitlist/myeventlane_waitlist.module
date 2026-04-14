@@ -22,7 +22,6 @@ function myeventlane_waitlist_theme(): array {
     ],
     'mel_privacy_page' => [
       'variables' => [
-        'title' => NULL,
         'content' => NULL,
       ],
       'template' => 'mel-privacy-page',
