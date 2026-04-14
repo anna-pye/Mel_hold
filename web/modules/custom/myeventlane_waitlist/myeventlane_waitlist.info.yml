@@ -1,0 +1,6 @@
+name: 'MyEventLane Waitlist'
+type: module
+description: 'Waitlist signup with double opt-in, admin dashboard, and CSV export.'
+package: 'MyEventLane'
+core_version_requirement: '^11'
+php: 8.3

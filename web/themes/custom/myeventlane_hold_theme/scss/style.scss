@@ -1,0 +1,13 @@
+/**
+ * Optional SCSS entrypoint. The committed `css/style.css` is authoritative for
+ * Docker/local until you wire a Sass build (e.g. `sass scss/style.scss css/style.css`).
+ */
+
+$mel-accent: #6c8cff;
+$mel-accent-2: #b794f6;
+
+:root {
+  /* Mirror key tokens if you migrate styles here from css/style.css */
+  --mel-accent: #{$mel-accent};
+  --mel-accent-2: #{$mel-accent-2};
+}

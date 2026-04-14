@@ -1,0 +1,6 @@
+myeventlane_waitlist.dashboard:
+  title: 'MyEventLane waitlist'
+  description: 'Dashboard and export for the holding-site waitlist.'
+  route_name: myeventlane_waitlist.admin_dashboard
+  parent: system.admin_reports
+  weight: 15

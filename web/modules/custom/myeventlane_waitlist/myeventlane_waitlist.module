@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Hooks for MyEventLane Waitlist.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_theme().
+ */
+function myeventlane_waitlist_theme(): array {
+  return [
+    'mel_waitlist_status' => [
+      'variables' => [
+        'status' => NULL,
+        'title_text' => NULL,
+        'message_text' => NULL,
+      ],
+      'template' => 'mel-waitlist-status',
+    ],
+    'mel_privacy_page' => [
+      'variables' => [
+        'title' => NULL,
+        'content' => NULL,
+      ],
+      'template' => 'mel-privacy-page',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function myeventlane_waitlist_mail(string $key, array &$message, array $params): void {
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+  switch ($key) {
+    case 'waitlist_confirm':
+      $message['subject'] = $params['subject'] ?? 'Confirm your MyEventLane waitlist signup';
+      $message['body'][] = $params['body'] ?? '';
+      break;
+
+    case 'waitlist_unsubscribe_notice':
+      $message['subject'] = $params['subject'] ?? 'You have been unsubscribed';
+      $message['body'][] = $params['body'] ?? '';
+      break;
+
+    case 'contact_inquiry':
+      $message['subject'] = $params['subject'] ?? 'MyEventLane contact';
+      $message['body'][] = $params['body'] ?? '';
+      break;
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function myeventlane_waitlist_mail_alter(array &$message): void {
+  $id = $message['id'] ?? '';
+  if (!is_string($id) || !str_contains($id, 'myeventlane_waitlist')) {
+    return;
+  }
+  $config = \Drupal::config('myeventlane_waitlist.settings');
+  $name = $config->get('sender_name') ?: 'MyEventLane';
+  $mail = $config->get('sender_mail');
+  if (is_string($mail) && $mail !== '') {
+    $message['headers']['From'] = $name . ' <' . $mail . '>';
+  }
+}

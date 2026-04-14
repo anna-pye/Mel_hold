@@ -1,0 +1,46 @@
+# Composer
+/vendor/
+
+# Drupal core and contrib (installed by Composer)
+/web/core/
+/web/modules/contrib/
+/web/themes/contrib/
+/web/profiles/contrib/
+
+# User files
+/web/sites/*/files/
+/web/sites/*/private/
+
+# Local overrides (never commit secrets)
+/web/sites/*/settings.local.php
+/web/sites/*/settings.production.php
+/web/sites/*/services.local.yml
+.env
+.env.*
+!.env.example
+
+# Drush
+/drush/sites/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Build / misc
+node_modules/
+*.log
+npm-debug.log*
+.phpunit.result.cache
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Private runtime (outside web root)
+/private/*
+!/private/.gitkeep
+
+# Optional local tooling
+.tool-versions

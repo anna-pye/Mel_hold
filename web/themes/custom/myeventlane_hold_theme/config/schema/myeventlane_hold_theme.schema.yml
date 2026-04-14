@@ -1,0 +1,51 @@
+myeventlane_hold_theme.settings:
+  type: theme_settings
+  label: 'MyEventLane Hold settings'
+  mapping:
+    brand_subtitle:
+      type: string
+    hero_kicker:
+      type: string
+    hero_gradient:
+      type: string
+      label: 'Hero gradient headline line'
+    hero_subheading:
+      type: string
+    hero_title:
+      type: string
+      label: 'Legacy single headline (fallback if hero_gradient empty)'
+    hero_lead:
+      type: text
+    meta_title:
+      type: label
+    meta_description:
+      type: text
+    og_image_url:
+      type: string
+      label: 'OG image URL'
+    badges:
+      type: text
+    waitlist_intro:
+      type: text
+    waitlist_fineprint:
+      type: text
+    whats_next_intro:
+      type: text
+    whats_next:
+      type: text
+      label: 'Legacy HTML block (used if whats_next_intro empty)'
+    instagram_url:
+      type: string
+    instagram_label:
+      type: string
+    linkedin_url:
+      type: string
+    linkedin_label:
+      type: string
+    footer_line_left:
+      type: string
+    footer_line_right:
+      type: string
+    footer_note:
+      type: text
+      label: 'Legacy footer (fallback if footer_line_left empty)'

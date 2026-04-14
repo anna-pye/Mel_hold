@@ -1,0 +1,38 @@
+services:
+  myeventlane_waitlist.token_manager:
+    class: Drupal\myeventlane_waitlist\Service\WaitlistTokenManager
+    arguments: ['@settings']
+
+  myeventlane_waitlist.attribution_manager:
+    class: Drupal\myeventlane_waitlist\Service\WaitlistAttributionManager
+
+  myeventlane_waitlist.rate_limit_manager:
+    class: Drupal\myeventlane_waitlist\Service\WaitlistRateLimitManager
+    arguments: ['@flood']
+
+  myeventlane_waitlist.email_manager:
+    class: Drupal\myeventlane_waitlist\Service\WaitlistEmailManager
+    arguments:
+      - '@plugin.manager.mail'
+      - '@config.factory'
+      - '@logger.channel.myeventlane_waitlist'
+      - '@queue'
+      - '@language_manager'
+      - '@database'
+      - '@myeventlane_waitlist.token_manager'
+
+  myeventlane_waitlist.manager:
+    class: Drupal\myeventlane_waitlist\Service\WaitlistManager
+    arguments:
+      - '@database'
+      - '@myeventlane_waitlist.token_manager'
+      - '@myeventlane_waitlist.attribution_manager'
+      - '@myeventlane_waitlist.rate_limit_manager'
+      - '@myeventlane_waitlist.email_manager'
+      - '@config.factory'
+      - '@logger.channel.myeventlane_waitlist'
+      - '@settings'
+
+  logger.channel.myeventlane_waitlist:
+    parent: logger.channel_base
+    arguments: ['myeventlane_waitlist']

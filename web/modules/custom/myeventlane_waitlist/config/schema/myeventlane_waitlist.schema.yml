@@ -1,0 +1,28 @@
+myeventlane_waitlist.settings:
+  type: config_object
+  label: 'Waitlist settings'
+  mapping:
+    sender_name:
+      type: string
+      label: 'Sender name'
+    sender_mail:
+      type: email
+      label: 'Sender email'
+    contact_mail:
+      type: email
+      label: 'Public contact email'
+    consent_text:
+      type: text
+      label: 'Consent label'
+    consent_version:
+      type: string
+      label: 'Consent version'
+    privacy_url:
+      type: string
+      label: 'Privacy URL'
+    privacy_body:
+      type: text
+      label: 'Privacy body'
+    confirm_token_ttl:
+      type: integer
+      label: 'Confirmation TTL'

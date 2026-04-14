@@ -1,0 +1,3 @@
+administer myeventlane waitlist:
+  title: 'Administer MyEventLane waitlist'
+  description: 'View dashboard, export CSV, and change waitlist settings.'

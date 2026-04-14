@@ -1,0 +1,723 @@
+/**
+ * MyEventLane Hold — holding page (matches index-2.html, mel- prefixed).
+ * Inner routes keep .mel-page--inner / .mel-main--inner at end of file.
+ */
+
+:root {
+  --mel-bg-1: #f6f4ff;
+  --mel-bg-2: #fff7f0;
+  --mel-card: #ffffffcc;
+  --mel-ink: #1e1e2a;
+  --mel-muted: #5e5e78;
+
+  --mel-brand-1: #8a7dff;
+  --mel-brand-2: #ff8ac7;
+  --mel-brand-3: #7be0d6;
+  --mel-brand-4: #ffd27a;
+
+  --mel-ring: 0 0 0 3px rgba(138, 125, 255, 0.25);
+  --mel-shadow: 0 18px 60px rgba(30, 30, 42, 0.12);
+  --mel-shadow-soft: 0 10px 25px rgba(30, 30, 42, 0.08);
+  --mel-radius: 22px;
+
+  --mel-max: 1040px;
+  --mel-pad: clamp(18px, 3vw, 28px);
+  --mel-h1: clamp(34px, 5vw, 56px);
+  --mel-h2: clamp(18px, 2.2vw, 22px);
+  --mel-p: clamp(15px, 2vw, 18px);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body.mel-root {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  color: var(--mel-ink);
+  background:
+    radial-gradient(1200px 800px at 15% 10%, rgba(138, 125, 255, 0.28), transparent 60%),
+    radial-gradient(1000px 700px at 85% 15%, rgba(255, 138, 199, 0.22), transparent 60%),
+    radial-gradient(900px 650px at 25% 85%, rgba(123, 224, 214, 0.24), transparent 55%),
+    radial-gradient(950px 700px at 90% 90%, rgba(255, 210, 122, 0.24), transparent 55%),
+    linear-gradient(135deg, var(--mel-bg-1), var(--mel-bg-2));
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: none;
+  box-shadow: var(--mel-ring);
+  border-color: rgba(138, 125, 255, 0.55) !important;
+}
+
+.mel-skip {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.mel-skip:focus {
+  left: 16px;
+  top: 16px;
+  width: auto;
+  height: auto;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid rgba(30, 30, 42, 0.15);
+  border-radius: 12px;
+  box-shadow: var(--mel-shadow-soft);
+  z-index: 999;
+}
+
+.mel-wrap {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mel-header {
+  padding: 22px var(--mel-pad);
+}
+
+.mel-topbar {
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mel-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.mel-logo-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background:
+    radial-gradient(18px 18px at 30% 30%, rgba(255, 255, 255, 0.9), transparent 60%),
+    linear-gradient(135deg, var(--mel-brand-1), var(--mel-brand-2));
+  box-shadow: 0 10px 22px rgba(138, 125, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mel-logo-mark::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  background:
+    radial-gradient(22px 22px at 75% 35%, rgba(123, 224, 214, 0.75), transparent 60%),
+    radial-gradient(22px 22px at 35% 78%, rgba(255, 210, 122, 0.75), transparent 60%);
+  opacity: 0.9;
+  mix-blend-mode: screen;
+}
+
+.mel-brand-name {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-size: 18px;
+}
+
+.mel-brand-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--mel-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+.mel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  box-shadow: var(--mel-shadow-soft);
+  font-size: 13px;
+  color: var(--mel-muted);
+  white-space: nowrap;
+}
+
+.mel-pill-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, var(--mel-brand-3), var(--mel-brand-4));
+  box-shadow: 0 6px 14px rgba(123, 224, 214, 0.25);
+  flex-shrink: 0;
+}
+
+.mel-main {
+  flex: 1;
+  padding: 12px var(--mel-pad) 36px;
+  display: flex;
+  align-items: center;
+}
+
+.mel-grid {
+  width: 100%;
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (min-width: 900px) {
+  .mel-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 22px;
+  }
+}
+
+.mel-card {
+  background: var(--mel-card);
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  border-radius: var(--mel-radius);
+  box-shadow: var(--mel-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.mel-hero {
+  padding: clamp(22px, 4vw, 34px);
+  position: relative;
+}
+
+.mel-sparkles {
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  opacity: 0.9;
+  background:
+    radial-gradient(8px 8px at 12% 22%, rgba(255, 255, 255, 0.95), transparent 55%),
+    radial-gradient(10px 10px at 78% 18%, rgba(255, 255, 255, 0.85), transparent 60%),
+    radial-gradient(7px 7px at 62% 78%, rgba(255, 255, 255, 0.85), transparent 60%),
+    radial-gradient(6px 6px at 30% 70%, rgba(255, 255, 255, 0.75), transparent 60%),
+    radial-gradient(20px 20px at 95% 55%, rgba(255, 210, 122, 0.18), transparent 65%),
+    radial-gradient(26px 26px at 8% 92%, rgba(123, 224, 214, 0.18), transparent 65%);
+  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.2), transparent);
+}
+
+.mel-hero-title {
+  margin: 0 0 10px 0;
+  font-size: var(--mel-h1);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.mel-gradient-text {
+  background: linear-gradient(90deg, var(--mel-brand-1), var(--mel-brand-2), var(--mel-brand-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.mel-lead {
+  margin: 0 0 18px 0;
+  font-size: var(--mel-p);
+  line-height: 1.55;
+  color: var(--mel-muted);
+  max-width: 56ch;
+}
+
+.mel-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  box-shadow: var(--mel-shadow-soft);
+  font-size: 13px;
+  color: var(--mel-muted);
+}
+
+.mel-badge span {
+  color: var(--mel-muted);
+  font-weight: 700;
+}
+
+.mel-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  background: linear-gradient(135deg, rgba(138, 125, 255, 0.18), rgba(255, 138, 199, 0.12));
+  flex-shrink: 0;
+}
+
+.mel-icon svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+.mel-side {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mel-panel {
+  border-radius: 18px;
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: var(--mel-shadow-soft);
+  padding: 16px;
+}
+
+.mel-panel__h {
+  margin: 0 0 6px 0;
+  font-size: var(--mel-h2);
+  letter-spacing: -0.02em;
+  color: var(--mel-ink);
+}
+
+.mel-panel__p {
+  margin: 0 0 12px 0;
+  color: var(--mel-muted);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.mel-waitlist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.mel-waitlist-form label {
+  font-size: 12px;
+  color: var(--mel-muted);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.mel-waitlist-form__row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mel-waitlist-form__row .form-item-email {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.mel-waitlist-form__input,
+.mel-waitlist-form input[type="email"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 30, 42, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+}
+
+.mel-waitlist-form__row .form-actions {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+}
+
+.mel-waitlist-form__row input[type="submit"],
+.mel-waitlist-form__row .mel-btn--primary {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--mel-brand-1), var(--mel-brand-2));
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(138, 125, 255, 0.22);
+  width: auto;
+}
+
+.mel-waitlist-form__row input[type="submit"]:hover,
+.mel-waitlist-form__row .mel-btn--primary:hover {
+  transform: translateY(-1px);
+}
+
+.mel-waitlist-form__row input[type="submit"]:active,
+.mel-waitlist-form__row .mel-btn--primary:active {
+  transform: translateY(0);
+}
+
+.mel-fineprint {
+  margin: 10px 0 0 0;
+  font-size: 12px;
+  color: var(--mel-muted);
+}
+
+.mel-waitlist-form .form-item-consent {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mel-muted);
+}
+
+.mel-waitlist-form .form-item-consent label {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.mel-panel-legal {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+}
+
+.mel-panel-legal a {
+  color: var(--mel-muted);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mel-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.mel-linkbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 30, 42, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  color: var(--mel-ink);
+  box-shadow: var(--mel-shadow-soft);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.mel-linkbtn span {
+  color: var(--mel-muted);
+  font-weight: 700;
+}
+
+.mel-linkbtn:hover {
+  transform: translateY(-1px);
+}
+
+.mel-foot-wrap {
+  padding: 18px var(--mel-pad) 26px;
+  color: var(--mel-muted);
+  font-size: 12px;
+}
+
+.mel-foot {
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (min-width: 700px) {
+  .mel-foot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.mel-messages {
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  padding: 12px var(--mel-pad) 0;
+  width: 100%;
+}
+
+.mel-messages .messages {
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(30, 30, 42, 0.1);
+  box-shadow: var(--mel-shadow-soft);
+}
+
+.visually-hidden,
+.mel-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.mel-honeypot-wrap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-waitlist-form__row input[type="submit"],
+  .mel-waitlist-form__row .mel-btn--primary,
+  .mel-linkbtn {
+    transition: none;
+  }
+
+  .mel-waitlist-form__row input[type="submit"]:hover,
+  .mel-waitlist-form__row .mel-btn--primary:hover,
+  .mel-linkbtn:hover {
+    transform: none;
+  }
+}
+
+/* —— Non-holding routes (privacy, confirm, admin-adjacent) —— */
+
+.mel-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.25rem clamp(1rem, 3vw, 2rem) 3rem;
+}
+
+.mel-page--inner {
+  padding-top: 2rem;
+}
+
+.mel-main--inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+}
+
+.mel-prose {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.mel-status {
+  padding: 2rem 0;
+}
+
+.mel-status__title {
+  margin-top: 0;
+}
+
+.mel-admin-waitlist table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mel-admin-waitlist th,
+.mel-admin-waitlist td {
+  border: 1px solid #ccc;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.mel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.1rem;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.mel-btn--primary {
+  color: #fff;
+  background: linear-gradient(120deg, var(--mel-brand-1), var(--mel-brand-2));
+  box-shadow: 0 10px 24px rgba(138, 125, 255, 0.35);
+}
+
+/* —— Contact pill (What’s next) + /contact page —— */
+
+.mel-pill-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 0;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--mel-brand-1), var(--mel-brand-2));
+  box-shadow: 0 14px 28px rgba(138, 125, 255, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mel-pill-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(138, 125, 255, 0.28);
+}
+
+.mel-pill-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--mel-ring), 0 14px 28px rgba(138, 125, 255, 0.22);
+}
+
+.mel-main--contact {
+  align-items: flex-start;
+  padding-top: 8px;
+}
+
+.mel-grid--contact {
+  width: 100%;
+  max-width: var(--mel-max);
+  margin: 0 auto;
+}
+
+.mel-contact-page {
+  padding: 22px 20px 24px;
+}
+
+.mel-contact-page__title {
+  margin: 0 0 8px 0;
+  font-size: clamp(22px, 3.5vw, 28px);
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  color: var(--mel-ink);
+}
+
+.mel-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.mel-contact-form__lead {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--mel-muted);
+}
+
+.mel-contact-form__intro {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mel-muted);
+}
+
+.mel-contact-form label {
+  font-size: 12px;
+  color: var(--mel-muted);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.mel-contact-form .form-item {
+  margin: 0;
+}
+
+.mel-contact-form__input,
+.mel-contact-form__textarea,
+.mel-contact-form input[type="text"],
+.mel-contact-form input[type="email"],
+.mel-contact-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 30, 42, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.mel-contact-form textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.mel-contact-form .form-actions {
+  margin-top: 4px;
+  padding: 0;
+}
+
+.mel-contact-form input[type="submit"] {
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--mel-brand-1), var(--mel-brand-2));
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(138, 125, 255, 0.22);
+}
+
+.mel-contact-form input[type="submit"]:hover {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-pill-cta:hover,
+  .mel-contact-form input[type="submit"]:hover {
+    transform: none;
+  }
+}

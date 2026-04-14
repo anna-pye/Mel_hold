@@ -1,0 +1,11 @@
+myeventlane_waitlist.export_task:
+  title: 'Export CSV'
+  route_name: myeventlane_waitlist.admin_export
+  base_route: myeventlane_waitlist.admin_dashboard
+  weight: 10
+
+myeventlane_waitlist.settings_task:
+  title: 'Settings'
+  route_name: myeventlane_waitlist.settings
+  base_route: myeventlane_waitlist.admin_dashboard
+  weight: 20

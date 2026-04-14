@@ -1,0 +1,104 @@
+myeventlane_waitlist.holding_home:
+  path: '/home'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\HoldingPageController::build'
+    _title: 'MyEventLane'
+  requirements:
+    _access: 'TRUE'
+
+myeventlane_waitlist.subscribe:
+  path: '/waitlist/subscribe'
+  defaults:
+    _form: '\Drupal\myeventlane_waitlist\Form\WaitlistSignupForm'
+    _title: 'Join the waitlist'
+  requirements:
+    _access: 'TRUE'
+
+myeventlane_waitlist.submit:
+  path: '/waitlist/submit'
+  defaults:
+    _form: '\Drupal\myeventlane_waitlist\Form\WaitlistSignupForm'
+    _title: 'Waitlist'
+  requirements:
+    _access: 'TRUE'
+
+myeventlane_waitlist.confirm:
+  path: '/waitlist/confirm/{token}'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::confirm'
+    _title: 'Confirm subscription'
+  requirements:
+    token: '.+'
+
+myeventlane_waitlist.unsubscribe:
+  path: '/waitlist/unsubscribe/{token}'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::unsubscribe'
+    _title: 'Unsubscribe'
+  requirements:
+    token: '.+'
+
+myeventlane_waitlist.page_confirmed:
+  path: '/waitlist/confirmed'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageConfirmed'
+    _title: 'You are on the list'
+
+myeventlane_waitlist.page_invalid:
+  path: '/waitlist/invalid'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageInvalid'
+    _title: 'Link not valid'
+
+myeventlane_waitlist.page_unsubscribed:
+  path: '/waitlist/unsubscribed'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageUnsubscribed'
+    _title: 'Unsubscribed'
+
+myeventlane_waitlist.admin_dashboard:
+  path: '/admin/myeventlane/waitlist'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistAdminController::dashboard'
+    _title: 'Waitlist'
+  requirements:
+    _permission: 'administer myeventlane waitlist'
+
+myeventlane_waitlist.admin_export:
+  path: '/admin/myeventlane/waitlist/export'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistExportController::export'
+    _title: 'Export waitlist'
+  requirements:
+    _permission: 'administer myeventlane waitlist'
+
+myeventlane_waitlist.settings:
+  path: '/admin/config/myeventlane/waitlist'
+  defaults:
+    _form: '\Drupal\myeventlane_waitlist\Form\WaitlistSettingsForm'
+    _title: 'Waitlist settings'
+  requirements:
+    _permission: 'administer myeventlane waitlist'
+
+myeventlane_waitlist.sitemap:
+  path: '/sitemap.xml'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\SitemapController::index'
+  requirements:
+    _access: 'TRUE'
+
+myeventlane_waitlist.privacy:
+  path: '/privacy'
+  defaults:
+    _controller: '\Drupal\myeventlane_waitlist\Controller\PrivacyController::page'
+    _title: 'Privacy'
+  requirements:
+    _access: 'TRUE'
+
+myeventlane_waitlist.contact:
+  path: '/contact'
+  defaults:
+    _form: '\Drupal\myeventlane_waitlist\Form\ContactForm'
+    _title: 'Contact MyEventLane'
+  requirements:
+    _access: 'TRUE'

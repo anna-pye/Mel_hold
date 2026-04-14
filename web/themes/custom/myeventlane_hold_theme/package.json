@@ -1,0 +1,6 @@
+{
+  "name": "myeventlane_hold_theme",
+  "private": true,
+  "description": "No npm build is required. Theme CSS ships in css/style.css. Optional: add sass and a build script to compile scss/style.scss later.",
+  "license": "GPL-2.0-or-later"
+}

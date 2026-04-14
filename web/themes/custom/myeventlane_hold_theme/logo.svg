@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" role="img" aria-labelledby="melLogoTitle">
+  <title id="melLogoTitle">MyEventLane</title>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6c8cff"/>
+      <stop offset="100%" style="stop-color:#b794f6"/>
+    </linearGradient>
+  </defs>
+  <text x="0" y="28" font-family="system-ui,Segoe UI,Roboto,sans-serif" font-size="22" font-weight="700" fill="url(#g)">MyEventLane</text>
+</svg>

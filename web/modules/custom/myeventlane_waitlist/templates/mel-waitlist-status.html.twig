@@ -1,0 +1,11 @@
+{#
+/**
+ * @file
+ * Status messages for waitlist confirmation flows.
+ */
+#}
+<article class="mel-status mel-status--{{ status|default('unknown') }}" role="status">
+  <h1 class="mel-status__title">{{ title_text }}</h1>
+  <p class="mel-status__message">{{ message_text }}</p>
+  <p class="mel-status__actions"><a href="/">{{ 'Back to home'|t }}</a></p>
+</article>

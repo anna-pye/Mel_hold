@@ -1,0 +1,8 @@
+sender_name: 'MyEventLane'
+sender_mail: 'hello@example.com'
+contact_mail: 'hello@example.com'
+consent_text: 'I agree to receive occasional updates about MyEventLane and understand I can unsubscribe at any time.'
+consent_version: '1'
+privacy_url: '/privacy'
+privacy_body: '<p>This holding site collects waitlist signups only. We process email addresses to send confirmations and product updates. We do not sell your data. For questions, contact the address shown on the home page.</p>'
+confirm_token_ttl: 86400

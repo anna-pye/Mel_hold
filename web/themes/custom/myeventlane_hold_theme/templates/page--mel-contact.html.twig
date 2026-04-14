@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Contact page — same shell as the holding page (brand header, card, footer).
+ */
+#}
+<a class="mel-skip" href="#main-content">{{ 'Skip to content'|t }}</a>
+<div class="mel-wrap">
+  <div class="mel-messages mel-messages--top" role="status" aria-live="polite">
+    {{ mel_messages }}
+  </div>
+
+  <header class="mel-header">
+    <div class="mel-topbar">
+      <a class="mel-brand" href="{{ path('<front>') }}" aria-label="{{ 'MyEventLane home'|t }}">
+        <div class="mel-logo-mark" aria-hidden="true"></div>
+        <div>
+          <div class="mel-brand-name">{{ 'MyEventLane'|t }}</div>
+          <span class="mel-brand-sub">{{ mel_brand_subtitle }}</span>
+        </div>
+      </a>
+
+      <div class="mel-pill" role="status" aria-live="polite">
+        <span class="mel-pill-dot" aria-hidden="true"></span>
+        {{ mel_hero_kicker }}
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="mel-main mel-main--contact" role="main">
+    <div class="mel-grid mel-grid--contact">
+      <section class="mel-card mel-contact-page" aria-labelledby="mel-contact-title">
+        {# Header region is unused in this theme’s page template; render the page title here. #}
+        <h1 id="mel-contact-title" class="mel-contact-page__title">{{ 'Contact MyEventLane'|t }}</h1>
+        {{ page.content }}
+      </section>
+    </div>
+  </main>
+
+  <footer class="mel-foot-wrap" role="contentinfo">
+    <div class="mel-foot">
+      <div>{{ mel_footer_left }}</div>
+      <div>{{ mel_footer_right }}</div>
+    </div>
+  </footer>
+</div>

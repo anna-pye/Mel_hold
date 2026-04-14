@@ -1,0 +1,14 @@
+{#
+/**
+ * @file
+ * Default page layout (non-front routes).
+ */
+#}
+<div class="mel-page mel-page--inner">
+  <div class="mel-messages" role="status" aria-live="polite">
+    {{ mel_messages }}
+  </div>
+  <main class="mel-main mel-main--inner" id="main-content" role="main">
+    {{ page.content }}
+  </main>
+</div>

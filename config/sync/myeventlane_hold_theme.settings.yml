@@ -1,0 +1,18 @@
+_core:
+  default_config_hash: 8pv5J9DVs2LH4tb66yOAEQysuF2HWh7l8YNWGtu73bw
+hero_kicker: 'In development'
+hero_title: 'Coming soon'
+hero_lead: 'We are building a calmer way to plan and run events — with thoughtful tools for hosts, vendors, and guests. Leave your email and we will let you know when MyEventLane opens.'
+meta_title: 'MyEventLane — Coming soon'
+meta_description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
+og_image_url: ''
+badges: |
+  Vendor-ready tools
+  Guest-friendly flows
+  Thoughtful defaults
+  Privacy-aware by design
+whats_next_intro: 'Questions? Tap Contact MyEventLane below. Follow progress on your favourite channels when we announce them.'
+whats_next: |
+  <p>Questions? Email us at <a href="mailto:hello@example.com">hello@example.com</a></p>
+  <p>Follow progress on your favourite channels when we announce them.</p>
+footer_note: '© MyEventLane. All rights reserved. This holding page is lightweight on purpose.'

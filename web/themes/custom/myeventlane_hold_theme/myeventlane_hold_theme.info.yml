@@ -1,0 +1,13 @@
+name: 'MyEventLane Hold'
+type: theme
+description: 'Holding page theme for MyEventLane (pastel glass layout).'
+core_version_requirement: '^11'
+base theme: stable9
+dependencies:
+  - myeventlane_waitlist
+libraries:
+  - myeventlane_hold_theme/global
+regions:
+  header: Header
+  content: Content
+  footer: Footer
