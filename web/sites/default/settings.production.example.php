@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-// Example: restrict hosts to your apex domain.
-// $settings['trusted_host_patterns'] = [
-//   '^example\.com$',
-//   '^www\.example\.com$',
-// ];
+// Restrict request hostnames (recommended on production).
+$settings['trusted_host_patterns'] = [
+  '^myeventlane\.com\.au$',
+  '^www\.myeventlane\.com\.au$',
+];
 
 // Ensure production mail transport is configured via hosting or Symfony Mailer.
