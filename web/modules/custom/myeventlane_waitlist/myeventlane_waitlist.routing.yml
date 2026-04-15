@@ -28,6 +28,7 @@ myeventlane_waitlist.confirm:
     _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::confirm'
     _title: 'Confirm subscription'
   requirements:
+    _access: 'TRUE'
     token: '.+'
 
 myeventlane_waitlist.unsubscribe:
@@ -36,6 +37,7 @@ myeventlane_waitlist.unsubscribe:
     _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::unsubscribe'
     _title: 'Unsubscribe'
   requirements:
+    _access: 'TRUE'
     token: '.+'
 
 myeventlane_waitlist.page_confirmed:
@@ -43,18 +45,24 @@ myeventlane_waitlist.page_confirmed:
   defaults:
     _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageConfirmed'
     _title: 'You are on the list'
+  requirements:
+    _access: 'TRUE'
 
 myeventlane_waitlist.page_invalid:
   path: '/waitlist/invalid'
   defaults:
     _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageInvalid'
     _title: 'Link not valid'
+  requirements:
+    _access: 'TRUE'
 
 myeventlane_waitlist.page_unsubscribed:
   path: '/waitlist/unsubscribed'
   defaults:
     _controller: '\Drupal\myeventlane_waitlist\Controller\WaitlistController::pageUnsubscribed'
     _title: 'Unsubscribed'
+  requirements:
+    _access: 'TRUE'
 
 myeventlane_waitlist.admin_dashboard:
   path: '/admin/myeventlane/waitlist'

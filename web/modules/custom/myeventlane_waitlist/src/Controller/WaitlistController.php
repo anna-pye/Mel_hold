@@ -47,9 +47,9 @@ final class WaitlistController extends ControllerBase {
   public function pageConfirmed(): array {
     return [
       '#theme' => 'mel_waitlist_status',
-      'status' => 'confirmed',
-      'title_text' => $this->t('You are on the list'),
-      'message_text' => $this->t('Your email is confirmed. We will share updates when MyEventLane is ready.'),
+      '#status' => 'confirmed',
+      '#title_text' => $this->t('You are on the list'),
+      '#message_text' => $this->t('Your email is confirmed. We will share updates when MyEventLane is ready.'),
       '#cache' => ['max-age' => 0],
     ];
   }
@@ -57,9 +57,9 @@ final class WaitlistController extends ControllerBase {
   public function pageInvalid(): array {
     return [
       '#theme' => 'mel_waitlist_status',
-      'status' => 'invalid',
-      'title_text' => $this->t('Link not valid'),
-      'message_text' => $this->t('This confirmation link is no longer valid. You can join again from the home page.'),
+      '#status' => 'invalid',
+      '#title_text' => $this->t('Link not valid'),
+      '#message_text' => $this->t('This confirmation link is no longer valid. You can join again from the home page.'),
       '#cache' => ['max-age' => 0],
     ];
   }
@@ -67,9 +67,9 @@ final class WaitlistController extends ControllerBase {
   public function pageUnsubscribed(): array {
     return [
       '#theme' => 'mel_waitlist_status',
-      'status' => 'unsubscribed',
-      'title_text' => $this->t('Unsubscribed'),
-      'message_text' => $this->t('You have been removed from the waitlist.'),
+      '#status' => 'unsubscribed',
+      '#title_text' => $this->t('Unsubscribed'),
+      '#message_text' => $this->t('You have been removed from the waitlist.'),
       '#cache' => ['max-age' => 0],
     ];
   }
