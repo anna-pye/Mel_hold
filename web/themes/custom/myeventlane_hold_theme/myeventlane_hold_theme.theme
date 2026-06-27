@@ -149,9 +149,9 @@ function myeventlane_hold_theme_preprocess_html(array &$variables): void {
 }
 
 /**
- * Implements hook_page_attachments().
+ * Implements hook_page_attachments_alter().
  */
-function myeventlane_hold_theme_page_attachments(array &$attachments): void {
+function myeventlane_hold_theme_page_attachments_alter(array &$attachments): void {
   /** @var \Drupal\Core\Site\Settings $siteSettings */
   $siteSettings = \Drupal::service('settings');
   $env = $siteSettings->get('mel.environment') ?: 'local';
@@ -250,6 +250,16 @@ function myeventlane_hold_theme_page_attachments(array &$attachments): void {
         ],
       ],
       'mel_og_image',
+    ];
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'twitter:image',
+          'content' => $og_image,
+        ],
+      ],
+      'mel_tw_image',
     ];
   }
 
