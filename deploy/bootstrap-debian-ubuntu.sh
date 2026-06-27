@@ -6,7 +6,7 @@
 # Before running:
 #   1. Point DNS A/AAAA for myeventlane.com.au (and www) to this host.
 #   2. Add your SSH public key so you can log in as mel (this script does not configure SSH).
-#   3. Review paths: PROJECT_PARENT defaults to /var/www/myeventlane_hold
+#   3. Review paths: PROJECT_PARENT defaults to /var/www/myeventlane
 #
 # After this script:
 #   - Copy deploy/production.env.example to /etc/myeventlane/production.env and fill secrets.
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-PROJECT_PARENT="${PROJECT_PARENT:-/var/www/myeventlane_hold}"
+PROJECT_PARENT="${PROJECT_PARENT:-/var/www/myeventlane}"
 DEPLOY_USER="${DEPLOY_USER:-mel}"
 
 if [[ "${EUID:-0}" -ne 0 ]]; then
@@ -114,7 +114,7 @@ usermod -aG www-data "${DEPLOY_USER}" || true
 
 echo "Nginx site (copy from repo if this file is missing)…"
 if [[ -f "${SCRIPT_DIR}/nginx-myeventlane.conf" ]]; then
-  sed "s|root /var/www/myeventlane_hold/web|root ${PROJECT_PARENT}/web|g" "${SCRIPT_DIR}/nginx-myeventlane.conf" > /etc/nginx/sites-available/myeventlane
+  sed "s|root /var/www/myeventlane/web|root ${PROJECT_PARENT}/web|g" "${SCRIPT_DIR}/nginx-myeventlane.conf" > /etc/nginx/sites-available/myeventlane
 else
   echo "Missing ${SCRIPT_DIR}/nginx-myeventlane.conf — copy deploy/nginx-myeventlane.conf manually." >&2
 fi
