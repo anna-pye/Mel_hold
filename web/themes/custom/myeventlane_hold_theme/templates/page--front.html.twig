@@ -12,13 +12,7 @@
 
   <header class="mel-header">
     <div class="mel-topbar">
-      <a class="mel-brand" href="{{ path('<front>') }}" aria-label="{{ 'MyEventLane home'|t }}">
-        <div class="mel-logo-mark" aria-hidden="true"></div>
-        <div>
-          <div class="mel-brand-name">{{ 'MyEventLane'|t }}</div>
-          <span class="mel-brand-sub">{{ mel_brand_subtitle }}</span>
-        </div>
-      </a>
+      {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
 
       <div class="mel-pill" role="status" aria-live="polite">
         <span class="mel-pill-dot" aria-hidden="true"></span>
@@ -32,10 +26,21 @@
       <section class="mel-card mel-hero" aria-labelledby="mel-hero-title">
         <div class="mel-sparkles" aria-hidden="true"></div>
 
-        <h1 id="mel-hero-title" class="mel-hero-title">
-          <span class="mel-gradient-text">{{ mel_hero_gradient }}</span><br />
-          {{ mel_hero_subheading }}
-        </h1>
+        <div class="mel-hero-heading">
+          <h1 id="mel-hero-title" class="mel-hero-title">
+            <span class="mel-gradient-text">{{ mel_hero_gradient }}</span><br />
+            {{ mel_hero_subheading }}
+          </h1>
+          <img
+            class="mel-hero-mascot"
+            src="{{ base_path }}{{ directory }}/images/mel-mascot-thinking.webp"
+            alt=""
+            width="110"
+            height="179"
+            decoding="async"
+            aria-hidden="true"
+          />
+        </div>
 
         <p class="mel-lead">{{ mel_hero_lead }}</p>
 

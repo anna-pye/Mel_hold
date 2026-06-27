@@ -27,6 +27,9 @@ fi
 
 cd "${ROOT}"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bash "${SCRIPT_DIR}/check-mel-environment.sh" "${ROOT}"
+
 composer install --no-dev --optimize-autoloader --no-interaction
 
 mkdir -p "${ROOT}/web/sites/default/files" "${ROOT}/private" "${ROOT}/config/sync"
