@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Fail deploy when mel.environment resolves to local (site would stay noindex).
-# Usage: bash deploy/check-mel-environment.sh [/path/to/myeventlane_hold]
+# Usage: bash deploy/check-mel-environment.sh [/path/to/myeventlane]
 #
 # Loads /etc/myeventlane/production.env when present (same as site-deploy.sh).
 #
@@ -10,7 +10,7 @@ set -euo pipefail
 
 ROOT="${1:-${PWD}}"
 if [[ ! -f "${ROOT}/composer.json" ]]; then
-  echo "Usage: $0 /path/to/myeventlane_hold (project root with composer.json)" >&2
+  echo "Usage: $0 /path/to/myeventlane (project root with composer.json)" >&2
   exit 1
 fi
 
