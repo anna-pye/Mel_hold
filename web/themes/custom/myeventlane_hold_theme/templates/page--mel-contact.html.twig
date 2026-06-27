@@ -12,13 +12,7 @@
 
   <header class="mel-header">
     <div class="mel-topbar">
-      <a class="mel-brand" href="{{ path('<front>') }}" aria-label="{{ 'MyEventLane home'|t }}">
-        <div class="mel-logo-mark" aria-hidden="true"></div>
-        <div>
-          <div class="mel-brand-name">{{ 'MyEventLane'|t }}</div>
-          <span class="mel-brand-sub">{{ mel_brand_subtitle }}</span>
-        </div>
-      </a>
+      {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
 
       <div class="mel-pill" role="status" aria-live="polite">
         <span class="mel-pill-dot" aria-hidden="true"></span>
