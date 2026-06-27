@@ -15,4 +15,7 @@ $settings['trusted_host_patterns'] = [
   '^www\.myeventlane\.com\.au$',
 ];
 
+// Page cache max-age (config/sync keeps 0 for local/dev; override on production).
+$config['system.performance']['cache']['page']['max_age'] = 3600;
+
 // Ensure production mail transport is configured via hosting or Symfony Mailer.
