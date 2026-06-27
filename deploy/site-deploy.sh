@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Deploy Drupal after code exists on the server (composer, permissions, install/import).
-# Usage: bash deploy/site-deploy.sh /var/www/myeventlane_hold
+# Usage: bash deploy/site-deploy.sh /var/www/myeventlane
 #
 # Requires /etc/myeventlane/production.env (see deploy/production.env.example).
 # Run as the deploy user (mel); may need sudo for chown where noted.
@@ -11,7 +11,7 @@ set -euo pipefail
 
 ROOT="${1:-${PWD}}"
 if [[ ! -f "${ROOT}/composer.json" ]]; then
-  echo "Usage: $0 /path/to/myeventlane_hold (project root with composer.json)" >&2
+  echo "Usage: $0 /path/to/myeventlane (project root with composer.json)" >&2
   exit 1
 fi
 
