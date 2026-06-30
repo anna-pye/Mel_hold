@@ -39,6 +39,9 @@ npm-debug.log*
 # Docker local overrides
 docker-compose.override.yml
 
+# Accidental nested DDEV path (overrides belong in .ddev/docker-compose.*.yaml)
+.ddev/.ddev/
+
 # Private runtime (outside web root)
 /private/*
 !/private/.gitkeep

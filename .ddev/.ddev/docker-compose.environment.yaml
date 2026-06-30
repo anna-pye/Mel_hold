@@ -1,4 +1,0 @@
-services:
-  web:
-    environment:
-      MEL_ENVIRONMENT: local
