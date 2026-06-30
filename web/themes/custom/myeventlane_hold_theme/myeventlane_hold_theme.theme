@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\myeventlane_waitlist\Form\WaitlistSignupForm;
 
 /**
@@ -141,28 +140,18 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
 function myeventlane_hold_theme_preprocess_html(array &$variables): void {
   $variables['attributes']['class'][] = 'mel-root';
   $variables['html_attributes']['lang'] = 'en-AU';
-
-  $meta_title = \Drupal::config('myeventlane_hold_theme.settings')->get('meta_title');
-  if (is_string($meta_title) && $meta_title !== '') {
-    $variables['head_title']['title'] = $meta_title;
-  }
 }
 
 /**
  * Implements hook_page_attachments_alter().
+ *
+ * Environment-based robots and theme-color remain theme-owned; all other SEO
+ * tags are emitted by Metatag (Configuration → Search and Metadata → Metatag).
  */
 function myeventlane_hold_theme_page_attachments_alter(array &$attachments): void {
   /** @var \Drupal\Core\Site\Settings $siteSettings */
   $siteSettings = \Drupal::service('settings');
-  $env = $siteSettings->get('mel.environment') ?: 'local';
-
-  $request = \Drupal::request();
-  $canonical = $request->getSchemeAndHttpHost() . $request->getBasePath() . $request->getPathInfo();
-
-  $theme = \Drupal::config('myeventlane_hold_theme.settings');
-  $title = $theme->get('meta_title') ?: 'MyEventLane — Coming soon';
-  $description = $theme->get('meta_description') ?: 'MyEventLane is almost here. Join the waitlist for launch updates.';
-  $og_image = $theme->get('og_image_url');
+  $env = (string) ($siteSettings->get('mel.environment') ?: 'local');
 
   $attachments['#attached']['html_head'][] = [
     [
@@ -175,136 +164,19 @@ function myeventlane_hold_theme_page_attachments_alter(array &$attachments): voi
     'mel_theme_color',
   ];
 
-  if ($env === 'local') {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'name' => 'robots',
-          'content' => 'noindex, nofollow',
-        ],
-      ],
-      'mel_robots_local',
-    ];
-  }
-  else {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'name' => 'robots',
-          'content' => 'index, follow',
-        ],
-      ],
-      'mel_robots_prod',
-    ];
-  }
-
-  $attachments['#attached']['html_head'][] = [
-    [
-      '#tag' => 'link',
-      '#attributes' => [
-        'rel' => 'canonical',
-        'href' => $canonical,
-      ],
-    ],
-    'mel_canonical',
-  ];
-
+  $indexable_environments = ['production'];
+  $robots_content = in_array($env, $indexable_environments, TRUE)
+    ? 'index, follow'
+    : 'noindex, nofollow';
   $attachments['#attached']['html_head'][] = [
     [
       '#tag' => 'meta',
       '#attributes' => [
-        'name' => 'description',
-        'content' => $description,
+        'name' => 'robots',
+        'content' => $robots_content,
       ],
     ],
-    'mel_meta_desc',
-  ];
-
-  foreach ([
-    ['property' => 'og:title', 'content' => $title],
-    ['property' => 'og:description', 'content' => $description],
-    ['property' => 'og:type', 'content' => 'website'],
-    ['property' => 'og:url', 'content' => $canonical],
-  ] as $og) {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'property' => $og['property'],
-          'content' => $og['content'],
-        ],
-      ],
-      'mel_og_' . preg_replace('/[^a-z0-9]+/i', '_', $og['property']),
-    ];
-  }
-
-  if (is_string($og_image) && $og_image !== '') {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'property' => 'og:image',
-          'content' => $og_image,
-        ],
-      ],
-      'mel_og_image',
-    ];
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'name' => 'twitter:image',
-          'content' => $og_image,
-        ],
-      ],
-      'mel_tw_image',
-    ];
-  }
-
-  foreach ([
-    ['name' => 'twitter:card', 'content' => 'summary_large_image'],
-    ['name' => 'twitter:title', 'content' => $title],
-    ['name' => 'twitter:description', 'content' => $description],
-  ] as $tw) {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'meta',
-        '#attributes' => [
-          'name' => $tw['name'],
-          'content' => $tw['content'],
-        ],
-      ],
-      'mel_tw_' . preg_replace('/[^a-z0-9]+/i', '_', $tw['name']),
-    ];
-  }
-
-  $front = Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString();
-  $json = [
-    '@context' => 'https://schema.org',
-    '@graph' => [
-      [
-        '@type' => 'Organization',
-        'name' => 'MyEventLane',
-        'url' => $front,
-      ],
-      [
-        '@type' => 'WebSite',
-        'name' => 'MyEventLane',
-        'url' => $front,
-      ],
-    ],
-  ];
-
-  $attachments['#attached']['html_head'][] = [
-    [
-      '#type' => 'html_tag',
-      '#tag' => 'script',
-      '#attributes' => ['type' => 'application/ld+json'],
-      '#value' => json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
-    ],
-    'mel_jsonld',
+    'mel_robots',
   ];
 }
 
@@ -347,21 +219,6 @@ function myeventlane_hold_theme_form_system_theme_settings_alter(array &$form, F
     '#type' => 'textarea',
     '#title' => t('Supporting lead paragraph'),
     '#default_value' => $theme->get('hero_lead'),
-  ];
-  $form['mel']['meta_title'] = [
-    '#type' => 'textfield',
-    '#title' => t('Meta title'),
-    '#default_value' => $theme->get('meta_title'),
-  ];
-  $form['mel']['meta_description'] = [
-    '#type' => 'textarea',
-    '#title' => t('Meta description'),
-    '#default_value' => $theme->get('meta_description'),
-  ];
-  $form['mel']['og_image_url'] = [
-    '#type' => 'url',
-    '#title' => t('Open Graph image URL (absolute)'),
-    '#default_value' => $theme->get('og_image_url'),
   ];
   $form['mel']['badges'] = [
     '#type' => 'textarea',
@@ -427,9 +284,6 @@ function myeventlane_hold_theme_settings_submit(array &$form, FormStateInterface
     ->set('hero_gradient', $form_state->getValue('hero_gradient'))
     ->set('hero_subheading', $form_state->getValue('hero_subheading'))
     ->set('hero_lead', $form_state->getValue('hero_lead'))
-    ->set('meta_title', $form_state->getValue('meta_title'))
-    ->set('meta_description', $form_state->getValue('meta_description'))
-    ->set('og_image_url', $form_state->getValue('og_image_url'))
     ->set('badges', $form_state->getValue('badges'))
     ->set('waitlist_intro', $form_state->getValue('waitlist_intro'))
     ->set('waitlist_fineprint', $form_state->getValue('waitlist_fineprint'))
