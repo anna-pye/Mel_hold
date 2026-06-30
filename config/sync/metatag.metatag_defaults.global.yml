@@ -1,0 +1,25 @@
+uuid: 42a2b932-5dab-416c-94e0-87811a1624dd
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: sL588ui1E_8-2c_UupwyYxcqX2OVyMFp3HTLbbFqvPc
+id: global
+label: Global
+tags:
+  canonical_url: '[current-page:url]'
+  description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
+  og_description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
+  og_title: 'MyEventLane — Coming soon'
+  og_type: website
+  og_url: '[current-page:url:absolute]'
+  schema_organization_name: MyEventLane
+  schema_organization_type: Organization
+  schema_organization_url: '[site:url]'
+  schema_web_site_name: MyEventLane
+  schema_web_site_type: WebSite
+  schema_web_site_url: '[site:url]'
+  title: 'My EventLane — Coming Soon'
+  twitter_cards_description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
+  twitter_cards_title: 'MyEventLane — Coming soon'
+  twitter_cards_type: summary_large_image

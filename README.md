@@ -80,7 +80,8 @@ On a **minimal** Drupal profile, core’s `<front>` route (`/`) has no main cont
 ## Configuration
 
 - **Waitlist:** `/admin/config/myeventlane/waitlist` — sender, consent text, privacy body, token TTL, contact email.
-- **Theme copy / SEO fields:** Appearance → Settings for **MyEventLane Hold** (meta title/description, hero text, badges).
+- **Theme copy:** Appearance → Settings for **MyEventLane Hold** (hero text, badges, footer, social links).
+- **SEO (title, description, canonical, Open Graph, Twitter, schema):** Configuration → Search and Metadata → Metatag (Global and Front page defaults).
 - **Production:** copy `web/sites/default/settings.production.example.php` to `settings.production.php` (gitignored) and set trusted hosts, mail transport, and environment variables on the host.
 
 ## Environment variables (reference)
