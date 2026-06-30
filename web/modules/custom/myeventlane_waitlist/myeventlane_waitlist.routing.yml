@@ -88,13 +88,6 @@ myeventlane_waitlist.settings:
   requirements:
     _permission: 'administer myeventlane waitlist'
 
-myeventlane_waitlist.sitemap:
-  path: '/sitemap.xml'
-  defaults:
-    _controller: '\Drupal\myeventlane_waitlist\Controller\SitemapController::index'
-  requirements:
-    _access: 'TRUE'
-
 myeventlane_waitlist.privacy:
   path: '/privacy'
   defaults:
