@@ -10,26 +10,23 @@
 set -euo pipefail
 
 ROOT="${1:-${PWD}}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deploy-common.sh
+source "${SCRIPT_DIR}/deploy-common.sh"
+
 if [[ ! -f "${ROOT}/composer.json" ]]; then
   echo "Usage: $0 /path/to/myeventlane (project root with composer.json)" >&2
   exit 1
 fi
 
-ENV_FILE="/etc/myeventlane/production.env"
-if [[ -f "${ENV_FILE}" ]]; then
-  set -a
-  # shellcheck source=/dev/null
-  . "${ENV_FILE}"
-  set +a
-else
-  echo "Warning: ${ENV_FILE} not found. Export DRUPAL_* and secrets before Drush." >&2
-fi
+mel_assert_not_staging_path "${ROOT}"
+
+echo "==> [Environment] validating production variables"
+bash "${SCRIPT_DIR}/check-mel-environment.sh" "${ROOT}"
 
 cd "${ROOT}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash "${SCRIPT_DIR}/check-mel-environment.sh" "${ROOT}"
-
+echo "==> [Composer] install (production)"
 composer install --no-dev --optimize-autoloader --no-interaction
 
 mkdir -p "${ROOT}/web/sites/default/files" "${ROOT}/private" "${ROOT}/config/sync"
@@ -38,27 +35,30 @@ chmod 775 "${ROOT}/web/sites/default/files" "${ROOT}/private" || true
 if [[ ! -f "${ROOT}/web/sites/default/settings.production.php" ]]; then
   if [[ -f "${ROOT}/web/sites/default/settings.production.example.php" ]]; then
     cp "${ROOT}/web/sites/default/settings.production.example.php" "${ROOT}/web/sites/default/settings.production.php"
-    echo "Created settings.production.php from example — review trusted_host_patterns."
+    echo "==> [Drupal] created settings.production.php from example — review trusted_host_patterns"
   fi
-fi
-
-if [[ -z "${DRUPAL_HASH_SALT:-}" || -z "${WAITLIST_TOKEN_SECRET:-}" ]]; then
-  echo "Set DRUPAL_HASH_SALT and WAITLIST_TOKEN_SECRET in ${ENV_FILE} before install." >&2
-  exit 1
 fi
 
 DRUSH=(php -d memory_limit=512M "${ROOT}/vendor/bin/drush")
 
 if "${DRUSH[@]}" status 2>/dev/null | grep -q 'Successful'; then
-  echo "Site already bootstrapped; importing config and clearing caches."
+  echo "==> [Drupal] site bootstrapped; running updates"
   "${DRUSH[@]}" updatedb -y
+  echo "==> [Config import] configuration import"
   "${DRUSH[@]}" cim -y || true
+  echo "==> [Cache rebuild] clearing caches"
   "${DRUSH[@]}" cr
+  if [[ "${MEL_DEPLOY_SKIP_VERIFY:-0}" != "1" ]]; then
+    bash "${SCRIPT_DIR}/post-deploy-verify.sh" "${ROOT}"
+  else
+    echo "==> [Verification] skipped (MEL_DEPLOY_SKIP_VERIFY=1)"
+  fi
+  echo "==> [Success] site-deploy complete"
   exit 0
 fi
 
 ADMIN_PASS="${DRUSH_ACCOUNT_PASS:-$(openssl rand -base64 16)}"
-echo "Installing Drupal with config from config/sync (standard profile + existing config)…"
+echo "==> [Drupal] installing with config from config/sync"
 "${DRUSH[@]}" site:install standard \
   --yes \
   --account-name="${DRUSH_ACCOUNT_NAME:-admin}" \
@@ -68,12 +68,17 @@ echo "Installing Drupal with config from config/sync (standard profile + existin
   --site-name="${DRUSH_SITE_NAME:-MyEventLane}" \
   --existing-config
 
+echo "==> [Cache rebuild] clearing caches"
 "${DRUSH[@]}" cr
+
+if [[ "${MEL_DEPLOY_SKIP_VERIFY:-0}" != "1" ]]; then
+  bash "${SCRIPT_DIR}/post-deploy-verify.sh" "${ROOT}"
+else
+  echo "==> [Verification] skipped (MEL_DEPLOY_SKIP_VERIFY=1)"
+fi
 
 echo ""
 echo "Drupal admin one-time password (store in a vault; change after login): ${ADMIN_PASS}"
-echo ""
-
 echo ""
 echo "If the front page is not the holding home, set:"
 echo "  ./vendor/bin/drush config:set system.site page.front home -y"
@@ -82,3 +87,4 @@ echo ""
 echo "Set file ownership for web server (adjust user/group):"
 echo "  sudo chown -R mel:www-data web/sites/default/files private"
 echo ""
+echo "==> [Success] site-deploy complete"
