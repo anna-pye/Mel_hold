@@ -16,13 +16,6 @@ myeventlane_hold_theme.settings:
       label: 'Legacy single headline (fallback if hero_gradient empty)'
     hero_lead:
       type: text
-    meta_title:
-      type: label
-    meta_description:
-      type: text
-    og_image_url:
-      type: string
-      label: 'OG image URL'
     badges:
       type: text
     waitlist_intro:
