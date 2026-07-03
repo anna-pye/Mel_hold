@@ -63,6 +63,13 @@ AddType image/webp .webp
 <IfModule mod_rewrite.c>
   RewriteEngine on
 
+  # Stop unsupported scanner/WebDAV methods before Drupal bootstraps.
+  RewriteCond %{REQUEST_METHOD} !^(GET|HEAD|POST)$
+  RewriteRule ^ - [R=405,L]
+
+  # Block common root-level PHP scanner probes before Drupal logs them.
+  RewriteRule ^settings\.php$ - [R=404,L]
+
   # Set "protossl" to "s" if we were accessed via https://.  This is used later
   # if you enable "www." stripping or enforcement, in order to ensure that
   # you don't bounce between http and https.
