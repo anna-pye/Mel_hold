@@ -48,3 +48,4 @@ docker-compose.override.yml
 
 # Optional local tooling
 .tool-versions
+etc/myeventlane/*.env
