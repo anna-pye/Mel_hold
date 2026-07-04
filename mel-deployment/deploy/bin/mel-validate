@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)" || exit 70
+lib_dir="${script_dir}/../lib"
+
+# shellcheck source=deploy/lib/common.sh
+. "${lib_dir}/common.sh"
+# shellcheck source=deploy/lib/errors.sh
+. "${lib_dir}/errors.sh"
+# shellcheck source=deploy/lib/manifest.sh
+. "${lib_dir}/manifest.sh"
+
+usage() {
+  cat <<'EOF'
+Usage: mel-validate [--format text|json] [--schema PATH] MANIFEST...
+
+Validate deployment manifest files against the local schema.
+
+Options:
+  --format text|json  Output format. Defaults to text.
+  --schema PATH       Schema path. Defaults to schemas/deployment-manifest.schema.json.
+  --help              Show this help text.
+  --version           Show command version.
+EOF
+}
+
+format="${MEL_OUTPUT_FORMAT:-text}"
+schema_path=""
+manifests=()
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --format)
+      if [[ "$#" -lt 2 ]]; then
+        mel_error_emit "${MEL_EXIT_USAGE}" "usage" "--format requires a value." "${format}"
+        exit $?
+      fi
+      format="$2"
+      shift 2
+      ;;
+    --schema)
+      if [[ "$#" -lt 2 ]]; then
+        mel_error_emit "${MEL_EXIT_USAGE}" "usage" "--schema requires a path." "${format}"
+        exit $?
+      fi
+      schema_path="$2"
+      shift 2
+      ;;
+    --help)
+      usage
+      exit "${MEL_EXIT_OK}"
+      ;;
+    --version)
+      mel_version
+      exit "${MEL_EXIT_OK}"
+      ;;
+    --*)
+      mel_error_emit "${MEL_EXIT_USAGE}" "usage" "Unknown option: $1" "${format}"
+      exit $?
+      ;;
+    *)
+      manifests+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if ! mel_is_supported_output_format "${format}"; then
+  mel_error_emit "${MEL_EXIT_USAGE}" "usage" "Unsupported output format: ${format}" "text"
+  exit $?
+fi
+
+if [[ -z "${schema_path}" ]]; then
+  schema_path="$(mel_schema_default_path)" || exit $?
+fi
+
+mel_manifest_validate_files "${schema_path}" "${format}" "${manifests[@]}"
+exit $?

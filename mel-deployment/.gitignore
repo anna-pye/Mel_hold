@@ -1,0 +1,27 @@
+.DS_Store
+Thumbs.db
+
+# Local environment and secret material must never be committed.
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Local tool output.
+.idea/
+.vscode/
+*.log
+tmp/
+temp/
+
+# Dependency and build output should belong to application repositories,
+# not this deployment documentation repository.
+vendor/
+node_modules/
+dist/
+build/
