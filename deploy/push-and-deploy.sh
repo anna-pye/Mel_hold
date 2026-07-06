@@ -27,6 +27,8 @@
 
 set -euo pipefail
 
+SSH_OPTS="-i ${HOME}/.ssh/mel_deploy_key -o BatchMode=yes"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # shellcheck source=deploy-common.sh
@@ -41,7 +43,7 @@ fi
 
 BRANCH="${MEL_DEPLOY_BRANCH:-main}"
 REMOTE="${MEL_GIT_REMOTE:-origin}"
-SSH_USER="${MEL_SSH_USER:-${MEL_DEPLOY_USER:-root}}"
+SSH_USER="${MEL_SSH_USER:-${MEL_DEPLOY_USER:-mel}}"
 RUN_AS="${MEL_DEPLOY_RUN_AS:-mel}"
 DEPLOY_PATH="${MEL_DEPLOY_PATH:-/home/mel}"
 DEPLOY_METHOD="${MEL_DEPLOY_METHOD:-rsync}"
@@ -80,23 +82,32 @@ else
   echo "==> [Fetching] skipping git push (MEL_DEPLOY_SKIP_PUSH=1)"
 fi
 
-if [[ "${SSH_USER}" == "${RUN_AS}" ]]; then
-  RUNNER=(bash -s)
-else
-  echo "==> [Deploying] SSH as ${SSH_USER}, remote commands as ${RUN_AS}"
+echo "==> [Deploying] SSH as ${SSH_USER}, remote commands as ${RUN_AS}"
+
+# If connected as root, execute deployment as the target user.
+# Otherwise (for example, SSHing directly as mel), run normally.
+if [[ "${SSH_USER}" == "root" && "${RUN_AS}" != "root" ]]; then
   RUNNER=(sudo -u "${RUN_AS}" bash -s)
+else
+  RUNNER=(bash -s)
 fi
 
 if [[ "${DEPLOY_METHOD}" == "rsync" ]]; then
   echo "==> [Deploying] rsync ${BRANCH} to ${SSH_TARGET}:${DEPLOY_PATH} (rsync mode)"
   rsync -avz --delete --no-owner --no-group \
     --exclude-from="${SCRIPT_DIR}/rsync-exclude.txt" \
-    -e "ssh -o BatchMode=yes" \
+    -e "ssh ${SSH_OPTS}" \
     "${ROOT}/" "${SSH_TARGET}:${DEPLOY_PATH}/"
+
+  # Only root can change ownership. Skip this step when deploying as mel.
+if [[ "${SSH_USER}" == "root" ]]; then
   echo "==> [Deploying] fixing ownership for ${RUN_AS}"
-  ssh -o BatchMode=yes "${SSH_TARGET}" "chown -R ${RUN_AS}:${RUN_AS} '${DEPLOY_PATH}'"
+  ssh ${SSH_OPTS} "${SSH_TARGET}" \
+    "chown -R ${RUN_AS}:${RUN_AS} '${DEPLOY_PATH}'"
+fi
+
   echo "==> [Deploying] running post-deploy on server"
-  ssh -o BatchMode=yes "${SSH_TARGET}" "${RUNNER[@]}" -- "${DEPLOY_PATH}" "${SKIP_VERIFY}" <<'REMOTE_SCRIPT'
+  ssh ${SSH_OPTS} "${SSH_TARGET}" "${RUNNER[@]}" -- "${DEPLOY_PATH}" "${SKIP_VERIFY}" <<'REMOTE_SCRIPT'
 set -euo pipefail
 DEPLOY_PATH="$1"
 SKIP_VERIFY="$2"
@@ -106,7 +117,7 @@ bash deploy/cpanel-post-deploy.sh "${DEPLOY_PATH}"
 REMOTE_SCRIPT
 elif [[ "${DEPLOY_METHOD}" == "git" ]]; then
   echo "==> [Deploying] git pull on ${SSH_TARGET}:${DEPLOY_PATH} (git mode)"
-  ssh -o BatchMode=yes "${SSH_TARGET}" "${RUNNER[@]}" -- "${DEPLOY_PATH}" "${BRANCH}" "${SKIP_VERIFY}" <<'REMOTE_SCRIPT'
+  ssh ${SSH_OPTS} "${SSH_TARGET}" "${RUNNER[@]}" -- "${DEPLOY_PATH}" "${BRANCH}" "${SKIP_VERIFY}" <<'REMOTE_SCRIPT'
 set -euo pipefail
 DEPLOY_PATH="$1"
 BRANCH="$2"
