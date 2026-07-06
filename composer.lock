@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ca7ffb9e748b39adf78884aee7bbe74",
+    "content-hash": "69eda3083769909d9dc2816c213554b8",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -752,24 +752,24 @@
         },
         {
             "name": "consolidation/site-process",
-            "version": "5.4.2",
+            "version": "6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/consolidation/site-process.git",
-                "reference": "e7fafc40ebfddc1a5ee99ee66e5d186fc1bed4da"
+                "reference": "4a7438fac393b5127b6a032aa4f593ec917dfab7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/consolidation/site-process/zipball/e7fafc40ebfddc1a5ee99ee66e5d186fc1bed4da",
-                "reference": "e7fafc40ebfddc1a5ee99ee66e5d186fc1bed4da",
+                "url": "https://api.github.com/repos/consolidation/site-process/zipball/4a7438fac393b5127b6a032aa4f593ec917dfab7",
+                "reference": "4a7438fac393b5127b6a032aa4f593ec917dfab7",
                 "shasum": ""
             },
             "require": {
                 "consolidation/config": "^2 || ^3",
                 "consolidation/site-alias": "^3 || ^4",
-                "php": ">=8.0.14",
-                "symfony/console": "^5.4 || ^6 || ^7",
-                "symfony/process": "^6 || ^7"
+                "php": ">=8.2",
+                "symfony/console": "^5.4 || ^6 || ^7 || ^8",
+                "symfony/process": "^5 || ^6 || ^7 || ^8"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9",
@@ -803,9 +803,9 @@
             "description": "A thin wrapper around the Symfony Process Component that allows applications to use the Site Alias library to specify the target for a remote call.",
             "support": {
                 "issues": "https://github.com/consolidation/site-process/issues",
-                "source": "https://github.com/consolidation/site-process/tree/5.4.2"
+                "source": "https://github.com/consolidation/site-process/tree/6.1.0"
             },
-            "time": "2024-12-13T19:25:56+00:00"
+            "time": "2026-06-07T03:26:06+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -1590,6 +1590,86 @@
             ]
         },
         {
+            "name": "drupal/mailsystem",
+            "version": "4.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/mailsystem.git",
+                "reference": "8.x-4.5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/mailsystem-8.x-4.5.zip",
+                "reference": "8.x-4.5",
+                "shasum": "e52a814a87b343ab69f8d8ef462a9873c1d01158"
+            },
+            "require": {
+                "drupal/core": "^9 || ^10.1 || ^11"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "8.x-4.5",
+                    "datestamp": "1723379369",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "berdir",
+                    "homepage": "https://www.drupal.org/user/214652"
+                },
+                {
+                    "name": "emartoni",
+                    "homepage": "https://www.drupal.org/user/3225331"
+                },
+                {
+                    "name": "joseph.olstad",
+                    "homepage": "https://www.drupal.org/user/1321830"
+                },
+                {
+                    "name": "les lim",
+                    "homepage": "https://www.drupal.org/user/84263"
+                },
+                {
+                    "name": "manuel garcia",
+                    "homepage": "https://www.drupal.org/user/213194"
+                },
+                {
+                    "name": "miro_dietiker",
+                    "homepage": "https://www.drupal.org/user/227761"
+                },
+                {
+                    "name": "Nafes",
+                    "homepage": "https://www.drupal.org/user/2489926"
+                },
+                {
+                    "name": "pillarsdotnet",
+                    "homepage": "https://www.drupal.org/user/36148"
+                },
+                {
+                    "name": "renatog",
+                    "homepage": "https://www.drupal.org/user/3326031"
+                },
+                {
+                    "name": "tr",
+                    "homepage": "https://www.drupal.org/user/202830"
+                }
+            ],
+            "description": "Mail System",
+            "homepage": "https://www.drupal.org/project/mailsystem",
+            "support": {
+                "source": "https://git.drupalcode.org/project/mailsystem"
+            }
+        },
+        {
             "name": "drupal/metatag",
             "version": "2.2.0",
             "source": {
@@ -1661,21 +1741,74 @@
             }
         },
         {
-            "name": "drupal/pathauto",
-            "version": "1.14.0",
+            "name": "drupal/mimemail",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
-                "url": "https://git.drupalcode.org/project/pathauto.git",
-                "reference": "8.x-1.14"
+                "url": "https://git.drupalcode.org/project/mimemail.git",
+                "reference": "2.0.3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/pathauto-8.x-1.14.zip",
-                "reference": "8.x-1.14",
-                "shasum": "07f0d2efcf0bfb450e2ab69a43921fa39dc5f25b"
+                "url": "https://ftp.drupal.org/files/projects/mimemail-2.0.3.zip",
+                "reference": "2.0.3",
+                "shasum": "133e81946ec4815451eb25794fd9256d9c5c226a"
             },
             "require": {
-                "drupal/core": "^10 || ^11",
+                "drupal/core": "^10.3 || ^11 || ^12",
+                "drupal/mailsystem": "^4"
+            },
+            "require-dev": {
+                "drupal/rules": "^4.0"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "drupal": {
+                    "version": "2.0.3",
+                    "datestamp": "1782504338",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "mark_fullmer",
+                    "homepage": "https://www.drupal.org/user/2612816"
+                },
+                {
+                    "name": "tr",
+                    "homepage": "https://www.drupal.org/user/202830"
+                }
+            ],
+            "description": "Sends MIME-encoded emails with embedded images and attachments.",
+            "homepage": "https://www.drupal.org/project/mimemail",
+            "support": {
+                "source": "https://git.drupalcode.org/project/mimemail",
+                "issues": "https://www.drupal.org/project/issues/mimemail"
+            }
+        },
+        {
+            "name": "drupal/pathauto",
+            "version": "1.15.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/pathauto.git",
+                "reference": "8.x-1.15"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/pathauto-8.x-1.15.zip",
+                "reference": "8.x-1.15",
+                "shasum": "de86fb2c00bb78a449ea5ae2249a5eb96367f05c"
+            },
+            "require": {
+                "drupal/core": "^10.2 || ^11",
                 "drupal/ctools": "*",
                 "drupal/token": "*"
             },
@@ -1691,8 +1824,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.14",
-                    "datestamp": "1759838097",
+                    "version": "8.x-1.15",
+                    "datestamp": "1778049296",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -1739,17 +1872,17 @@
         },
         {
             "name": "drupal/redirect",
-            "version": "1.12.0",
+            "version": "1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/redirect.git",
-                "reference": "8.x-1.12"
+                "reference": "8.x-1.13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/redirect-8.x-1.12.zip",
-                "reference": "8.x-1.12",
-                "shasum": "1cdee11356a25b9f9a10329aec0eeb293e0023de"
+                "url": "https://ftp.drupal.org/files/projects/redirect-8.x-1.13.zip",
+                "reference": "8.x-1.13",
+                "shasum": "57185d3b9d9e2a549584b903eab838aeaa72a218"
             },
             "require": {
                 "drupal/core": "^10 || ^11"
@@ -1757,8 +1890,8 @@
             "type": "drupal-module",
             "extra": {
                 "drupal": {
-                    "version": "8.x-1.12",
-                    "datestamp": "1756419163",
+                    "version": "8.x-1.13",
+                    "datestamp": "1777006978",
                     "security-coverage": {
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
@@ -2000,16 +2133,16 @@
         },
         {
             "name": "drush/drush",
-            "version": "13.7.2",
+            "version": "13.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drush-ops/drush.git",
-                "reference": "670c5f81b3f525b3f08263f038c7f07558f2580d"
+                "reference": "90123a96db5a4d2e0faa97242eef69785aa0e67d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drush-ops/drush/zipball/670c5f81b3f525b3f08263f038c7f07558f2580d",
-                "reference": "670c5f81b3f525b3f08263f038c7f07558f2580d",
+                "url": "https://api.github.com/repos/drush-ops/drush/zipball/90123a96db5a4d2e0faa97242eef69785aa0e67d",
+                "reference": "90123a96db5a4d2e0faa97242eef69785aa0e67d",
                 "shasum": ""
             },
             "require": {
@@ -2022,7 +2155,7 @@
                 "consolidation/output-formatters": "^4.6.1",
                 "consolidation/robo": "^4.0.6 || ^5.1.0",
                 "consolidation/site-alias": "^4.1.1",
-                "consolidation/site-process": "^5.4.2",
+                "consolidation/site-process": "^5.4.2 || ^6.1",
                 "dflydev/dot-access-data": "^3.0.2",
                 "ext-dom": "*",
                 "grasmash/yaml-cli": "^3.2",
@@ -2038,7 +2171,7 @@
                 "symfony/yaml": "^6.0 || ^7"
             },
             "conflict": {
-                "drupal/core": "< 10.4",
+                "drupal/core": "<10.4 <12.0",
                 "drupal/migrate_run": "*",
                 "drupal/migrate_tools": "<= 5"
             },
@@ -2137,7 +2270,7 @@
                 "issues": "https://github.com/drush-ops/drush/issues",
                 "security": "https://github.com/drush-ops/drush/security/advisories",
                 "slack": "https://drupal.slack.com/messages/C62H9CWQM",
-                "source": "https://github.com/drush-ops/drush/tree/13.7.2"
+                "source": "https://github.com/drush-ops/drush/tree/13.7.4"
             },
             "funding": [
                 {
@@ -2145,7 +2278,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-20T19:18:11+00:00"
+            "time": "2026-06-15T20:22:19+00:00"
         },
         {
             "name": "egulias/email-validator",
@@ -2730,16 +2863,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.16",
+            "version": "v0.3.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "11e7d5f93803a2190b00e145142cb00a33d17ad2"
+                "reference": "7753c65c281c2550c7c183f14e18062073b7d821"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/11e7d5f93803a2190b00e145142cb00a33d17ad2",
-                "reference": "11e7d5f93803a2190b00e145142cb00a33d17ad2",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/7753c65c281c2550c7c183f14e18062073b7d821",
+                "reference": "7753c65c281c2550c7c183f14e18062073b7d821",
                 "shasum": ""
             },
             "require": {
@@ -2783,9 +2916,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.16"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.21"
             },
-            "time": "2026-03-23T14:35:33+00:00"
+            "time": "2026-06-26T00:11:25+00:00"
         },
         {
             "name": "league/container",
@@ -3060,20 +3193,19 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.7.0",
+            "version": "v5.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "dca41cd15c2ac9d055ad70dbfd011130757d1f82"
+                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/dca41cd15c2ac9d055ad70dbfd011130757d1f82",
-                "reference": "dca41cd15c2ac9d055ad70dbfd011130757d1f82",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
+                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
                 "shasum": ""
             },
             "require": {
-                "ext-ctype": "*",
                 "ext-json": "*",
                 "ext-tokenizer": "*",
                 "php": ">=7.4"
@@ -3112,9 +3244,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.7.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.8.0"
             },
-            "time": "2025-12-06T11:56:16+00:00"
+            "time": "2026-07-04T14:30:18+00:00"
         },
         {
             "name": "pear/archive_tar",
@@ -3889,16 +4021,16 @@
         },
         {
             "name": "psy/psysh",
-            "version": "v0.12.22",
+            "version": "v0.12.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bobthecow/psysh.git",
-                "reference": "3be75d5b9244936dd4ac62ade2bfb004d13acf0f"
+                "reference": "ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/3be75d5b9244936dd4ac62ade2bfb004d13acf0f",
-                "reference": "3be75d5b9244936dd4ac62ade2bfb004d13acf0f",
+                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1",
+                "reference": "ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1",
                 "shasum": ""
             },
             "require": {
@@ -3962,9 +4094,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bobthecow/psysh/issues",
-                "source": "https://github.com/bobthecow/psysh/tree/v0.12.22"
+                "source": "https://github.com/bobthecow/psysh/tree/v0.12.24"
             },
-            "time": "2026-03-22T23:03:24+00:00"
+            "time": "2026-06-29T15:41:09+00:00"
         },
         {
             "name": "ralouphie/getallheaders",

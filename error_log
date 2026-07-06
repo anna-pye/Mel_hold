@@ -1,0 +1,15 @@
+[06-Jul-2026 10:14:09 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "Drupal\user\Hook\UserHooks" does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionMethod->__construct('Drupal\\user\\Hoo...', 'elementInfoAlte...')
+#1 {main}
+  thrown in Command line code on line 1
+[06-Jul-2026 10:14:14 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "Drupal\block\Hook\BlockHooks" does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionMethod->__construct('Drupal\\block\\Ho...', 'pageTop')
+#1 {main}
+  thrown in Command line code on line 1
+[06-Jul-2026 10:16:52 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "Drupal\user\Hook\UserHooks" does not exist in Command line code:3
+Stack trace:
+#0 Command line code(3): ReflectionClass->__construct('Drupal\\user\\Hoo...')
+#1 {main}
+  thrown in Command line code on line 3
