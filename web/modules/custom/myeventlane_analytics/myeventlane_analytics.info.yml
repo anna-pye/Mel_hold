@@ -1,0 +1,9 @@
+name: 'MyEventLane Analytics'
+type: module
+description: 'First-party analytics foundation for the MyEventLane holding site: GA4, Search Console, and Postmark reporting architecture.'
+package: 'MyEventLane'
+core_version_requirement: '^11'
+php: 8.3
+dependencies:
+  - myeventlane_waitlist:myeventlane_waitlist
+  - postmark:postmark

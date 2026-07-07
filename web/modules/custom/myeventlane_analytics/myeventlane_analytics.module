@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Hooks for MyEventLane Analytics.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\myeventlane_analytics\Constants\AnalyticsEvents;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Attaches GA4 (gated by environment/role, driven by drupalSettings only)
+ * and, independently, the Search Console verification meta tag.
+ */
+function myeventlane_analytics_page_attachments(array &$attachments): void {
+  /** @var \Drupal\myeventlane_analytics\Service\AnalyticsService $analytics */
+  $analytics = \Drupal::service('myeventlane_analytics.service');
+  $account = \Drupal::currentUser();
+  $request = \Drupal::request();
+  $route_name = \Drupal::routeMatch()->getRouteName();
+
+  $events = [];
+  $has_session_event = FALSE;
+
+  // Route-derived events are safe to compute (and cache) for any visitor
+  // hitting this exact URL — no session access required.
+  if ($route_name === 'system.404') {
+    $events[] = ['name' => AnalyticsEvents::NOT_FOUND, 'params' => []];
+  }
+  elseif ($route_name === 'search.view_node_search') {
+    $keys = (string) $request->query->get('keys', '');
+    if ($keys !== '') {
+      $events[] = [
+        'name' => AnalyticsEvents::SEARCH,
+        'params' => ['search_term' => mb_substr($keys, 0, 100)],
+      ];
+    }
+  }
+
+  // Only touch PrivateTempStore when a session already exists (e.g. right
+  // after a form-submit redirect) — never for a plain anonymous page view,
+  // which would otherwise start a session and defeat Internal Page Cache.
+  if ($request->hasSession() && $request->getSession()->isStarted()) {
+    $pending = $analytics->consumePendingEvents();
+    if ($pending !== []) {
+      $events = array_merge($events, $pending);
+      $has_session_event = TRUE;
+    }
+  }
+
+  $settings = $analytics->buildDrupalSettings($account, $events);
+  if ($settings !== []) {
+    $attachments['#attached']['library'][] = 'myeventlane_analytics/ga4';
+    $attachments['#attached']['drupalSettings']['myeventlaneAnalytics'] = $settings;
+  }
+
+  $attachments['#cache']['contexts'][] = 'user.roles';
+  if ($has_session_event) {
+    $attachments['#cache']['contexts'][] = 'session';
+  }
+
+  $verification = $analytics->getSearchConsoleVerification();
+  if ($verification !== '') {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'google-site-verification',
+          'content' => $verification,
+        ],
+      ],
+      'myeventlane_analytics_search_console_verification',
+    ];
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function myeventlane_analytics_user_login(UserInterface $account): void {
+  \Drupal::service('myeventlane_analytics.service')->track(AnalyticsEvents::LOGIN);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function myeventlane_analytics_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  switch ($form_id) {
+    case 'user_register_form':
+      $form['#submit'][] = 'myeventlane_analytics_user_register_form_submit';
+      break;
+
+    case 'waitlist_signup_form':
+      $form['#submit'][] = 'myeventlane_analytics_waitlist_signup_form_submit';
+      break;
+
+    case 'myeventlane_contact_form':
+      $form['#submit'][] = 'myeventlane_analytics_contact_form_submit';
+      break;
+  }
+}
+
+/**
+ * Form submit handler: fires sign_up only for self-service registration.
+ *
+ * user_register_form is shared with /admin/people/create, which must not
+ * be counted as a marketing sign-up.
+ */
+function myeventlane_analytics_user_register_form_submit(array &$form, FormStateInterface $form_state): void {
+  if (\Drupal::routeMatch()->getRouteName() !== 'user.register') {
+    return;
+  }
+  \Drupal::service('myeventlane_analytics.service')->track(AnalyticsEvents::SIGN_UP);
+}
+
+/**
+ * Form submit handler: fires waitlist_join for genuine (non-bot) submits.
+ *
+ * Fires independent of WaitlistManager's internal dedup/rate-limit outcome,
+ * which is intentionally hidden behind a neutral response to prevent email
+ * enumeration — GA4 must not be coupled to that security property. Precise
+ * conversion counting is WaitlistAnalyticsService's job, reading
+ * myeventlane_waitlist_event directly.
+ */
+function myeventlane_analytics_waitlist_signup_form_submit(array &$form, FormStateInterface $form_state): void {
+  if ($form_state->get('honeypot_tripped')) {
+    return;
+  }
+  \Drupal::service('myeventlane_analytics.service')->track(AnalyticsEvents::WAITLIST_JOIN);
+}
+
+/**
+ * Form submit handler: fires contact_form_submit only on genuine success.
+ *
+ * ContactForm::submitForm() only calls setRedirectUrl() on the path where
+ * the message was actually accepted by the mail manager; on a mail-send
+ * failure it returns early with no redirect set, which this checks for.
+ */
+function myeventlane_analytics_contact_form_submit(array &$form, FormStateInterface $form_state): void {
+  if ($form_state->get('honeypot_tripped')) {
+    return;
+  }
+  if ($form_state->getRedirect() === NULL) {
+    return;
+  }
+  \Drupal::service('myeventlane_analytics.service')->track(AnalyticsEvents::CONTACT_FORM_SUBMIT);
+}

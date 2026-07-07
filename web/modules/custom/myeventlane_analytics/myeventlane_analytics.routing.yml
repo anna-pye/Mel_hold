@@ -1,0 +1,7 @@
+myeventlane_analytics.settings:
+  path: '/admin/config/myeventlane/analytics'
+  defaults:
+    _form: '\Drupal\myeventlane_analytics\Form\AnalyticsSettingsForm'
+    _title: 'Analytics settings'
+  requirements:
+    _permission: 'administer myeventlane analytics'

@@ -344,6 +344,23 @@ $settings['myeventlane.mail_mode'] = getenv('MEL_MAIL_MODE') ?: 'php';
 $settings['mel.environment'] = getenv('MEL_ENVIRONMENT') ?: 'local';
 
 /**
+ * Postmark API token — must never be committed to config/sync. Set
+ * POSTMARK_API_KEY before deploying; config/sync/postmark.settings.yml
+ * ships with an empty value on purpose. See docs/analytics/postmark.md.
+ */
+$config['postmark.settings']['postmark_api_key'] = getenv('POSTMARK_API_KEY') ?: '';
+
+/**
+ * GA4 measurement ID and Search Console verification value, per
+ * environment. Config export ships with empty defaults; these are not
+ * secrets (both are public, client-visible values), but keeping them out
+ * of config/sync avoids a real ID leaking into a non-production build.
+ * See docs/analytics/launch-checklist.md.
+ */
+$config['myeventlane_analytics.settings']['ga4_measurement_id'] = getenv('MEL_GA4_MEASUREMENT_ID') ?: '';
+$config['myeventlane_analytics.settings']['search_console_verification'] = getenv('MEL_SEARCH_CONSOLE_VERIFICATION') ?: '';
+
+/**
  * Deployment identifier.
  *
  * Drupal's dependency injection container will be automatically invalidated and

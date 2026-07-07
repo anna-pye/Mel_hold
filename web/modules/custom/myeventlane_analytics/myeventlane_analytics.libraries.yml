@@ -1,0 +1,7 @@
+ga4:
+  version: 1.x
+  js:
+    js/ga4.js: {}
+  dependencies:
+    - core/drupalSettings
+    - core/once
