@@ -3,6 +3,7 @@ _core:
 interface:
   default: php_mail
   myeventlane_waitlist: myeventlane_html_php_mail
+  postmark: postmark
 mailer_dsn:
   scheme: sendmail
   host: default

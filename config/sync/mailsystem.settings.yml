@@ -1,0 +1,11 @@
+_core:
+  default_config_hash: IhwTepsVwtbtbcT5GzQKhCXDCRvbk3MNkWqPiuiZ10s
+theme: myeventlane_hold_theme
+defaults:
+  sender: postmark_mail
+  formatter: postmark_mail
+modules:
+  myeventlane_waitlist:
+    none:
+      sender: postmark_mail
+      formatter: postmark_mail
