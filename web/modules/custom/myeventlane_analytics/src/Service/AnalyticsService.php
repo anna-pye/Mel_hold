@@ -101,9 +101,20 @@ final class AnalyticsService {
    * derived events (404, search) do not need a session and should be
    * merged in separately by the caller.
    *
+   * Deletion only happens once shouldTrack()/getMeasurementId() confirm the
+   * event will actually be delivered on this response — otherwise the queue
+   * is left untouched so the event survives to a later request where
+   * tracking is active (e.g. once a measurement ID is configured, or the
+   * visitor is no longer excluded). Consuming-and-discarding regardless of
+   * delivery would silently lose every deferred event (waitlist_join,
+   * sign_up, login, contact_form_submit) queued while tracking is gated off.
+   *
    * @return array<int, array{name: string, params: array<string, mixed>}>
    */
-  public function consumePendingEvents(): array {
+  public function consumePendingEvents(AccountInterface $account): array {
+    if (!$this->shouldTrack($account) || $this->getMeasurementId() === '') {
+      return [];
+    }
     try {
       $store = $this->tempStoreFactory->get(self::TEMPSTORE_COLLECTION);
       $pending = $store->get(self::TEMPSTORE_KEY);
