@@ -24,5 +24,6 @@ Add a new submodule, e.g. `myeventlane_commerce_analytics`, that:
 ## Also deferred, not forgotten
 
 - Cookie-consent/CMP gating in front of GA4 (see [launch-checklist.md](launch-checklist.md) — flagged as a pre-production legal/privacy risk).
-- A dashboard/reporting UI over any of the services this phase built (`WaitlistAnalyticsService`, `EmailAnalyticsService`, `PlatformHealthService`) — explicitly out of scope per the brief ("Do NOT build dashboards").
+- ~~A dashboard/reporting UI over any of the services this phase built (`WaitlistAnalyticsService`, `EmailAnalyticsService`, `PlatformHealthService`)~~ — **done (Phase 1.1)**: the operational *Analytics Status* dashboard at `/admin/config/myeventlane/analytics/status` now reuses these services via `PlatformStatusService`. See [architecture.md](architecture.md#analytics-status-dashboard). Still deferred: a *reporting* (visitor-analytics) UI and any live Postmark delivery-stats fetch (`EmailAnalyticsService` is not yet surfaced, to keep the status page fast and offline-safe).
+- Making Analytics Status the admin landing page (login redirect) — the page is built to serve that role but the redirect is intentionally not wired yet.
 - phpstan/phpcs/eslint/stylelint/CI scaffolding for the repository as a whole.

@@ -48,6 +48,22 @@ final class WaitlistAnalyticsService {
   }
 
   /**
+   * Unix timestamp of the most recent signup, or NULL if there are none.
+   *
+   * Reads the same myeventlane_waitlist_subscriber.created column the admin
+   * dashboard already orders by — no new source, no write access.
+   */
+  public function getLastSignupTimestamp(): ?int {
+    $value = $this->database->select('myeventlane_waitlist_subscriber', 's')
+      ->fields('s', ['created'])
+      ->orderBy('created', 'DESC')
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+    return $value !== FALSE && $value !== NULL ? (int) $value : NULL;
+  }
+
+  /**
    * Lifecycle event counts (signup_created, confirmed, unsubscribed, etc.).
    *
    * @return array<string, int>

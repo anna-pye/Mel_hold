@@ -5,3 +5,9 @@ ga4:
   dependencies:
     - core/drupalSettings
     - core/once
+
+analytics_status:
+  version: 1.x
+  css:
+    theme:
+      css/analytics-status.css: {}

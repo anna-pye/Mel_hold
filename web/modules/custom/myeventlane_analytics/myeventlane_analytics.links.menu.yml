@@ -3,3 +3,9 @@ myeventlane_analytics.settings:
   description: 'Configure GA4, Search Console verification, and analytics behavior.'
   parent: system.admin_config_search
   route_name: myeventlane_analytics.settings
+
+myeventlane_analytics.status:
+  title: 'Analytics status'
+  description: 'Operational health of all analytics and marketing integrations.'
+  parent: myeventlane_analytics.settings
+  route_name: myeventlane_analytics.status

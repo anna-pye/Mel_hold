@@ -5,3 +5,11 @@ myeventlane_analytics.settings:
     _title: 'Analytics settings'
   requirements:
     _permission: 'administer myeventlane analytics'
+
+myeventlane_analytics.status:
+  path: '/admin/config/myeventlane/analytics/status'
+  defaults:
+    _controller: '\Drupal\myeventlane_analytics\Controller\StatusController::dashboard'
+    _title: 'Analytics status'
+  requirements:
+    _permission: 'administer myeventlane analytics'

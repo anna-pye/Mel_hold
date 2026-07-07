@@ -361,14 +361,27 @@ $config['myeventlane_analytics.settings']['ga4_measurement_id'] = getenv('MEL_GA
 $config['myeventlane_analytics.settings']['search_console_verification'] = getenv('MEL_SEARCH_CONSOLE_VERIFICATION') ?: '';
 
 /**
+ * Deployed Git commit, supplied by the deploy pipeline as MEL_GIT_COMMIT
+ * (e.g. `git rev-parse HEAD` captured at build/deploy time). Read as
+ * deployment metadata — the Analytics Status dashboard surfaces it via
+ * $settings['mel.deploy.commit'] and never shells out to git at runtime.
+ * Empty in local/dev, where it simply shows as "Not recorded".
+ */
+$settings['mel.deploy.commit'] = getenv('MEL_GIT_COMMIT') ?: '';
+
+/**
  * Deployment identifier.
  *
  * Drupal's dependency injection container will be automatically invalidated and
  * rebuilt when the Drupal core version changes. When updating contributed or
  * custom code that changes the container, changing this identifier will also
- * allow the container to be invalidated as soon as code is deployed.
+ * allow the container to be invalidated as soon as code is deployed. Tie it to
+ * the deployed commit when available so a code-only deploy rebuilds the
+ * container too.
  */
-# $settings['deployment_identifier'] = \Drupal::VERSION;
+$settings['deployment_identifier'] = ($settings['mel.deploy.commit'] ?: '') !== ''
+  ? $settings['mel.deploy.commit']
+  : \Drupal::VERSION;
 
 /**
  * Access control for update.php script.
