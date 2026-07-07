@@ -45,8 +45,12 @@ function myeventlane_analytics_page_attachments(array &$attachments): void {
   // Only touch PrivateTempStore when a session already exists (e.g. right
   // after a form-submit redirect) — never for a plain anonymous page view,
   // which would otherwise start a session and defeat Internal Page Cache.
+  // consumePendingEvents() itself only deletes the queue once it has
+  // confirmed tracking is actually active for this account, so events
+  // queued while gated off (no measurement ID yet, admin, local) survive
+  // for a later request instead of being silently discarded.
   if ($request->hasSession() && $request->getSession()->isStarted()) {
-    $pending = $analytics->consumePendingEvents();
+    $pending = $analytics->consumePendingEvents($account);
     if ($pending !== []) {
       $events = array_merge($events, $pending);
       $has_session_event = TRUE;
