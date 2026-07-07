@@ -207,7 +207,7 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: clamp(12px, 3vw, 20px);
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
 }
 
 .mel-hero-heading .mel-hero-title {
