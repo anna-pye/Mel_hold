@@ -44,6 +44,21 @@
 
         <p class="mel-lead">{{ mel_hero_lead }}</p>
 
+        <div class="mel-story" aria-label="{{ 'Why MyEventLane'|t }}">
+          <section class="mel-story__item" aria-labelledby="mel-story-problem">
+            <h2 id="mel-story-problem" class="mel-story__title">{{ 'Running community events should not be complicated.'|t }}</h2>
+            <p>{{ 'Local organisers need a simpler way to prepare, share, and manage events.'|t }}</p>
+          </section>
+          <section class="mel-story__item" aria-labelledby="mel-story-solution">
+            <h2 id="mel-story-solution" class="mel-story__title">{{ 'MyEventLane brings the essentials together.'|t }}</h2>
+            <p>{{ 'Create event pages, support free or paid events, and manage RSVPs and ticketing with simple tools.'|t }}</p>
+          </section>
+          <section class="mel-story__item" aria-labelledby="mel-story-invitation">
+            <h2 id="mel-story-invitation" class="mel-story__title">{{ 'Be part of launch.'|t }}</h2>
+            <p>{{ 'Join the waitlist for early access and launch updates as MyEventLane gets ready.'|t }}</p>
+          </section>
+        </div>
+
         {% if mel_badge_items is not empty %}
           <ul class="mel-badges" aria-label="{{ 'What is landing first'|t }}">
             {% for item in mel_badge_items %}
@@ -68,13 +83,19 @@
 
       <aside class="mel-card mel-side" aria-label="{{ 'Stay in the loop'|t }}">
         <div class="mel-panel">
-          <h2 class="mel-panel__h">{{ 'Get launch updates'|t }}</h2>
+          <h2 class="mel-panel__h">{{ 'Join the launch waitlist'|t }}</h2>
           <p class="mel-panel__p">{{ mel_waitlist_intro }}</p>
           {{ waitlist_form }}
+          <ul class="mel-trust" aria-label="{{ 'Waitlist commitments'|t }}">
+            <li>{{ 'Australian built'|t }}</li>
+            <li>{{ 'Privacy first'|t }}</li>
+            <li>{{ 'No spam'|t }}</li>
+            <li>{{ 'Unsubscribe anytime'|t }}</li>
+          </ul>
         </div>
 
         <div class="mel-panel">
-          <h2 class="mel-panel__h">{{ 'What’s next'|t }}</h2>
+          <h2 class="mel-panel__h">{{ 'Have a question?'|t }}</h2>
           <p class="mel-panel__p">{{ mel_whats_next_intro }}</p>
 
           <div class="mel-links" aria-label="{{ 'Contact options'|t }}">
@@ -83,12 +104,12 @@
             </a>
             {% if mel_instagram_url %}
               <a class="mel-linkbtn" href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank" aria-label="{{ 'Follow on Instagram'|t }}">
-                📷 <strong>{{ 'Instagram'|t }}</strong> <span>{{ mel_instagram_label }}</span>
+                <strong>{{ 'Instagram'|t }}</strong> <span>{{ mel_instagram_label }}</span>
               </a>
             {% endif %}
             {% if mel_linkedin_url %}
               <a class="mel-linkbtn" href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank" aria-label="{{ 'Follow on LinkedIn'|t }}">
-                💼 <strong>{{ 'LinkedIn'|t }}</strong> <span>{{ mel_linkedin_label }}</span>
+                <strong>{{ 'LinkedIn'|t }}</strong> <span>{{ mel_linkedin_label }}</span>
               </a>
             {% endif %}
           </div>

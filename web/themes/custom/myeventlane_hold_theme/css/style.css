@@ -22,7 +22,7 @@
 
   --mel-max: 1040px;
   --mel-pad: clamp(18px, 3vw, 28px);
-  --mel-h1: clamp(34px, 5vw, 56px);
+  --mel-h1: clamp(32px, 5vw, 54px);
   --mel-h2: clamp(18px, 2.2vw, 22px);
   --mel-p: clamp(15px, 2vw, 18px);
 
@@ -63,7 +63,8 @@ a {
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: none;
   box-shadow: var(--mel-ring);
   border-color: rgba(138, 125, 255, 0.55) !important;
@@ -150,7 +151,7 @@ input:focus-visible {
 
 .mel-main {
   flex: 1;
-  padding: 12px var(--mel-pad) 36px;
+  padding: 10px var(--mel-pad) 34px;
   display: flex;
   align-items: center;
 }
@@ -183,7 +184,7 @@ input:focus-visible {
 }
 
 .mel-hero {
-  padding: clamp(22px, 4vw, 34px);
+  padding: clamp(20px, 4vw, 34px);
   position: relative;
 }
 
@@ -225,7 +226,7 @@ input:focus-visible {
 .mel-hero-title {
   margin: 0 0 10px 0;
   font-size: var(--mel-h1);
-  line-height: 1.02;
+  line-height: 1.04;
   letter-spacing: -0.04em;
 }
 
@@ -237,11 +238,39 @@ input:focus-visible {
 }
 
 .mel-lead {
-  margin: 0 0 18px 0;
+  margin: 0 0 16px 0;
   font-size: var(--mel-p);
   line-height: 1.55;
   color: var(--mel-muted);
   max-width: 56ch;
+}
+
+.mel-story {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.mel-story__item {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(30, 30, 42, 0.08);
+}
+
+.mel-story__title {
+  margin: 0 0 4px;
+  color: var(--mel-ink);
+  font-size: clamp(15px, 2vw, 17px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.mel-story__item p {
+  margin: 0;
+  color: var(--mel-muted);
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .mel-badges {
@@ -300,7 +329,7 @@ input:focus-visible {
   border: 1px solid rgba(30, 30, 42, 0.1);
   background: rgba(255, 255, 255, 0.75);
   box-shadow: var(--mel-shadow-soft);
-  padding: 16px;
+  padding: 17px;
 }
 
 .mel-panel__h {
@@ -360,7 +389,7 @@ input:focus-visible {
 
 .mel-waitlist-form__row input[type="submit"],
 .mel-waitlist-form__row .mel-btn--primary {
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 14px;
   border: 0;
   cursor: pointer;
@@ -412,6 +441,25 @@ input:focus-visible {
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.mel-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--mel-muted);
+  font-size: 12px;
+}
+
+.mel-trust li {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(30, 30, 42, 0.08);
+  font-weight: 700;
 }
 
 .mel-links {
@@ -467,6 +515,40 @@ input:focus-visible {
   }
 }
 
+@media (max-width: 420px) {
+  .mel-header {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .mel-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mel-pill {
+    white-space: normal;
+  }
+
+  .mel-hero-heading {
+    align-items: flex-start;
+  }
+
+  .mel-hero-mascot {
+    height: 92px;
+  }
+
+  .mel-waitlist-form__row .form-actions,
+  .mel-waitlist-form__row input[type="submit"],
+  .mel-waitlist-form__row .mel-btn--primary {
+    width: 100%;
+  }
+
+  .mel-contact-form input[type="submit"] {
+    width: 100%;
+  }
+}
+
 .mel-messages {
   max-width: var(--mel-max);
   margin: 0 auto;
@@ -504,9 +586,14 @@ input:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .mel-waitlist-form__row input[type="submit"],
   .mel-waitlist-form__row .mel-btn--primary,
-  .mel-linkbtn {
+  .mel-linkbtn,
+  .mel-pill-cta {
     transition: none;
   }
 

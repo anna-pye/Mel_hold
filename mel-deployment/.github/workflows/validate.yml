@@ -1,0 +1,36 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate schema JSON
+        run: python3 -m json.tool schemas/deployment-manifest.schema.json >/dev/null
+
+      - name: Verify shell syntax
+        run: |
+          bash -n deploy/lib/*.sh
+          bash -n deploy/bin/*
+          bash -n tests/run-tests.sh
+
+      - name: Run ShellCheck when available
+        run: |
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck deploy/lib/*.sh deploy/bin/* tests/run-tests.sh
+          else
+            echo "shellcheck not installed; skipping"
+          fi
+
+      - name: Run unit tests
+        run: bash tests/run-tests.sh

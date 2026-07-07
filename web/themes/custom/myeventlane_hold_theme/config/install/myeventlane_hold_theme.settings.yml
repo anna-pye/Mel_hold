@@ -1,22 +1,19 @@
-brand_subtitle: 'v2 • coming soon'
-hero_kicker: 'Building something lovely in Melbourne'
-hero_gradient: 'Coming soon'
-hero_subheading: 'the new MyEventLane'
-hero_lead: 'A pastel-bright, people-first event platform made for hosts, communities, and small teams. Tickets, check-ins, promos, and beautiful event pages — without the stress.'
-meta_title: 'MyEventLane — Coming Soon'
-meta_description: 'MyEventLane is coming soon. A fresh, friendly event platform.'
-og_image_url: ''
+brand_subtitle: 'early access'
+hero_kicker: 'Early access opening soon'
+hero_gradient: 'Discover and run local events'
+hero_subheading: 'with MyEventLane'
+hero_lead: 'MyEventLane is an event platform for community organisers, local hosts, and attendees. Create event pages, share free or paid events, manage RSVPs and ticketing, and be ready for launch.'
 badges: |
-  Event pages • clean + fast
-  Ticketing • simple flows
-  Melbourne vibes • pastel brand
-  Built for v2 • stable core
-waitlist_intro: 'Drop your email and we’ll send a note when the doors open.'
-waitlist_fineprint: 'No spam. One message at launch (plus key milestones if you opt in later).'
-whats_next_intro: 'Questions? Tap Contact MyEventLane below. Follow progress on your favourite channels when we announce them.'
+  Event pages • simple to share
+  Free & paid events • flexible launch tools
+  RSVPs & ticketing • ready for early access
+  Built for communities • local organisers first
+waitlist_intro: 'Join the early list for launch updates and first access when MyEventLane opens.'
+waitlist_fineprint: 'No spam. Just launch updates, early access news, and an unsubscribe link in every email.'
+whats_next_intro: 'Have a launch question or want to introduce your community? Contact MyEventLane and we’ll get back to you.'
 instagram_url: ''
 instagram_label: '@myeventlane'
 linkedin_url: ''
 linkedin_label: 'MyEventLane'
 footer_line_left: '© @year MyEventLane. All rights reserved.'
-footer_line_right: 'Made with pastel energy in Melbourne / Naarm.'
+footer_line_right: 'Built in Australia for community events.'

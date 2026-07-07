@@ -1,0 +1,15 @@
+---
+deployment_id: hold-production
+repository: github.com/example/mel-hold.git
+branch: main
+environment: production
+composer_root: app
+document_root: app/web
+release_root: /example/allowlisted/hold/releases
+shared_root: /example/allowlisted/hold/shared
+current_link: /example/allowlisted/hold/current
+health_checks:
+  - name: homepage
+    url: https://hold.example.test/
+    expected_status: 200
+    timeout_seconds: 10

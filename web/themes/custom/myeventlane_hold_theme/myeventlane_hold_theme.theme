@@ -32,10 +32,10 @@ function myeventlane_hold_theme_theme_suggestions_page_alter(array &$suggestions
 function myeventlane_hold_theme_parse_badges(string $badges_raw): array {
   $icon_order = ['calendar', 'ticketing', 'pin', 'layers'];
   $defaults = [
-    ['main' => 'Event pages', 'sub' => 'clean + fast'],
-    ['main' => 'Ticketing', 'sub' => 'simple flows'],
-    ['main' => 'Melbourne vibes', 'sub' => 'pastel brand'],
-    ['main' => 'Built for v2', 'sub' => 'stable core'],
+    ['main' => 'Event pages', 'sub' => 'simple to share'],
+    ['main' => 'Free & paid events', 'sub' => 'flexible launch tools'],
+    ['main' => 'RSVPs & ticketing', 'sub' => 'ready for early access'],
+    ['main' => 'Built for communities', 'sub' => 'local organisers first'],
   ];
   $lines = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $badges_raw))));
   $items = [];
@@ -69,18 +69,18 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
 
   $config = \Drupal::config('myeventlane_hold_theme.settings');
 
-  $variables['mel_brand_subtitle'] = $config->get('brand_subtitle') ?: 'v2 • coming soon';
-  $variables['mel_hero_kicker'] = $config->get('hero_kicker') ?: 'Building something lovely in Melbourne';
+  $variables['mel_brand_subtitle'] = $config->get('brand_subtitle') ?: 'early access';
+  $variables['mel_hero_kicker'] = $config->get('hero_kicker') ?: 'Early access opening soon';
 
   $hero_gradient = $config->get('hero_gradient');
   if ($hero_gradient === NULL || $hero_gradient === '') {
-    $hero_gradient = $config->get('hero_title') ?: 'Coming soon';
+    $hero_gradient = $config->get('hero_title') ?: 'Discover and run local events';
   }
   $variables['mel_hero_gradient'] = $hero_gradient;
 
   $hero_subheading = $config->get('hero_subheading');
   if ($hero_subheading === NULL || $hero_subheading === '') {
-    $hero_subheading = 'the new MyEventLane';
+    $hero_subheading = 'with MyEventLane';
   }
   $variables['mel_hero_subheading'] = $hero_subheading;
 
@@ -91,7 +91,7 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
 
   $waitlist_intro = $config->get('waitlist_intro');
   if ($waitlist_intro === NULL || $waitlist_intro === '') {
-    $waitlist_intro = 'Drop your email and we’ll send a note when the doors open.';
+    $waitlist_intro = 'Join the early list for launch updates and first access when MyEventLane opens.';
   }
   $variables['mel_waitlist_intro'] = $waitlist_intro;
 
@@ -100,7 +100,7 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
     $legacy = $config->get('whats_next');
     $whats_next_intro = $legacy ? trim(html_entity_decode(strip_tags((string) $legacy), ENT_QUOTES | ENT_HTML5, 'UTF-8')) : '';
     if ($whats_next_intro === '') {
-      $whats_next_intro = 'We’re polishing the core flows: event setup, ticket checkout, and smooth mobile check-in. If you’re an organiser, we’d love your feedback.';
+      $whats_next_intro = 'Have a launch question or want to introduce your community? Contact MyEventLane and we’ll get back to you.';
     }
   }
   $variables['mel_whats_next_intro'] = $whats_next_intro;
@@ -113,7 +113,7 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
 
   $footer_right = $config->get('footer_line_right');
   if ($footer_right === NULL || $footer_right === '') {
-    $footer_right = 'Made with pastel energy in Melbourne / Naarm.';
+    $footer_right = 'Built in Australia for community events.';
   }
   $variables['mel_footer_right'] = $footer_right;
 
@@ -313,6 +313,7 @@ function myeventlane_hold_theme_form_waitlist_signup_form_alter(array &$form, Fo
   $form['email']['#title_display'] = 'before';
 
   $submit = $form['actions']['submit'];
+  $submit['#value'] = t('Join the waitlist');
   unset($form['actions']);
 
   $form['row'] = [

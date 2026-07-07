@@ -1,0 +1,15 @@
+---
+deployment_id: platform-staging
+repository: github.com/example/myeventlane-platform.git
+branch: develop
+environment: staging
+composer_root: app
+document_root: app/web
+release_root: /example/allowlisted/platform/releases
+shared_root: /example/allowlisted/platform/shared
+current_link: /example/allowlisted/platform/current
+health_checks:
+  - name: homepage
+    url: https://platform-staging.example.test/
+    expected_status: 200
+    timeout_seconds: 10

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)" || exit 70
+lib_dir="${script_dir}/../lib"
+
+# shellcheck source=deploy/lib/common.sh
+. "${lib_dir}/common.sh"
+# shellcheck source=deploy/lib/errors.sh
+. "${lib_dir}/errors.sh"
+# shellcheck source=deploy/lib/output.sh
+. "${lib_dir}/output.sh"
+# shellcheck source=deploy/lib/schema.sh
+. "${lib_dir}/schema.sh"
+
+usage() {
+  cat <<'EOF'
+Usage: mel-info [--format text|json]
+
+Print local mel-deployment framework information.
+
+Options:
+  --format text|json  Output format. Defaults to text.
+  --help              Show this help text.
+  --version           Show command version.
+EOF
+}
+
+format="${MEL_OUTPUT_FORMAT:-text}"
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --format)
+      if [[ "$#" -lt 2 ]]; then
+        mel_error_emit "${MEL_EXIT_USAGE}" "usage" "--format requires a value." "${format}"
+        exit $?
+      fi
+      format="$2"
+      shift 2
+      ;;
+    --help)
+      usage
+      exit "${MEL_EXIT_OK}"
+      ;;
+    --version)
+      mel_version
+      exit "${MEL_EXIT_OK}"
+      ;;
+    --*)
+      mel_error_emit "${MEL_EXIT_USAGE}" "usage" "Unknown option: $1" "${format}"
+      exit $?
+      ;;
+    *)
+      mel_error_emit "${MEL_EXIT_USAGE}" "usage" "mel-info does not accept positional arguments." "${format}"
+      exit $?
+      ;;
+  esac
+done
+
+if ! mel_is_supported_output_format "${format}"; then
+  mel_error_emit "${MEL_EXIT_USAGE}" "usage" "Unsupported output format: ${format}" "text"
+  exit $?
+fi
+
+project_root="$(mel_project_root)" || exit $?
+schema_path="$(mel_schema_default_path)" || exit $?
+
+case "${format}" in
+  json)
+    printf '{"name":"mel-deployment","version":"%s","project_root":"%s","schema":"%s"}\n' \
+      "$(mel_json_escape "$(mel_version)")" \
+      "$(mel_json_escape "${project_root}")" \
+      "$(mel_json_escape "${schema_path}")"
+    ;;
+  *)
+    mel_output_kv "name" "mel-deployment" "${format}"
+    mel_output_kv "version" "$(mel_version)" "${format}"
+    mel_output_kv "project_root" "${project_root}" "${format}"
+    mel_output_kv "schema" "${schema_path}" "${format}"
+    ;;
+esac
