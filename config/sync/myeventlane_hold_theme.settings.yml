@@ -15,15 +15,12 @@ hero_gradient: ''
 hero_subheading: ''
 hero_title: 'Coming soon'
 hero_lead: 'We are building a calmer way to plan and run events — with thoughtful tools for hosts, vendors, and guests. Leave your email and we will let you know when MyEventLane opens.'
-meta_title: 'MyEventLane — Coming soon'
-meta_description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
-og_image_url: ''
 badges: "Vendor-ready tools\r\nGuest-friendly flows\r\nThoughtful defaults\r\nPrivacy-aware by design\r\n"
 waitlist_intro: ''
 waitlist_fineprint: ''
 whats_next_intro: 'Questions? Tap Contact MyEventLane below. Follow progress on your favourite channels when we announce them.'
-whats_next: |
-  <p>Questions? Email us at <a href="mailto:hello@example.com">hello@example.com</a></p>
+whats_next: |-
+  <p>Questions? Email us at <a href="mailto:info@myeventlane.com.au">info@myeventlane.com.au</a></p>
   <p>Follow progress on your favourite channels when we announce them.</p>
 instagram_url: ''
 instagram_label: ''

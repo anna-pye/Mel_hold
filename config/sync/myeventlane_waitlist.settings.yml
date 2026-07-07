@@ -1,8 +1,8 @@
 _core:
   default_config_hash: qmxm9Y0TFYPf45b2UhdXp-Gi49x0QhmGqYMXzt4SNeQ
 sender_name: MyEventLane
-sender_mail: hello@example.com
-contact_mail: hello@example.com
+sender_mail: info@myeventlane.com.au
+contact_mail: info@myeventlane.com.au
 consent_text: 'I agree to receive occasional updates about MyEventLane and understand I can unsubscribe at any time.'
 consent_version: '1'
 privacy_url: /privacy
