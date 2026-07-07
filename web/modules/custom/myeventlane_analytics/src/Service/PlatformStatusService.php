@@ -337,11 +337,20 @@ final class PlatformStatusService {
     $details = [
       ['label' => $this->t('Last run'), 'value' => $this->relativeTime($last)],
     ];
-    if ($interval > 0 && $last !== NULL) {
-      $details[] = [
-        'label' => $this->t('Next expected'),
-        'value' => $this->dateFormatter->formatTimeDiffUntil($last + $interval),
-      ];
+    if ($interval > 0) {
+      // An automated interval is configured. Show the next expected run once
+      // cron has actually run; before the first run there is no baseline to
+      // project from, so report the configured cadence instead — never
+      // "external / manual", which only applies when no interval is set.
+      $details[] = $last !== NULL
+        ? [
+          'label' => $this->t('Next expected'),
+          'value' => $this->dateFormatter->formatTimeDiffUntil($last + $interval),
+        ]
+        : [
+          'label' => $this->t('Schedule'),
+          'value' => $this->t('Every @interval', ['@interval' => $this->dateFormatter->formatInterval($interval)]),
+        ];
     }
     else {
       $details[] = ['label' => $this->t('Schedule'), 'value' => $this->t('External / manual')];
