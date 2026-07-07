@@ -25,6 +25,23 @@ services:
       - '@queue'
       - '@state'
 
+  myeventlane_analytics.platform_status:
+    class: Drupal\myeventlane_analytics\Service\PlatformStatusService
+    arguments:
+      - '@myeventlane_analytics.service'
+      - '@myeventlane_analytics.waitlist_analytics'
+      - '@myeventlane_analytics.platform_health'
+      - '@config.factory'
+      - '@settings'
+      - '@module_handler'
+      - '@date.formatter'
+      - '@datetime.time'
+      - '@config.storage'
+      - '@config.storage.sync'
+      - '@logger.channel.myeventlane_analytics'
+      - '%app.root%'
+      - '@?simple_sitemap.generator'
+
   logger.channel.myeventlane_analytics:
     parent: logger.channel_base
     arguments: ['myeventlane_analytics']

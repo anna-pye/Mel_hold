@@ -1,0 +1,229 @@
+/**
+ * @file
+ * Analytics Status dashboard — operational, glanceable, framework-free.
+ *
+ * Mobile-first. Status is always conveyed by text (pill + summary), never by
+ * colour alone (WCAG 1.4.1). Colours meet AA contrast in the admin theme's
+ * light and dark modes.
+ */
+
+.mel-status {
+  --mel-status-ok: #1a7f37;
+  --mel-status-warning: #8a6100;
+  --mel-status-critical: #b32020;
+  --mel-status-info: #0b5aa2;
+  --mel-status-surface: #fff;
+  --mel-status-border: #d3d8de;
+  --mel-status-muted: #5c6670;
+  max-width: 72rem;
+}
+
+/* Overall health banner. */
+.mel-status__summary {
+  border: 1px solid var(--mel-status-border);
+  border-left-width: 6px;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: var(--mel-status-surface);
+}
+
+.mel-status__summary--healthy {
+  border-left-color: var(--mel-status-ok);
+}
+
+.mel-status__summary--warnings {
+  border-left-color: var(--mel-status-warning);
+}
+
+.mel-status__summary--critical {
+  border-left-color: var(--mel-status-critical);
+}
+
+.mel-status__summary-heading {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mel-status-muted);
+}
+
+.mel-status__badge {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mel-status__badge-emoji {
+  font-size: 1.5rem;
+}
+
+.mel-status__count {
+  margin: 0.25rem 0 0;
+  color: var(--mel-status-muted);
+  font-size: 0.95rem;
+}
+
+.mel-status__checked {
+  margin: 0.15rem 0 0;
+  color: var(--mel-status-muted);
+  font-size: 0.85rem;
+}
+
+/* Responsive card grid: one column on mobile, auto-fit on wider screens. */
+.mel-status__cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .mel-status__cards {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+}
+
+.mel-status__card {
+  position: relative;
+  border: 1px solid var(--mel-status-border);
+  border-top: 4px solid var(--mel-status-info);
+  border-radius: 8px;
+  padding: 1rem;
+  background: var(--mel-status-surface);
+}
+
+/* Clickable cards: the title link's hit area is stretched over the card. */
+.mel-status__card--clickable {
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.mel-status__card--clickable:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.mel-status__card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mel-status__card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+
+.mel-status__card-link:hover {
+  text-decoration: underline;
+}
+
+/* Keyboard focus lands on the link; show it on the whole card. */
+.mel-status__card--clickable:focus-within {
+  outline: 2px solid var(--mel-status-info);
+  outline-offset: 2px;
+}
+
+.mel-status__card-link:focus {
+  outline: none;
+}
+
+.mel-status__card--ok {
+  border-top-color: var(--mel-status-ok);
+}
+
+.mel-status__card--info {
+  border-top-color: var(--mel-status-info);
+}
+
+.mel-status__card--warning {
+  border-top-color: var(--mel-status-warning);
+}
+
+.mel-status__card--critical {
+  border-top-color: var(--mel-status-critical);
+}
+
+.mel-status__card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mel-status__card-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.mel-status__pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+}
+
+.mel-status__pill--ok {
+  color: var(--mel-status-ok);
+}
+
+.mel-status__pill--info {
+  color: var(--mel-status-info);
+}
+
+.mel-status__pill--warning {
+  color: var(--mel-status-warning);
+}
+
+.mel-status__pill--critical {
+  color: var(--mel-status-critical);
+}
+
+.mel-status__details {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.mel-status__detail {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-top: 1px solid var(--mel-status-border);
+  padding-top: 0.35rem;
+}
+
+.mel-status__detail-label {
+  margin: 0;
+  color: var(--mel-status-muted);
+}
+
+.mel-status__detail-value {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Dark mode (Gin dark / prefers-color-scheme). */
+@media (prefers-color-scheme: dark) {
+  .mel-status {
+    --mel-status-ok: #4ac26b;
+    --mel-status-warning: #e3b341;
+    --mel-status-critical: #ff6a6a;
+    --mel-status-info: #58a6ff;
+    --mel-status-surface: #26292d;
+    --mel-status-border: #3d434c;
+    --mel-status-muted: #a7b0ba;
+  }
+}

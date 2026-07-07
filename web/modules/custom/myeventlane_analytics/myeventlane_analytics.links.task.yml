@@ -1,0 +1,11 @@
+myeventlane_analytics.settings_tab:
+  title: 'Settings'
+  route_name: myeventlane_analytics.settings
+  base_route: myeventlane_analytics.settings
+  weight: 0
+
+myeventlane_analytics.status_tab:
+  title: 'Status'
+  route_name: myeventlane_analytics.status
+  base_route: myeventlane_analytics.settings
+  weight: 10
