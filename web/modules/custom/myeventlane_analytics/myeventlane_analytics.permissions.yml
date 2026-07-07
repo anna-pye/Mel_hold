@@ -1,0 +1,4 @@
+administer myeventlane analytics:
+  title: 'Administer MyEventLane analytics'
+  description: 'Configure GA4, Search Console, and view analytics settings.'
+  restrict access: true

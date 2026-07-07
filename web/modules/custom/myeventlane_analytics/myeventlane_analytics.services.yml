@@ -1,0 +1,30 @@
+services:
+  myeventlane_analytics.service:
+    class: Drupal\myeventlane_analytics\Service\AnalyticsService
+    arguments:
+      - '@config.factory'
+      - '@tempstore.private'
+      - '@settings'
+      - '@logger.channel.myeventlane_analytics'
+
+  myeventlane_analytics.waitlist_analytics:
+    class: Drupal\myeventlane_analytics\Service\WaitlistAnalyticsService
+    arguments:
+      - '@database'
+
+  myeventlane_analytics.email_analytics:
+    class: Drupal\myeventlane_analytics\Service\EmailAnalyticsService
+    arguments:
+      - '@config.factory'
+      - '@logger.channel.myeventlane_analytics'
+
+  myeventlane_analytics.platform_health:
+    class: Drupal\myeventlane_analytics\Service\PlatformHealthService
+    arguments:
+      - '@database'
+      - '@queue'
+      - '@state'
+
+  logger.channel.myeventlane_analytics:
+    parent: logger.channel_base
+    arguments: ['myeventlane_analytics']
