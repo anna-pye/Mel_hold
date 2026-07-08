@@ -308,11 +308,11 @@ mel_collect_versions() {
   [[ -n "${MEL_VER_COMPOSER}" ]] || MEL_VER_COMPOSER="unknown"
 }
 
-# Read-only health verification. Args: app, path.
+# Read-only health verification. Args: app, path, [expected_branch=main].
 # Sets MEL_VERIFY_RESULT (PASS|WARNING|FAIL) and MEL_VERIFY_LINES[] ("ST|label").
 # Never mutates anything; every check is defensive so one failure cannot abort.
 mel_verify() {
-  local app="${1:?}" path="${2:?}"
+  local app="${1:?}" path="${2:?}" expected_branch="${3:-main}"
   MEL_VERIFY_LINES=()
   MEL_VERIFY_FAILS=0
   MEL_VERIFY_WARNS=0
@@ -335,17 +335,17 @@ mel_verify() {
   # Git clean working tree.
   if [[ -z "$(git -C "${path}" status --porcelain 2>/dev/null)" ]]; then _add PASS "Git working tree clean"; else _add WARN "Git working tree not clean"; fi
 
-  # Correct branch.
+  # Correct branch (the deploy's expected branch, not a hardcoded 'main').
   local br; br="$(git -C "${path}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
-  if [[ "${br}" == "main" ]]; then _add PASS "On branch main"; else _add FAIL "On branch '${br}', expected main"; fi
+  if [[ "${br}" == "${expected_branch}" ]]; then _add PASS "On branch ${expected_branch}"; else _add FAIL "On branch '${br}', expected ${expected_branch}"; fi
 
-  # Expected commit (HEAD matches origin/main; no network fetch here).
+  # Expected commit (HEAD matches origin/<expected_branch>; no network fetch here).
   local head origin
   head="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo '')"
-  origin="$(git -C "${path}" rev-parse origin/main 2>/dev/null || echo '')"
-  if [[ -n "${origin}" && "${head}" == "${origin}" ]]; then _add PASS "At origin/main (${head:0:12})";
-  elif [[ -n "${origin}" ]]; then _add WARN "HEAD differs from origin/main (${head:0:12})";
-  else _add WARN "origin/main ref unavailable"; fi
+  origin="$(git -C "${path}" rev-parse "origin/${expected_branch}" 2>/dev/null || echo '')"
+  if [[ -n "${origin}" && "${head}" == "${origin}" ]]; then _add PASS "At origin/${expected_branch} (${head:0:12})";
+  elif [[ -n "${origin}" ]]; then _add WARN "HEAD differs from origin/${expected_branch} (${head:0:12})";
+  else _add WARN "origin/${expected_branch} ref unavailable"; fi
 
   # Composer installed.
   if [[ -f "${path}/vendor/autoload.php" ]]; then _add PASS "Composer dependencies installed"; else _add FAIL "vendor/autoload.php missing"; fi
@@ -453,7 +453,7 @@ mel_finalize_deploy() {
   commit="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo 'unknown')"
 
   mel_collect_versions "${path}"
-  mel_verify "${app}" "${path}"
+  mel_verify "${app}" "${path}" "${branch}"
   mel_print_verify
 
   duration=$(( $(date +%s) - start_epoch ))
