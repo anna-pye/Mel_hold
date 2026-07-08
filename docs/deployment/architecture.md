@@ -26,6 +26,18 @@
 | 8 | Idempotent steps (`pull --ff-only`, `composer install`, `updatedb`, `config:import`, `cache:rebuild`); clean-tree + branch + remote validation; `--dry-run`. |
 | 9 | Pre-deploy backup (code + DB) + per-app `rollback-<app>.sh`. |
 
+**Verification & journal.** Every deploy ends with `mel_verify` — 13 read-only
+checks (correct application, document root, git clean, branch, commit, Composer,
+Drupal bootstrap, database, maintenance mode, config, pending updates, cron,
+watchdog) returning **PASS / WARNING / FAIL** — and writes a secret-free
+`/home/mel/shared/deployments/<timestamp>.json` journal (application, environment,
+branch, commit, build, versions, results). The same `mel_verify` powers the
+standalone `deploy/verify-deployment.sh`, so there is one source of truth. A FAIL
+exits non-zero with the rollback command. **Runtime assets:** files/ live inside
+each app dir and are gitignored, so `git pull` never touches them; no rsync is
+used for code, and any future asset sync must target only
+`web/sites/default/files/` and never use `--delete` against an app directory.
+
 **Preflight.** Before *any* filesystem change, deploy and rollback run
 `mel_preflight`, which fails closed unless all of these hold: the target is the
 allowlisted app dir; it is a git clone with `composer.json`; the web root is

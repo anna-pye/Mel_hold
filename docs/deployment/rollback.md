@@ -54,8 +54,19 @@ script restores code only and leaves the database unchanged, and says so. Fall
 back to cPanel/JetBackup for a full restore. This is why an off-server backup
 remains the disaster-recovery source of truth (`backup-strategy.md`).
 
+## Rollback validation (accepted)
+
+Rollback shares the same guarantees as deploy and needs no separate mechanism:
+
+- **Preflight** — `rollback-<app>.sh` runs `mel_preflight` (allowlisted path, git
+  clone, `<path>/web` docroot, `.mel-application` marker) before touching anything.
+- **Path/application validation** — `mel_rollback_restore` requires the backup to
+  be under *this* app's `shared/backups/<app>/` namespace, rejects the namespace
+  root, and requires a real artefact; it can never restore another app's backup.
+- **Never touches siblings** — the deploy path is hardcoded per script.
+
 ## Post-rollback
 
-1. Confirm `drush status` is *Successful* and the site loads.
+1. Confirm with `bash deploy/verify-deployment.sh <app path>` (expect PASS).
 2. Diagnose the failed release before re-attempting a deploy.
-3. Only re-deploy once `current` is confirmed healthy.
+3. Only re-deploy once the app is confirmed healthy.

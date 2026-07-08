@@ -21,10 +21,12 @@ strict.
 
 ## Verify after deploy
 
-- [ ] Script reported `✅ … deploy complete`.
+- [ ] Deployment report shows **Verification: PASS** (WARNING acceptable if the
+      warnings are understood; **FAIL** means roll back).
+- [ ] A journal entry was written under `shared/deployments/` for this deploy.
+- [ ] Re-run standalone if needed: `bash deploy/verify-deployment.sh <app path>`.
 - [ ] Site loads; for Hold, `/admin/config/myeventlane/analytics/status` is green.
-- [ ] `drush status` *Successful*; not in maintenance mode.
-- [ ] No unexpected `drush config:status` drift.
+- [ ] Build number, commit, and versions in the report look right.
 
 ## Production only
 

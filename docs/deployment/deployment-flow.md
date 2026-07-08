@@ -40,13 +40,42 @@ confirm                             # type the environment name (production: als
 backup                              # code.tgz + drush sql:dump -> shared/backups/<app>/<ts>/
 git checkout main
 git pull --ff-only origin main      # never a merge; never rsync --delete
-composer install --no-dev
+composer install --no-dev --optimize-autoloader
 drush updatedb -y
 drush config:import -y
 drush cache:rebuild
-health checks                       # bootstrap OK, not in maintenance mode
+verify                              # mel_verify: 13 read-only checks (below)
+write deployment journal            # shared/deployments/<ts>.json
+print deployment report             # app/env/branch/commit/build/versions/duration/result
 write deploy log                    # shared/logs/<app>/deploy-<ts>.log
 ```
+
+### Deployment verification (`mel_verify`)
+
+The same function runs at the end of every deploy and standalone via
+`deploy/verify-deployment.sh <app path>`. It makes **no** changes and returns an
+overall **PASS / WARNING / FAIL**:
+
+| FAIL (hard) | WARNING (soft) |
+|---|---|
+| application marker mismatch | git working tree not clean |
+| document root missing | HEAD ≠ origin/main |
+| not on `main` | config drift |
+| Composer not installed | pending database updates |
+| Drupal does not bootstrap | cron never run |
+| database not reachable | watchdog not readable |
+| site in maintenance mode | |
+
+A deploy whose verification is FAIL exits non-zero and prints the rollback
+command. WARNING is non-blocking (deploy succeeds, warnings shown).
+
+### Deployment journal
+
+Every deploy writes `/home/mel/shared/deployments/YYYY-MM-DD-HHMMSS.json` with:
+application, environment, branch, commit, build number, timestamp, hostname,
+deploy user, deployment type (`git`), web root, preflight result, deployment
+(verification) result, rollback availability, and Composer/Drupal/PHP versions.
+**No secrets** are stored. Build numbers are a monotonic per-app counter.
 
 On any failure the script prints the exact rollback command with the backup
 directory it created.
