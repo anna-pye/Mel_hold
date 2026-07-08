@@ -325,6 +325,9 @@ mel_collect_versions() {
 # Never mutates anything; every check is defensive so one failure cannot abort.
 mel_verify() {
   local app="${1:?}" path="${2:?}" expected_branch="${3:-main}"
+  # Normalise once so a trailing slash (e.g. from a CLI arg) never causes a
+  # false mismatch in the path-based checks below.
+  path="$(mel_normalize_path "${path}")"
   MEL_VERIFY_LINES=()
   MEL_VERIFY_FAILS=0
   MEL_VERIFY_WARNS=0
@@ -342,7 +345,7 @@ mel_verify() {
   if [[ "${id}" == "${app}" ]]; then _add PASS "Correct application (${app})"; else _add FAIL "Application marker mismatch (got '${id:-none}')"; fi
 
   # Correct document root.
-  if [[ "$(cd "${path}" 2>/dev/null && pwd)" == "${path}" && -f "${path}/web/index.php" ]]; then _add PASS "Document root is ${path}/web"; else _add FAIL "Document root missing (${path}/web/index.php)"; fi
+  if [[ -d "${path}/web" && -f "${path}/web/index.php" ]]; then _add PASS "Document root is ${path}/web"; else _add FAIL "Document root missing (${path}/web/index.php)"; fi
 
   # Git clean working tree.
   if [[ -z "$(git -C "${path}" status --porcelain 2>/dev/null)" ]]; then _add PASS "Git working tree clean"; else _add WARN "Git working tree not clean"; fi
@@ -373,11 +376,29 @@ mel_verify() {
   local maint; maint="$("${D[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
   if [[ "${maint}" != "1" ]]; then _add PASS "Maintenance mode off"; else _add FAIL "Site in maintenance mode"; fi
 
-  # Config clean.
-  if "${D[@]}" config:status 2>/dev/null | grep -qi 'No differences'; then _add PASS "Configuration in sync"; else _add WARN "Configuration drift detected"; fi
+  # Config clean. Use machine-readable JSON (an empty changelist == in sync) so
+  # the check does not depend on where Drush prints its "No differences" notice
+  # (Drush 13 emits it on stderr, which a stdout grep would miss). Distinguish a
+  # genuine empty result from a Drush *failure* — the `if` runs the command so
+  # its exit status is honoured (and it is set -e safe) rather than masking a
+  # non-zero exit as an empty list.
+  local cfg
+  if cfg="$("${D[@]}" config:status --format=json 2>/dev/null)"; then
+    cfg="$(printf '%s' "${cfg}" | tr -d '[:space:]')"
+    if [[ -z "${cfg}" || "${cfg}" == "[]" || "${cfg}" == "{}" ]]; then _add PASS "Configuration in sync"; else _add WARN "Configuration drift detected"; fi
+  else
+    _add WARN "Configuration status unavailable (drush error)"
+  fi
 
-  # No pending database updates.
-  if "${D[@]}" updatedb:status 2>/dev/null | grep -qiE 'No database updates|No pending'; then _add PASS "No pending database updates"; else _add WARN "Pending database updates"; fi
+  # No pending database updates. Same JSON approach; a Drush failure is reported
+  # rather than silently treated as "none pending".
+  local upd
+  if upd="$("${D[@]}" updatedb:status --format=json 2>/dev/null)"; then
+    upd="$(printf '%s' "${upd}" | tr -d '[:space:]')"
+    if [[ -z "${upd}" || "${upd}" == "[]" || "${upd}" == "{}" ]]; then _add PASS "No pending database updates"; else _add WARN "Pending database updates"; fi
+  else
+    _add WARN "Update status unavailable (drush error)"
+  fi
 
   # Cron available (has run at least once).
   local cron; cron="$("${D[@]}" state:get system.cron_last --format=string 2>/dev/null || echo '')"
