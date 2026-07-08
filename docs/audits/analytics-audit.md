@@ -19,7 +19,7 @@ There is no Drupal Commerce installed, no vendor entity, no event entity, no che
 
 ### 1.2 Modules enabled (config/sync/core.extension.yml)
 Core: `automated_cron`, `big_pipe`, `block`, `block_content`, `ckeditor5`, `comment`, `datetime`, `dblog`, `dynamic_page_cache`, `field`, `field_ui`, `file`, `history`, `image`, `link`, `menu_link_content`, `menu_ui`, `node`, `options`, `page_cache`, `path`, `path_alias`, `search`, `search_help`, `search_node`, `shortcut`, `system`, `taxonomy`, `text`, `toolbar`, `update`, `user`, `views`, `views_ui`.
-Contrib: `gin_toolbar`, `mailsystem`, `metatag`, `metatag_open_graph`, `metatag_twitter_cards`, `mimemail`, `pathauto`, `postmark`, `redirect`, `schema_metatag`, `schema_organization`, `schema_web_site`, `simple_sitemap`, `token`.
+Contrib: `gin_toolbar`, `mailsystem`, `metatag`, `metatag_open_graph`, `metatag_twitter_cards`, `pathauto`, `postmark`, `redirect`, `schema_metatag`, `schema_organization`, `schema_web_site`, `simple_sitemap`, `token`.
 Custom: `myeventlane_waitlist`.
 
 **Not present:** `drupal/commerce` or any `commerce_*` submodule, `google_analytics`, `google_tag`, `matomo`, any cookie-consent/GDPR module, any custom analytics/tracking module, any custom vendor or event content entity module.
@@ -57,7 +57,7 @@ This module is well-structured (typed, DI-only, PSR-12-looking, config-driven) a
 - Core `search` + `search_node` are enabled, but there is no custom internal-search tracking and nothing indexed beyond `page`/`article` nodes.
 
 ### 1.7 Mail / Postmark
-- `drupal/postmark` (^1.5) + `drupal/mailsystem` (^4.5) + `drupal/mimemail` (^2.0) are installed, with `config/sync/postmark.settings.yml`, `mailsystem.settings.yml`, `mimemail.settings.yml`, `system.mail.yml`, `user.mail.yml` present.
+- `drupal/postmark` (^1.5) + `drupal/mailsystem` (^4.5) are installed, with `config/sync/postmark.settings.yml`, `mailsystem.settings.yml`, `system.mail.yml`, `user.mail.yml` present. `mailsystem` is retained because `postmark` depends on it (`postmark.info.yml` → `mailsystem:mailsystem`, and `drupal/postmark` requires `drupal/mailsystem` in Composer). `drupal/mimemail` was removed (unused after the Postmark migration — no code, config, or filter-format referenced it).
 - `$settings['myeventlane.mail_mode']` (settings.php:339, driven by `MEL_MAIL_MODE` env var) toggles between `mailhog`/`smtp`/`sendmail` for the custom mail helper used by the waitlist module.
 - No custom code currently reads Postmark's API for deliveries/bounces/opens/clicks/complaints/suppressions — outbound sending only. This is a legitimate, additive integration point (see Deliverable 4 in the brief) and does not conflict with anything existing.
 

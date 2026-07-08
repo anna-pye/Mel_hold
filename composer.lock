@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c32d885423df5d8f0616d7ac062dcab4",
+    "content-hash": "6ab66607f29650137820107e9e525402",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1738,59 +1738,6 @@
                 "source": "https://git.drupalcode.org/project/metatag",
                 "issues": "https://www.drupal.org/project/issues/metatag",
                 "docs": "https://www.drupal.org/docs/8/modules/metatag"
-            }
-        },
-        {
-            "name": "drupal/mimemail",
-            "version": "2.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://git.drupalcode.org/project/mimemail.git",
-                "reference": "2.0.3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://ftp.drupal.org/files/projects/mimemail-2.0.3.zip",
-                "reference": "2.0.3",
-                "shasum": "133e81946ec4815451eb25794fd9256d9c5c226a"
-            },
-            "require": {
-                "drupal/core": "^10.3 || ^11 || ^12",
-                "drupal/mailsystem": "^4"
-            },
-            "require-dev": {
-                "drupal/rules": "^4.0"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "drupal": {
-                    "version": "2.0.3",
-                    "datestamp": "1782504338",
-                    "security-coverage": {
-                        "status": "covered",
-                        "message": "Covered by Drupal's security advisory policy"
-                    }
-                }
-            },
-            "notification-url": "https://packages.drupal.org/8/downloads",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "mark_fullmer",
-                    "homepage": "https://www.drupal.org/user/2612816"
-                },
-                {
-                    "name": "tr",
-                    "homepage": "https://www.drupal.org/user/202830"
-                }
-            ],
-            "description": "Sends MIME-encoded emails with embedded images and attachments.",
-            "homepage": "https://www.drupal.org/project/mimemail",
-            "support": {
-                "source": "https://git.drupalcode.org/project/mimemail",
-                "issues": "https://www.drupal.org/project/issues/mimemail"
             }
         },
         {

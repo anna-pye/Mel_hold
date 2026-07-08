@@ -267,3 +267,26 @@ function myeventlane_waitlist_update_11001(): void {
   $interface['myeventlane_waitlist'] = 'myeventlane_html_php_mail';
   $config->set('interface', $interface)->save();
 }
+
+/**
+ * Route all mail through the canonical Postmark transport.
+ *
+ * Supersedes update 11001. The custom myeventlane_html_php_mail plugin has been
+ * removed: the contrib Postmark transport already sends bodies as HTML natively,
+ * so the plugin was duplicate mail transport. This drops the per-module override
+ * installed by 11001 and makes Postmark the single default transport site-wide.
+ *
+ * Idempotent: on a site that runs 11001 and 11002 in the same `drush updb`, the
+ * override 11001 adds is removed here in the same run, so the transient value is
+ * never used to send mail.
+ */
+function myeventlane_waitlist_update_11002(): void {
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $interface = $config->get('interface');
+  if (!is_array($interface)) {
+    $interface = [];
+  }
+  unset($interface['myeventlane_waitlist']);
+  $interface['default'] = 'postmark';
+  $config->set('interface', $interface)->save();
+}
