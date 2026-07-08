@@ -24,7 +24,6 @@
         "drupal/gin_toolbar": "^3.0",
         "drupal/mailsystem": "^4.5",
         "drupal/metatag": "^2.2",
-        "drupal/mimemail": "^2.0",
         "drupal/pathauto": "^1.14",
         "drupal/postmark": "^1.5",
         "drupal/redirect": "^1.12",
