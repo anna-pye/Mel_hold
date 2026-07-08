@@ -66,7 +66,7 @@ mel_info "Backup: ${BACKUP_DIR}"
 # `|| mel_die`, which an ERR trap would miss), tell the operator how to roll
 # back. An EXIT trap fires on every exit path; the rc guard keeps it silent on
 # success.
-trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}" >&2; }' EXIT
+trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
 
 mkdir -p "${LOG_ROOT}/${APP_NAME}"
 LOG_FILE="${LOG_ROOT}/${APP_NAME}/deploy-$(date +%Y%m%d-%H%M%S).log"
