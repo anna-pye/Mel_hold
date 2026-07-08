@@ -66,16 +66,14 @@ Perform in a maintenance window. Take a full cPanel/JetBackup snapshot first.
      ```
    - Verify: `vendor/bin/drush status` shows *Successful* and the correct DB.
 
-3. **Recreate Staging into its own directory**
-   - Clone into `/home/mel/sites/myeventlane_staging`.
-   - Restore the staging `settings.local.php` (staging DB creds) and `files/`
-     from your DDEV copy.
-   - `composer install --no-dev` and verify `drush status` against the intact
-     staging database.
-   - Create its identity marker:
-     ```
-     echo 'myeventlane_staging' > /home/mel/sites/myeventlane_staging/.mel-application
-     ```
+3. **Recreate Staging — owned by the mel-deployment repository**
+   - Staging is **not** part of Mel_hold. Clone and provision it per the
+     `github.com/anna-pye/mel-deployment` repository's own runbook (its source
+     repo, its `settings.local.php`, its `.mel-application` marker).
+   - This step is listed only so the operator restores staging in the same
+     window; the authoritative instructions live in that repository.
+   - From Mel_hold's side, only confirm isolation: deploying Hold must not touch
+     `/home/mel/sites/myeventlane_staging`.
 
 4. **Repoint web roots** (operator)
    - `public_html` → `/home/mel/sites/myeventlane_hold/web`
@@ -83,9 +81,10 @@ Perform in a maintenance window. Take a full cPanel/JetBackup snapshot first.
    - Confirm Apache/cPanel document roots match.
 
 5. **Validate isolation**
-   - `bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh --dry-run`
-   - `bash /home/mel/sites/myeventlane_staging/deploy/deploy-staging.sh --dry-run`
-   - Confirm each summary shows the correct, isolated path and database.
+   - Hold (this repo): `cd /home/mel/sites/myeventlane_hold && ./deploy/deploy-hold.sh --dry-run`
+   - Staging (mel-deployment repo): dry-run its own script per that repo's runbook.
+   - Confirm each summary shows the correct, isolated path and database, and that
+     the Hold script **refuses** the staging path.
 
 6. **Remove the old `/home/mel/web`** (only after both sites verify) — operator
    decision; keep a backup.
@@ -97,16 +96,16 @@ environment it serves:
 
 ```
 /home/mel/sites/myeventlane_hold/.mel-application        -> myeventlane_hold
-/home/mel/sites/myeventlane_staging/.mel-application     -> myeventlane_staging
-/home/mel/sites/myeventlane_production/.mel-application   -> myeventlane_production
+/home/mel/sites/myeventlane_staging/.mel-application     -> myeventlane_staging   (owned by mel-deployment)
 ```
 
-Because all three directories are clones of the **same** repository, git and
-Composer cannot tell them apart. The marker is the only reliable proof that the
-checkout at a given path is the intended application. Deploy and rollback
-**preflight fail closed** if the marker is missing or does not match the script's
-hardcoded application name — so a Staging clone accidentally placed at the Hold
-path is caught *before* any file is touched. The marker is created once, here,
+Hold is deployed from `Mel_hold`; staging is deployed from the separate
+`mel-deployment` repository — the two app directories are **different
+repositories**, not clones of one. The marker is the reliable proof that the
+checkout at a given path is the intended application: the Hold script's preflight
+**fails closed** unless `.mel-application` reads `myeventlane_hold` — so a staging
+checkout accidentally placed at the Hold path is caught *before* any file is
+touched. The Hold marker is created once, here,
 during migration.
 
 ## Why this cannot be scripted here

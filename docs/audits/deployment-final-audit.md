@@ -8,6 +8,14 @@
 > Audit-first, no server changes. This records what the repository already
 > satisfies (accepted, not duplicated) and what this phase adds.
 
+> **Repository split (authoritative):** `Mel_hold` deploys **only Hold**. Staging
+> / main MyEventLane is owned by the separate `github.com/anna-pye/mel-deployment`
+> repository. This repo's guard allowlists only the Hold path and forbids the
+> staging/production paths; there are no staging/production scripts here. See
+> [../deployment/repository-ownership.md](../deployment/repository-ownership.md).
+> (Earlier drafts modelled staging/production as clones of Mel_hold — that is
+> superseded.)
+
 ## 1. What already satisfies the requirements (accepted, not re-implemented)
 
 | Requirement | Status | Evidence |

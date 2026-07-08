@@ -27,9 +27,10 @@ deploy where the site has no database yet: that requires an explicit
 
 ## Isolation
 
-Backups are namespaced per application (`backups/myeventlane_hold/…`,
-`backups/myeventlane_staging/…`, `backups/myeventlane_production/…`). One app's
-deploy never reads or writes another app's backups.
+Backups are namespaced per application. This repo writes only
+`backups/myeventlane_hold/…` (staging backups are owned by the mel-deployment
+repo under its own namespace). One app's deploy or rollback never reads or writes
+another app's backups.
 
 ## What is NOT backed up (and why it is safe)
 

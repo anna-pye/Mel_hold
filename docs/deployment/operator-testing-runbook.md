@@ -5,16 +5,21 @@ Step-by-step manual tests to run **on the server** after the one-time migration
 run each and confirm the expected result. These tests never touch production
 infrastructure config.
 
-Prerequisites: the three app dirs exist as git clones with `.mel-application`
-markers, `/home/mel/shared/{backups,logs,deployments}` exist, and each site's
-`settings.local.php` points at its own database.
+Scope: this runbook covers **Hold** (owned by `Mel_hold`). Staging is owned by
+the `mel-deployment` repository and tested from there; here we only confirm Hold
+is isolated from it.
+
+Prerequisites: the Hold app dir exists as a git clone with its
+`.mel-application` = `myeventlane_hold` marker, `/home/mel/shared/{backups,logs,
+deployments}` exist, and Hold's `settings.local.php` points at its own database.
+(The staging app dir is provisioned separately per mel-deployment.)
 
 ---
 
 ## A. Hold deployment
 
 1. **Dry run**
-   `bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh --dry-run`
+   `cd /home/mel/sites/myeventlane_hold && ./deploy/deploy-hold.sh --dry-run`
    - Expect: summary prints; **no** changes; exit 0.
 2. **Deploy**
    `bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh`
@@ -26,13 +31,18 @@ markers, `/home/mel/shared/{backups,logs,deployments}` exist, and each site's
 6. **Journal written** — newest file in `/home/mel/shared/deployments/` has `"application":"myeventlane_hold"` and `"deployment_result":"PASS"`.
 7. **Verifier passes** — `bash /home/mel/sites/myeventlane_hold/deploy/verify-deployment.sh /home/mel/sites/myeventlane_hold` → `Overall: PASS`, exit 0.
 
-## B. Staging deployment
+## B. Staging deployment (owned by the mel-deployment repository)
 
-1. `bash /home/mel/sites/myeventlane_staging/deploy/deploy-staging.sh --dry-run` then without `--dry-run` (confirm with `staging`).
-2. **Hold untouched** — Hold's `git rev-parse HEAD` and site unchanged.
-3. **Staging works** — staging site loads.
-4. **Journal written** — newest journal has `"application":"myeventlane_staging"`.
-5. **Verifier passes** — `bash …/myeventlane_staging/deploy/verify-deployment.sh /home/mel/sites/myeventlane_staging` → PASS.
+> Staging is **not** deployed from Mel_hold. It is deployed with the tooling in
+> github.com/anna-pye/mel-deployment. Run staging's own script per that repo's
+> runbook. Mel_hold has no `deploy-staging.sh`, and its guard refuses the staging
+> path. The checks below are the **isolation expectations** to confirm from the
+> Hold side after a staging deploy:
+
+1. Deploy staging using the `mel-deployment` repo's script (see its docs).
+2. **Hold untouched** — Hold's `git rev-parse HEAD`, files, database, and site are unchanged.
+3. **Staging works** — staging site loads (verified with mel-deployment's own verifier).
+4. **`public_html` unchanged** — still points at `myeventlane_hold/web`.
 
 ---
 
@@ -40,13 +50,18 @@ markers, `/home/mel/shared/{backups,logs,deployments}` exist, and each site's
 
 Run each and confirm a non-zero exit and **no** git pull / composer / drush ran.
 
+Run these directly against the guard (safe, no changes) or via the wired script:
+
 | Test | Command | Expected |
 |---|---|---|
-| Shared home | `bash deploy/deploy-hold.sh` after editing `DEPLOY_PATH` to `/home/mel` (do **not** commit) | `Refusing to deploy to forbidden path: /home/mel` |
-| Staging root | target `/home/mel/staging` | forbidden path refusal |
-| Sites root | target `/home/mel/sites` | forbidden path refusal |
-| Wrong marker | put `myeventlane_staging` in `/home/mel/sites/myeventlane_hold/.mel-application`, run `deploy-hold.sh` | `Identity mismatch … expected 'myeventlane_hold'` |
-| Wrong document root | rename `web/` in the hold app, run `deploy-hold.sh` | `Web root … not a Drupal docroot` |
+| Shared home | `bash -c 'source deploy/lib/mel-deploy-guards.sh; mel_guard_target_path /home/mel'` | `Refusing to deploy to forbidden path: /home/mel` |
+| Staging **application** | `… mel_guard_target_path /home/mel/sites/myeventlane_staging` | refusal naming **mel-deployment** (a Mel_hold script must never deploy staging) |
+| Production application | `… mel_guard_target_path /home/mel/sites/myeventlane_production` | refusal naming mel-deployment |
+| Staging root | `… mel_guard_target_path /home/mel/staging` | forbidden path refusal |
+| Sites root | `… mel_guard_target_path /home/mel/sites` | forbidden path refusal |
+| Wrong directory | run `./deploy/deploy-hold.sh` from anywhere other than the Hold app dir | `Run this from /home/mel/sites/myeventlane_hold` |
+| Wrong marker | put `myeventlane_staging` in Hold's `.mel-application`, run `deploy-hold.sh` | `Identity mismatch … expected 'myeventlane_hold'` |
+| Wrong document root | rename `web/` in the Hold app, run `deploy-hold.sh` | `Web root … not a Drupal docroot` |
 
 In every case: exit ≠ 0, no backup taken, no code changed. Restore the marker /
 `web/` after testing.

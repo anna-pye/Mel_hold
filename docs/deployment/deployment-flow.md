@@ -1,10 +1,14 @@
 # Deployment Flow
 
 Deployment is **git-based and pull-based on the server**. You push to GitHub
-from your Mac, then SSH to the server and run the one script for the app you are
-deploying. There is no rsync and no generic script.
+from your Mac, then SSH to the server, `cd` into the app directory, and run that
+app's script. There is no rsync and no generic script.
 
-## Everyday flow
+**This repository (`Mel_hold`) deploys only Hold.** Staging / main MyEventLane is
+owned by github.com/anna-pye/mel-deployment and is deployed with *its* script —
+never from here. See [repository-ownership.md](repository-ownership.md).
+
+## Everyday flow — Hold
 
 ```
 # 1. On your Mac: merge to main and push (via PR as usual).
@@ -13,26 +17,31 @@ git push origin main
 # 2. SSH to the server.
 ssh mel@myeventlane.com.au
 
-# 3. Deploy exactly one app. Preview first with --dry-run.
-bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh --dry-run
-bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh
+# 3. cd into the Hold app dir (required — the script refuses otherwise) and deploy.
+cd /home/mel/sites/myeventlane_hold
+./deploy/deploy-hold.sh --dry-run     # preview
+./deploy/deploy-hold.sh               # deploy
 ```
 
-Staging and Production are identical with their own scripts:
+## Staging (owned by the mel-deployment repository)
 
 ```
-bash /home/mel/sites/myeventlane_staging/deploy/deploy-staging.sh
-MEL_ALLOW_PRODUCTION_DEPLOY=1 bash /home/mel/sites/myeventlane_production/deploy/deploy-production.sh
+cd /home/mel/sites/myeventlane_staging
+./deploy/deploy-staging.sh            # provided by github.com/anna-pye/mel-deployment
 ```
+
+There is no `deploy-staging.sh` in Mel_hold, and the Hold guard refuses the
+staging path outright.
 
 ## What each deploy script does (in order)
 
 ```
+require cwd                         # refuse unless you are IN the Hold app dir
 preflight                           # BEFORE any filesystem change, fail closed on:
-  · path      -> allowlisted, exactly this app's dir (not a parent/sibling)
+  · path      -> allowlisted = ONLY /home/mel/sites/myeventlane_hold
   · app dir   -> exists, is a git clone with composer.json
   · web root  -> exactly <path>/web and a real Drupal docroot (index.php)
-  · identity  -> .mel-application marker matches this script's app name
+  · identity  -> .mel-application marker == myeventlane_hold
 validate git                        # branch == main, origin == Mel_hold, clean tree, fetch
 print deployment summary            # env, path, web root, branch, local+remote commit, DB
 --dry-run? -> stop here

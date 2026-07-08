@@ -37,14 +37,20 @@ strict.
 
 ## If anything looks wrong
 
-- [ ] Stop. Run the printed `rollback-<app>.sh <backup_dir>`.
-- [ ] Verify the site recovers.
+- [ ] Stop. From the Hold app dir, run the printed `./deploy/rollback-hold.sh <backup_dir>`.
+- [ ] Verify the site recovers (`./deploy/verify-deployment.sh /home/mel/sites/myeventlane_hold`).
 - [ ] Diagnose before re-attempting.
+
+## Scope
+
+- [ ] This repo deploys **only Hold**. Staging / main MyEventLane is deployed
+      from github.com/anna-pye/mel-deployment — never from here.
 
 ## Never
 
 - [ ] Never run `deploy/push-and-deploy.sh`, `site-deploy.sh`, or
       `cpanel-post-deploy.sh` — they are retired stubs that refuse to run.
-- [ ] Never deploy to `/home/mel`, `/home/mel/sites`, `/home/mel/shared`, or any
-      parent — the guard will refuse, and so should you.
+- [ ] Never deploy to `/home/mel`, `/home/mel/sites`, `/home/mel/shared`,
+      `/home/mel/sites/myeventlane_staging`, or any parent — the Hold guard
+      refuses, and so should you.
 - [ ] Never `rsync --delete` application code.

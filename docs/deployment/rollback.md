@@ -7,11 +7,13 @@ else.
 ## One-command rollback
 
 ```
-# Roll the app back to its latest pre-deploy backup:
-bash /home/mel/sites/myeventlane_hold/deploy/rollback-hold.sh
-bash /home/mel/sites/myeventlane_staging/deploy/rollback-staging.sh
-bash /home/mel/sites/myeventlane_production/deploy/rollback-production.sh
+# Roll HOLD back to its latest pre-deploy backup (run from the Hold app dir):
+cd /home/mel/sites/myeventlane_hold
+./deploy/rollback-hold.sh
 ```
+
+Staging / main MyEventLane rollback is owned by the `mel-deployment` repository
+and uses *its* rollback tooling — not anything here.
 
 The deploy scripts also print the exact rollback command (with the backup
 directory) whenever a deploy fails.
