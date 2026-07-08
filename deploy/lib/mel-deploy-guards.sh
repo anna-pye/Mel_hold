@@ -97,6 +97,18 @@ mel_require_cwd() {
     || mel_die "Run this from ${path} (cd there first). Current directory: ${here}"
 }
 
+# Map an allowlisted deployment path to its EXPECTED application name.
+# The expected identity is derived from the trusted path, never from the
+# on-disk marker — so callers can compare the marker against this and catch a
+# wrong marker instead of rubber-stamping it.
+mel_expected_app_for_path() {
+  local path; path="$(mel_normalize_path "${1:?}")"
+  case "${path}" in
+    "${MEL_ALLOWED_HOLD}") printf '%s' "myeventlane_hold" ;;
+    *) mel_die "No expected application is defined for ${path} in this repository." ;;
+  esac
+}
+
 # Fail unless $1 is a Composer project root that is a git checkout.
 mel_require_app_dir() {
   local path="${1:-}"

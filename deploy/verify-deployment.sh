@@ -27,17 +27,19 @@ Allowed (Hold only): /home/mel/sites/myeventlane_hold"
 mel_guard_target_path "${TARGET}"
 mel_require_app_dir "${TARGET}"
 
-MARKER="${TARGET}/.mel-application"
-[[ -f "${MARKER}" ]] || mel_die "Missing application identity marker: ${MARKER}"
-APP="$(tr -d '[:space:]' < "${MARKER}")"
-[[ -n "${APP}" ]] || mel_die "Empty application identity marker: ${MARKER}"
+# Expected identity comes from the trusted (allowlisted) path, NOT from the
+# on-disk marker — otherwise the "Correct application" check would compare the
+# marker against itself and could never fail. mel_verify then compares the
+# actual .mel-application marker against this, so a wrong marker (e.g. staging)
+# on the Hold path FAILS verification, matching deploy-hold.sh preflight.
+APP="$(mel_expected_app_for_path "${TARGET}")"
 
 mel_collect_versions "${TARGET}"
 mel_verify "${APP}" "${TARGET}"
 mel_print_verify
 
 echo ""
-echo "Application  : ${APP}"
+echo "Application  : ${APP} (expected)"
 echo "Drupal       : ${MEL_VER_DRUPAL}   PHP: ${MEL_VER_PHP}   Composer: ${MEL_VER_COMPOSER}"
 echo "Overall      : ${MEL_VERIFY_RESULT}"
 
