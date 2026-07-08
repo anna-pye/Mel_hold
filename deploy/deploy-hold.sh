@@ -2,11 +2,16 @@
 #
 # deploy-hold.sh — deploy ONLY the MEL Hold application.
 #
-# This script hardcodes its target. It can deploy nothing else. There is no
-# generic path variable, no --path flag, and no rsync --delete. Run it ON THE
-# SERVER, as the deploy user, from anywhere:
+# Mel_hold deploys ONLY Hold. Staging/production MyEventLane are owned by the
+# separate github.com/anna-pye/mel-deployment repository and cannot be deployed
+# from here. This script hardcodes its target and refuses to run unless the
+# current directory, deployment path, web root, and .mel-application marker all
+# match Hold. There is no generic path variable and no rsync --delete.
 #
-#   bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh [--dry-run] [--yes]
+# Operator command (run ON THE SERVER, as the deploy user):
+#
+#   cd /home/mel/sites/myeventlane_hold
+#   ./deploy/deploy-hold.sh              [--dry-run] [--yes]
 #
 set -euo pipefail
 
@@ -19,6 +24,8 @@ readonly BRANCH="main"
 readonly REMOTE_MATCH="Mel_hold"
 readonly BACKUP_ROOT="/home/mel/shared/backups"
 readonly LOG_ROOT="/home/mel/shared/logs"
+readonly DEPLOYMENTS_ROOT="/home/mel/shared/deployments"
+readonly START_EPOCH="$(date +%s)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/mel-deploy-guards.sh
@@ -35,6 +42,9 @@ for arg in "$@"; do
 done
 
 # --- Preflight + safety guards (fail closed, before any change). --------------
+# Refuses unless the current directory, deployment path, web root, and
+# .mel-application marker all match the Hold application.
+mel_require_cwd "${DEPLOY_PATH}"
 mel_preflight "${APP_NAME}" "${DEPLOY_PATH}" "${WEB_ROOT}"
 mel_validate_git "${DEPLOY_PATH}" "${BRANCH}" "${REMOTE_MATCH}"
 
@@ -66,7 +76,9 @@ mel_info "Backup: ${BACKUP_DIR}"
 # `|| mel_die`, which an ERR trap would miss), tell the operator how to roll
 # back. An EXIT trap fires on every exit path; the rc guard keeps it silent on
 # success.
-trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
+# The rollback command includes `cd` because rollback-hold.sh (like this script)
+# refuses to run unless the current directory is the Hold app dir.
+trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  cd ${DEPLOY_PATH} && ./deploy/rollback-hold.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
 
 mkdir -p "${LOG_ROOT}/${APP_NAME}"
 LOG_FILE="${LOG_ROOT}/${APP_NAME}/deploy-$(date +%Y%m%d-%H%M%S).log"
@@ -90,19 +102,20 @@ mel_info "Importing configuration…"
 mel_info "Rebuilding caches…"
 "${MEL_DRUSH[@]}" cache:rebuild
 
-# --- Health checks. ----------------------------------------------------------
-mel_info "Verifying site health…"
-"${MEL_DRUSH[@]}" status | grep -q 'Successful' || mel_die "Drupal did not bootstrap after deploy."
-maint="$("${MEL_DRUSH[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
-[[ "${maint}" != "1" ]] || mel_die "Site left in maintenance mode."
+# --- Verify, journal, summarise (shared mel_verify; no duplicated logic). -----
+# mel_finalize_deploy returns non-zero ONLY when verification FAILs (journal /
+# summary hiccups are non-fatal inside it); the rollback decision keys on the
+# actual verification result, not on incidental finalize errors.
+DEPLOY_RESULT=0
+mel_finalize_deploy "${APP_NAME}" "${ENV_LABEL}" "${DEPLOY_PATH}" "${WEB_ROOT}" \
+  "${BRANCH}" "${BACKUP_DIR}" "${START_EPOCH}" "${DEPLOYMENTS_ROOT}" || DEPLOY_RESULT=$?
 
-echo "success ${APP_NAME} now at $(git rev-parse HEAD) at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
+echo "finalise ${APP_NAME} result=${DEPLOY_RESULT} verify=${MEL_VERIFY_RESULT:-UNKNOWN} at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
 
-cat <<DONE
+if [[ "${MEL_VERIFY_RESULT:-FAIL}" == "FAIL" ]]; then
+  mel_die "Deployment verification FAILED — review the report above and roll back if needed."
+fi
 
-✅ Hold deploy complete.
-   Now at : $(git rev-parse HEAD)
-   Backup : ${BACKUP_DIR}
-   Log    : ${LOG_FILE}
-   Rollback (if needed): bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}
-DONE
+echo ""
+echo "✅ Hold deploy complete (${MEL_VERIFY_RESULT}). Log: ${LOG_FILE}"
+echo "   Rollback (if needed): cd ${DEPLOY_PATH} && ./deploy/rollback-hold.sh ${BACKUP_DIR}"

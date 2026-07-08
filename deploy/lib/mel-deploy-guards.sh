@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 #
-# mel-deploy-guards.sh — pure, fail-closed helpers for the per-application
-# deployment scripts (deploy-hold.sh / deploy-staging.sh / deploy-production.sh).
+# mel-deploy-guards.sh — pure, fail-closed helpers for the Hold deploy scripts
+# (deploy-hold.sh / rollback-hold.sh / verify-deployment.sh) in THIS repository.
+#
+# SCOPE: Mel_hold deploys ONLY the Hold application. Staging and production
+# MyEventLane are owned by a SEPARATE repository —
+# https://github.com/anna-pye/mel-deployment — and are explicitly forbidden
+# here. See docs/deployment/repository-ownership.md.
 #
 # This library NEVER chooses a deployment target. It only *validates* a target
-# a caller has already hardcoded, and provides backup / rollback / summary /
-# confirmation helpers. It can only ever refuse or narrow — never broaden — a
-# deployment, so sourcing it cannot reintroduce a generic target.
+# a caller has already hardcoded, and provides backup / rollback / verify /
+# journal / confirmation helpers. It can only ever refuse or narrow — never
+# broaden — a deployment, so sourcing it cannot reintroduce a generic target.
 #
 # Source it; do not execute it directly. Callers must run `set -euo pipefail`.
 
-# --- The ONLY paths any deployment may ever target. Hardcoded allowlist. -----
+# --- The ONLY path any deployment in THIS repo may target. Hold, hardcoded. ---
 # Keep in exact sync with docs/deployment/server-layout.md.
 MEL_ALLOWED_HOLD="/home/mel/sites/myeventlane_hold"
-MEL_ALLOWED_STAGING="/home/mel/sites/myeventlane_staging"
-MEL_ALLOWED_PRODUCTION="/home/mel/sites/myeventlane_production"
 
-# Paths that must ALWAYS be rejected outright (parents / shared roots).
-MEL_FORBIDDEN_PATHS="/ /home /home/mel /home/mel/ /home/mel/sites /home/mel/shared /home/mel/staging"
+# Paths that must ALWAYS be rejected outright: parents, shared roots, and the
+# staging/production applications (owned by the mel-deployment repository — a
+# Mel_hold script must never touch them).
+MEL_FORBIDDEN_PATHS="/ /home /home/mel /home/mel/ /home/mel/sites /home/mel/shared /home/mel/staging /home/mel/sites/myeventlane_staging /home/mel/sites/myeventlane_production"
 
 mel_die() {
   echo "ERROR: $*" >&2
@@ -37,8 +42,9 @@ mel_normalize_path() {
   fi
 }
 
-# Fail unless $1 is EXACTLY one of the three allowlisted application dirs.
-# Rejects every parent, sibling, shared root, and any un-allowlisted path.
+# Fail unless $1 is EXACTLY the Hold application directory.
+# Rejects every parent, sibling, shared root, the staging/production apps, and
+# any other path.
 mel_guard_target_path() {
   local raw="${1:-}"
   [[ -n "${raw}" ]] || mel_die "mel_guard_target_path requires a path."
@@ -52,26 +58,55 @@ mel_guard_target_path() {
   local path
   path="$(mel_normalize_path "${raw}")"
 
-  # Explicit forbidden-parent refusal (clear error before the allowlist).
+  # Explicit forbidden refusal (clear error before the allowlist). Staging and
+  # production paths land here — they are owned by the mel-deployment repo.
   local forbidden
   for forbidden in ${MEL_FORBIDDEN_PATHS}; do
     if [[ "${path}" == "$(mel_normalize_path "${forbidden}")" ]]; then
-      mel_die "Refusing to deploy to forbidden path: ${path}"
+      case "${path}" in
+        */myeventlane_staging|*/myeventlane_production)
+          mel_die "Refusing: ${path} is a MyEventLane staging/production app.
+It is deployed from https://github.com/anna-pye/mel-deployment, NOT from Mel_hold." ;;
+        *)
+          mel_die "Refusing to deploy to forbidden path: ${path}" ;;
+      esac
     fi
   done
 
-  # Allowlist: must match one of exactly three application directories.
+  # Allowlist: Hold, and only Hold.
   case "${path}" in
-    "${MEL_ALLOWED_HOLD}"|"${MEL_ALLOWED_STAGING}"|"${MEL_ALLOWED_PRODUCTION}")
+    "${MEL_ALLOWED_HOLD}")
       return 0
       ;;
   esac
 
   mel_die "Deployment path is not allowlisted: ${path}
-Allowed targets are exactly:
+This repository (Mel_hold) deploys ONLY the Hold application:
   ${MEL_ALLOWED_HOLD}
-  ${MEL_ALLOWED_STAGING}
-  ${MEL_ALLOWED_PRODUCTION}"
+Staging/production MyEventLane are owned by github.com/anna-pye/mel-deployment."
+}
+
+# Fail unless the current working directory IS the application directory.
+# The operator runbook requires `cd <app path>` before running a deploy, so a
+# mismatched CWD is a strong signal the wrong script/app is being run.
+mel_require_cwd() {
+  local path="${1:?}" here there
+  here="$(pwd -P)"
+  there="$(cd "${path}" 2>/dev/null && pwd -P || echo '')"
+  [[ -n "${there}" && "${here}" == "${there}" ]] \
+    || mel_die "Run this from ${path} (cd there first). Current directory: ${here}"
+}
+
+# Map an allowlisted deployment path to its EXPECTED application name.
+# The expected identity is derived from the trusted path, never from the
+# on-disk marker — so callers can compare the marker against this and catch a
+# wrong marker instead of rubber-stamping it.
+mel_expected_app_for_path() {
+  local path; path="$(mel_normalize_path "${1:?}")"
+  case "${path}" in
+    "${MEL_ALLOWED_HOLD}") printf '%s' "myeventlane_hold" ;;
+    *) mel_die "No expected application is defined for ${path} in this repository." ;;
+  esac
 }
 
 # Fail unless $1 is a Composer project root that is a git checkout.
@@ -263,4 +298,207 @@ mel_rollback_restore() {
   fi
 
   mel_info "Rollback complete."
+}
+
+# ============================================================================
+# Verification, versions, journal, and final summary.
+#
+# Single source of truth for post-deploy verification: both the deploy scripts
+# (via mel_finalize_deploy) and the standalone deploy/verify-deployment.sh call
+# mel_verify, so there is no duplicated verification logic.
+# ============================================================================
+
+# Collect tool/runtime versions. Sets MEL_VER_{DRUPAL,PHP,COMPOSER}.
+mel_collect_versions() {
+  local path="${1:?}"
+  mel_set_drush "${path}"
+  MEL_VER_DRUPAL="$("${MEL_DRUSH[@]}" status --field=drupal-version 2>/dev/null || echo 'unknown')"
+  MEL_VER_PHP="$(php -r 'echo PHP_VERSION;' 2>/dev/null || echo 'unknown')"
+  MEL_VER_COMPOSER="$(composer --version 2>/dev/null | awk '{print $3}' || echo 'unknown')"
+  [[ -n "${MEL_VER_DRUPAL}" ]] || MEL_VER_DRUPAL="unknown"
+  [[ -n "${MEL_VER_PHP}" ]] || MEL_VER_PHP="unknown"
+  [[ -n "${MEL_VER_COMPOSER}" ]] || MEL_VER_COMPOSER="unknown"
+}
+
+# Read-only health verification. Args: app, path, [expected_branch=main].
+# Sets MEL_VERIFY_RESULT (PASS|WARNING|FAIL) and MEL_VERIFY_LINES[] ("ST|label").
+# Never mutates anything; every check is defensive so one failure cannot abort.
+mel_verify() {
+  local app="${1:?}" path="${2:?}" expected_branch="${3:-main}"
+  MEL_VERIFY_LINES=()
+  MEL_VERIFY_FAILS=0
+  MEL_VERIFY_WARNS=0
+  _add() {
+    MEL_VERIFY_LINES+=("$1|$2")
+    if [[ "$1" == "FAIL" ]]; then MEL_VERIFY_FAILS=$((MEL_VERIFY_FAILS + 1)); fi
+    if [[ "$1" == "WARN" ]]; then MEL_VERIFY_WARNS=$((MEL_VERIFY_WARNS + 1)); fi
+  }
+  mel_set_drush "${path}"
+  local D=("${MEL_DRUSH[@]}")
+
+  # Correct application (identity marker).
+  local id=""
+  [[ -f "${path}/.mel-application" ]] && id="$(tr -d '[:space:]' < "${path}/.mel-application")"
+  if [[ "${id}" == "${app}" ]]; then _add PASS "Correct application (${app})"; else _add FAIL "Application marker mismatch (got '${id:-none}')"; fi
+
+  # Correct document root.
+  if [[ "$(cd "${path}" 2>/dev/null && pwd)" == "${path}" && -f "${path}/web/index.php" ]]; then _add PASS "Document root is ${path}/web"; else _add FAIL "Document root missing (${path}/web/index.php)"; fi
+
+  # Git clean working tree.
+  if [[ -z "$(git -C "${path}" status --porcelain 2>/dev/null)" ]]; then _add PASS "Git working tree clean"; else _add WARN "Git working tree not clean"; fi
+
+  # Correct branch (the deploy's expected branch, not a hardcoded 'main').
+  local br; br="$(git -C "${path}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+  if [[ "${br}" == "${expected_branch}" ]]; then _add PASS "On branch ${expected_branch}"; else _add FAIL "On branch '${br}', expected ${expected_branch}"; fi
+
+  # Expected commit (HEAD matches origin/<expected_branch>; no network fetch here).
+  local head origin
+  head="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo '')"
+  origin="$(git -C "${path}" rev-parse "origin/${expected_branch}" 2>/dev/null || echo '')"
+  if [[ -n "${origin}" && "${head}" == "${origin}" ]]; then _add PASS "At origin/${expected_branch} (${head:0:12})";
+  elif [[ -n "${origin}" ]]; then _add WARN "HEAD differs from origin/${expected_branch} (${head:0:12})";
+  else _add WARN "origin/${expected_branch} ref unavailable"; fi
+
+  # Composer installed.
+  if [[ -f "${path}/vendor/autoload.php" ]]; then _add PASS "Composer dependencies installed"; else _add FAIL "vendor/autoload.php missing"; fi
+
+  # Drupal bootstraps.
+  if "${D[@]}" status 2>/dev/null | grep -q 'Successful'; then _add PASS "Drupal bootstraps"; else _add FAIL "Drupal does not bootstrap"; fi
+
+  # Database reachable.
+  local dbs; dbs="$("${D[@]}" status --field=db-status 2>/dev/null || echo '')"
+  if [[ "${dbs}" == *Connected* ]]; then _add PASS "Database reachable"; else _add FAIL "Database not reachable"; fi
+
+  # Maintenance mode off.
+  local maint; maint="$("${D[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
+  if [[ "${maint}" != "1" ]]; then _add PASS "Maintenance mode off"; else _add FAIL "Site in maintenance mode"; fi
+
+  # Config clean.
+  if "${D[@]}" config:status 2>/dev/null | grep -qi 'No differences'; then _add PASS "Configuration in sync"; else _add WARN "Configuration drift detected"; fi
+
+  # No pending database updates.
+  if "${D[@]}" updatedb:status 2>/dev/null | grep -qiE 'No database updates|No pending'; then _add PASS "No pending database updates"; else _add WARN "Pending database updates"; fi
+
+  # Cron available (has run at least once).
+  local cron; cron="$("${D[@]}" state:get system.cron_last --format=string 2>/dev/null || echo '')"
+  if [[ -n "${cron}" ]]; then _add PASS "Cron available"; else _add WARN "Cron has never run"; fi
+
+  # Watchdog readable.
+  if "${D[@]}" watchdog:show --count=1 >/dev/null 2>&1; then _add PASS "Watchdog readable"; else _add WARN "Watchdog not readable (dblog disabled?)"; fi
+
+  if [[ ${MEL_VERIFY_FAILS} -gt 0 ]]; then MEL_VERIFY_RESULT="FAIL";
+  elif [[ ${MEL_VERIFY_WARNS} -gt 0 ]]; then MEL_VERIFY_RESULT="WARNING";
+  else MEL_VERIFY_RESULT="PASS"; fi
+}
+
+# Print the collected verification lines.
+mel_print_verify() {
+  echo "Verification:"
+  if [[ ${#MEL_VERIFY_LINES[@]} -eq 0 ]]; then echo "  (no checks run)"; return 0; fi
+  local line st label
+  for line in "${MEL_VERIFY_LINES[@]}"; do
+    st="${line%%|*}"; label="${line#*|}"
+    echo "  [${st}] ${label}"
+  done
+}
+
+# Monotonic per-application build number stored under the journal root.
+mel_next_build_number() {
+  local app="${1:?}" deployments_root="${2:?}"
+  local counter="${deployments_root}/.build-${app}" n=0
+  mkdir -p "${deployments_root}" 2>/dev/null || true
+  [[ -f "${counter}" ]] && n="$(cat "${counter}" 2>/dev/null || echo 0)"
+  [[ "${n}" =~ ^[0-9]+$ ]] || n=0
+  n=$((n + 1))
+  echo "${n}" > "${counter}" 2>/dev/null || true
+  printf '%s' "${n}"
+}
+
+# Write one deployment journal entry (JSON). Contains NO secrets. Echoes path.
+# Args: app env branch commit build path web_root dtype preflight result backup_dir deployments_root
+mel_write_journal() {
+  local app="${1:?}" env="${2:?}" branch="${3:?}" commit="${4:?}" build="${5:?}" \
+        path="${6:?}" web_root="${7:?}" dtype="${8:?}" preflight="${9:?}" result="${10:?}" \
+        backup_dir="${11:-}" deployments_root="${12:?}"
+  mkdir -p "${deployments_root}" 2>/dev/null || return 1
+  local ts host user rollback file
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  host="$(hostname 2>/dev/null || echo unknown)"
+  user="$(id -un 2>/dev/null || echo unknown)"
+  if [[ -n "${backup_dir}" && -d "${backup_dir}" ]]; then rollback="true"; else rollback="false"; fi
+  file="${deployments_root}/$(date +%Y-%m-%d-%H%M%S).json"
+  # Signal a genuine write failure so callers can warn (the trailing printf
+  # must not mask a failed cat).
+  if ! cat > "${file}" 2>/dev/null <<JSON
+{
+  "application": "${app}",
+  "environment": "${env}",
+  "branch": "${branch}",
+  "commit": "${commit}",
+  "build": ${build},
+  "timestamp": "${ts}",
+  "hostname": "${host}",
+  "deploy_user": "${user}",
+  "deployment_type": "${dtype}",
+  "web_root": "${web_root}",
+  "preflight_result": "${preflight}",
+  "deployment_result": "${result}",
+  "rollback_available": ${rollback},
+  "composer_version": "${MEL_VER_COMPOSER:-unknown}",
+  "drupal_version": "${MEL_VER_DRUPAL:-unknown}",
+  "php_version": "${MEL_VER_PHP:-unknown}"
+}
+JSON
+  then
+    return 1
+  fi
+  printf '%s' "${file}"
+}
+
+# Orchestrate post-deploy: versions -> verify -> journal -> summary.
+# Returns non-zero only when verification FAILs. Args:
+#   app env path web_root branch backup_dir start_epoch deployments_root
+mel_finalize_deploy() {
+  local app="${1:?}" env="${2:?}" path="${3:?}" web_root="${4:?}" branch="${5:?}" \
+        backup_dir="${6:-}" start_epoch="${7:?}" deployments_root="${8:?}"
+  local commit build duration journal
+  commit="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo 'unknown')"
+
+  mel_collect_versions "${path}"
+  mel_verify "${app}" "${path}" "${branch}"
+  mel_print_verify
+
+  duration=$(( $(date +%s) - start_epoch ))
+  # Journal/build are records of a deploy that already happened — a failure to
+  # write them must NOT be reported as (or conflated with) a verification
+  # failure. Guard them so this function's exit code reflects verification only.
+  build="$(mel_next_build_number "${app}" "${deployments_root}" 2>/dev/null || echo 0)"
+  if ! journal="$(mel_write_journal "${app}" "${env}" "${branch}" "${commit}" "${build}" \
+      "${path}" "${web_root}" "git" "PASS" "${MEL_VERIFY_RESULT}" "${backup_dir}" "${deployments_root}" 2>/dev/null)"; then
+    mel_warn "Deployment journal could not be written (the deploy itself is unaffected)."
+    journal="(journal write failed)"
+  fi
+
+  cat <<SUMMARY
+
+──────────────────────────────────────────────────────────────
+  Deployment report
+──────────────────────────────────────────────────────────────
+  Application    : ${app}
+  Environment    : ${env}
+  Branch         : ${branch}
+  Commit         : ${commit}
+  Build          : ${build}
+  Drupal version : ${MEL_VER_DRUPAL}
+  PHP version    : ${MEL_VER_PHP}
+  Composer       : ${MEL_VER_COMPOSER}
+  Duration       : ${duration}s
+  Verification   : ${MEL_VERIFY_RESULT}
+  Journal        : ${journal}
+  Rollback       : ${backup_dir:-none}
+──────────────────────────────────────────────────────────────
+SUMMARY
+
+  [[ "${MEL_VERIFY_RESULT}" != "FAIL" ]] || return 1
+  return 0
 }
