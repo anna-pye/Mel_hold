@@ -7,7 +7,7 @@
 # That behaviour is unsafe and has been removed. Deployment is now handled by
 # the isolated, hardcoded, git-based per-application scripts:
 #
-#   deploy/deploy-hold.sh / deploy-staging.sh / deploy-production.sh
+#   deploy/deploy-hold.sh   (Hold only; staging is in the mel-deployment repo)
 #
 # See docs/audits/deployment-architecture-audit.md.
 #

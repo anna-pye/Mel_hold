@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 #
-# mel-deploy-guards.sh — pure, fail-closed helpers for the per-application
-# deployment scripts (deploy-hold.sh / deploy-staging.sh / deploy-production.sh).
+# mel-deploy-guards.sh — pure, fail-closed helpers for the Hold deploy scripts
+# (deploy-hold.sh / rollback-hold.sh / verify-deployment.sh) in THIS repository.
+#
+# SCOPE: Mel_hold deploys ONLY the Hold application. Staging and production
+# MyEventLane are owned by a SEPARATE repository —
+# https://github.com/anna-pye/mel-deployment — and are explicitly forbidden
+# here. See docs/deployment/repository-ownership.md.
 #
 # This library NEVER chooses a deployment target. It only *validates* a target
-# a caller has already hardcoded, and provides backup / rollback / summary /
-# confirmation helpers. It can only ever refuse or narrow — never broaden — a
-# deployment, so sourcing it cannot reintroduce a generic target.
+# a caller has already hardcoded, and provides backup / rollback / verify /
+# journal / confirmation helpers. It can only ever refuse or narrow — never
+# broaden — a deployment, so sourcing it cannot reintroduce a generic target.
 #
 # Source it; do not execute it directly. Callers must run `set -euo pipefail`.
 
-# --- The ONLY paths any deployment may ever target. Hardcoded allowlist. -----
+# --- The ONLY path any deployment in THIS repo may target. Hold, hardcoded. ---
 # Keep in exact sync with docs/deployment/server-layout.md.
 MEL_ALLOWED_HOLD="/home/mel/sites/myeventlane_hold"
-MEL_ALLOWED_STAGING="/home/mel/sites/myeventlane_staging"
-MEL_ALLOWED_PRODUCTION="/home/mel/sites/myeventlane_production"
 
-# Paths that must ALWAYS be rejected outright (parents / shared roots).
-MEL_FORBIDDEN_PATHS="/ /home /home/mel /home/mel/ /home/mel/sites /home/mel/shared /home/mel/staging"
+# Paths that must ALWAYS be rejected outright: parents, shared roots, and the
+# staging/production applications (owned by the mel-deployment repository — a
+# Mel_hold script must never touch them).
+MEL_FORBIDDEN_PATHS="/ /home /home/mel /home/mel/ /home/mel/sites /home/mel/shared /home/mel/staging /home/mel/sites/myeventlane_staging /home/mel/sites/myeventlane_production"
 
 mel_die() {
   echo "ERROR: $*" >&2
@@ -37,8 +42,9 @@ mel_normalize_path() {
   fi
 }
 
-# Fail unless $1 is EXACTLY one of the three allowlisted application dirs.
-# Rejects every parent, sibling, shared root, and any un-allowlisted path.
+# Fail unless $1 is EXACTLY the Hold application directory.
+# Rejects every parent, sibling, shared root, the staging/production apps, and
+# any other path.
 mel_guard_target_path() {
   local raw="${1:-}"
   [[ -n "${raw}" ]] || mel_die "mel_guard_target_path requires a path."
@@ -52,26 +58,43 @@ mel_guard_target_path() {
   local path
   path="$(mel_normalize_path "${raw}")"
 
-  # Explicit forbidden-parent refusal (clear error before the allowlist).
+  # Explicit forbidden refusal (clear error before the allowlist). Staging and
+  # production paths land here — they are owned by the mel-deployment repo.
   local forbidden
   for forbidden in ${MEL_FORBIDDEN_PATHS}; do
     if [[ "${path}" == "$(mel_normalize_path "${forbidden}")" ]]; then
-      mel_die "Refusing to deploy to forbidden path: ${path}"
+      case "${path}" in
+        */myeventlane_staging|*/myeventlane_production)
+          mel_die "Refusing: ${path} is a MyEventLane staging/production app.
+It is deployed from https://github.com/anna-pye/mel-deployment, NOT from Mel_hold." ;;
+        *)
+          mel_die "Refusing to deploy to forbidden path: ${path}" ;;
+      esac
     fi
   done
 
-  # Allowlist: must match one of exactly three application directories.
+  # Allowlist: Hold, and only Hold.
   case "${path}" in
-    "${MEL_ALLOWED_HOLD}"|"${MEL_ALLOWED_STAGING}"|"${MEL_ALLOWED_PRODUCTION}")
+    "${MEL_ALLOWED_HOLD}")
       return 0
       ;;
   esac
 
   mel_die "Deployment path is not allowlisted: ${path}
-Allowed targets are exactly:
+This repository (Mel_hold) deploys ONLY the Hold application:
   ${MEL_ALLOWED_HOLD}
-  ${MEL_ALLOWED_STAGING}
-  ${MEL_ALLOWED_PRODUCTION}"
+Staging/production MyEventLane are owned by github.com/anna-pye/mel-deployment."
+}
+
+# Fail unless the current working directory IS the application directory.
+# The operator runbook requires `cd <app path>` before running a deploy, so a
+# mismatched CWD is a strong signal the wrong script/app is being run.
+mel_require_cwd() {
+  local path="${1:?}" here there
+  here="$(pwd -P)"
+  there="$(cd "${path}" 2>/dev/null && pwd -P || echo '')"
+  [[ -n "${there}" && "${here}" == "${there}" ]] \
+    || mel_die "Run this from ${path} (cd there first). Current directory: ${here}"
 }
 
 # Fail unless $1 is a Composer project root that is a git checkout.

@@ -18,6 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/mel-deploy-guards.sh
 source "${SCRIPT_DIR}/lib/mel-deploy-guards.sh"
 
+mel_require_cwd "${DEPLOY_PATH}"
 mel_preflight "${APP_NAME}" "${DEPLOY_PATH}"
 
 APP_BACKUPS="${BACKUP_ROOT}/${APP_NAME}"

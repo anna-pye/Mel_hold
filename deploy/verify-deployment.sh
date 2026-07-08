@@ -8,6 +8,9 @@
 #
 #   bash deploy/verify-deployment.sh /home/mel/sites/myeventlane_hold
 #
+# This repository deploys ONLY Hold, so the only accepted target is the Hold
+# path; staging/production are owned by github.com/anna-pye/mel-deployment.
+#
 # Exit: 0 = PASS or WARNING, 1 = FAIL, 2 = misuse/guard failure.
 #
 set -euo pipefail
@@ -18,7 +21,7 @@ source "${SCRIPT_DIR}/lib/mel-deploy-guards.sh"
 
 TARGET="${1:-}"
 [[ -n "${TARGET}" ]] || mel_die "Usage: verify-deployment.sh <deploy path>
-Allowed: /home/mel/sites/myeventlane_{hold,staging,production}"
+Allowed (Hold only): /home/mel/sites/myeventlane_hold"
 
 # Read-only, but still fail closed to an allowlisted, real application dir.
 mel_guard_target_path "${TARGET}"

@@ -7,7 +7,7 @@
 # ran composer/drush there with no isolation. Its behaviour is now built into
 # the per-application scripts, which hardcode their own path:
 #
-#   deploy/deploy-hold.sh / deploy-staging.sh / deploy-production.sh
+#   deploy/deploy-hold.sh   (Hold only; staging is in the mel-deployment repo)
 #
 # See docs/audits/deployment-architecture-audit.md.
 #

@@ -2,11 +2,16 @@
 #
 # deploy-hold.sh — deploy ONLY the MEL Hold application.
 #
-# This script hardcodes its target. It can deploy nothing else. There is no
-# generic path variable, no --path flag, and no rsync --delete. Run it ON THE
-# SERVER, as the deploy user, from anywhere:
+# Mel_hold deploys ONLY Hold. Staging/production MyEventLane are owned by the
+# separate github.com/anna-pye/mel-deployment repository and cannot be deployed
+# from here. This script hardcodes its target and refuses to run unless the
+# current directory, deployment path, web root, and .mel-application marker all
+# match Hold. There is no generic path variable and no rsync --delete.
 #
-#   bash /home/mel/sites/myeventlane_hold/deploy/deploy-hold.sh [--dry-run] [--yes]
+# Operator command (run ON THE SERVER, as the deploy user):
+#
+#   cd /home/mel/sites/myeventlane_hold
+#   ./deploy/deploy-hold.sh              [--dry-run] [--yes]
 #
 set -euo pipefail
 
@@ -37,6 +42,9 @@ for arg in "$@"; do
 done
 
 # --- Preflight + safety guards (fail closed, before any change). --------------
+# Refuses unless the current directory, deployment path, web root, and
+# .mel-application marker all match the Hold application.
+mel_require_cwd "${DEPLOY_PATH}"
 mel_preflight "${APP_NAME}" "${DEPLOY_PATH}" "${WEB_ROOT}"
 mel_validate_git "${DEPLOY_PATH}" "${BRANCH}" "${REMOTE_MATCH}"
 
