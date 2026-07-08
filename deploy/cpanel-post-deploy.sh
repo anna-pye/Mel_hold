@@ -1,27 +1,17 @@
 #!/usr/bin/env bash
 #
-# Post-deploy on cPanel / shared hosting (no /etc/myeventlane/production.env required).
-# Usage: bash deploy/cpanel-post-deploy.sh [/home/mel]
+# RETIRED — DO NOT USE.
 #
-
+# This was the remote post-deploy step for the retired push-and-deploy.sh
+# rsync flow. It accepted an arbitrary path argument (default /home/mel) and
+# ran composer/drush there with no isolation. Its behaviour is now built into
+# the per-application scripts, which hardcode their own path:
+#
+#   deploy/deploy-hold.sh / deploy-staging.sh / deploy-production.sh
+#
+# See docs/audits/deployment-architecture-audit.md.
+#
 set -euo pipefail
 
-ROOT="${1:-${PWD}}"
-if [[ ! -f "${ROOT}/composer.json" ]]; then
-  echo "Usage: $0 /path/to/project (composer.json at root)" >&2
-  exit 1
-fi
-
-cd "${ROOT}"
-
-composer install --no-dev --optimize-autoloader --no-interaction
-
-DRUSH=(php -d memory_limit=512M "${ROOT}/vendor/bin/drush")
-if "${DRUSH[@]}" status 2>/dev/null | grep -q 'Successful'; then
-  "${DRUSH[@]}" updatedb -y
-  "${DRUSH[@]}" cr
-else
-  echo "Warning: Drupal not bootstrapped; skipped drush updatedb/cr." >&2
-fi
-
-echo "cpanel-post-deploy: done."
+echo "ERROR: deploy/cpanel-post-deploy.sh is RETIRED. Use deploy/deploy-<app>.sh." >&2
+exit 1

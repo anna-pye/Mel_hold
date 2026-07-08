@@ -49,3 +49,7 @@ docker-compose.override.yml
 # Optional local tooling
 .tool-versions
 etc/myeventlane/*.env
+
+# Per-clone deployment identity marker (server-side; see deploy preflight).
+# Names which environment a checkout serves; must never be committed.
+/.mel-application
