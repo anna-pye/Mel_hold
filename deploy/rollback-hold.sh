@@ -30,10 +30,11 @@ fi
 
 BACKUP_DIR="${1:-}"
 if [[ -z "${BACKUP_DIR}" ]]; then
-  BACKUP_DIR="${APP_BACKUPS}/$(ls -1 "${APP_BACKUPS}" 2>/dev/null | tail -n 1)"
-  [[ -d "${BACKUP_DIR}" ]] || mel_die "No backups found at ${APP_BACKUPS}"
+  latest="$(ls -1 "${APP_BACKUPS}" 2>/dev/null | tail -n 1)"
+  [[ -n "${latest}" ]] || mel_die "No backups found at ${APP_BACKUPS}"
+  BACKUP_DIR="${APP_BACKUPS}/${latest}"
 fi
 
 mel_info "Rolling ${ENV_LABEL} back using: ${BACKUP_DIR}"
 mel_confirm "${ENV_LABEL}" "0"
-mel_rollback_restore "${DEPLOY_PATH}" "${BACKUP_DIR}"
+mel_rollback_restore "${DEPLOY_PATH}" "${BACKUP_DIR}" "${APP_BACKUPS}"

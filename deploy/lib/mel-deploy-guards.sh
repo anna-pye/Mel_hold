@@ -156,27 +156,34 @@ mel_backup_create() {
   local stamp dir
   stamp="$(date +%Y%m%d-%H%M%S)"
   dir="${backup_root}/${app}/${stamp}"
-  mkdir -p "${dir}"
+  mkdir -p "${dir}" || { mel_warn "Cannot create backup directory ${dir}."; return 1; }
 
-  # Record the exact commit we are deploying FROM (for git rollback).
-  git -C "${path}" rev-parse HEAD > "${dir}/PREVIOUS_COMMIT" 2>/dev/null || true
+  # Record the exact commit we are deploying FROM (required for git rollback).
+  git -C "${path}" rev-parse HEAD > "${dir}/PREVIOUS_COMMIT" 2>/dev/null \
+    || { mel_warn "Could not record current commit for rollback."; return 1; }
 
   # Lightweight code archive (excludes vendor, uploaded files, git history).
   tar -czf "${dir}/code.tgz" \
     --exclude='./vendor' \
     --exclude='./web/sites/default/files' \
     --exclude='./.git' \
-    -C "${path}" . 2>/dev/null || mel_warn "Code archive incomplete."
+    -C "${path}" . 2>/dev/null \
+    || { mel_warn "Code archive failed — refusing to deploy without a backup."; return 1; }
 
   # Database dump via the app's own drush (uses the site's own credentials).
-  if [[ -x "${path}/vendor/bin/drush" ]]; then
-    mel_set_drush "${path}"
-    if "${MEL_DRUSH[@]}" status 2>/dev/null | grep -q 'Successful'; then
-      "${MEL_DRUSH[@]}" sql:dump --gzip --result-file="${dir}/database.sql" \
-        >/dev/null 2>&1 || mel_warn "Database dump failed (site may not bootstrap)."
-    else
-      mel_warn "Skipped DB dump — drush could not bootstrap the site."
-    fi
+  # A backup is the whole point, so this is fail-closed: if the site bootstraps
+  # the dump MUST succeed; if it cannot bootstrap (e.g. a first-ever deploy with
+  # no database yet), require an explicit MEL_ALLOW_NO_BACKUP=1 acknowledgement.
+  mel_set_drush "${path}"
+  if "${MEL_DRUSH[@]}" status 2>/dev/null | grep -q 'Successful'; then
+    "${MEL_DRUSH[@]}" sql:dump --gzip --result-file="${dir}/database.sql" >/dev/null 2>&1 \
+      || { mel_warn "Database dump failed though the site bootstrapped."; return 1; }
+  elif [[ "${MEL_ALLOW_NO_BACKUP:-0}" == "1" ]]; then
+    mel_warn "No database backup taken (site did not bootstrap); proceeding due to MEL_ALLOW_NO_BACKUP=1."
+  else
+    mel_warn "Cannot back up the database — the site did not bootstrap.
+Set MEL_ALLOW_NO_BACKUP=1 to proceed without a DB backup (intended for a first deploy only)."
+    return 1
   fi
 
   printf '%s' "${dir}"
@@ -214,10 +221,26 @@ mel_confirm() {
 }
 
 # Roll back an app to a previous commit + database dump.
-# Args: app_path, backup_dir.
+# Args: app_path, backup_dir, expected_namespace (= BACKUP_ROOT/APP_NAME).
 mel_rollback_restore() {
-  local path="${1:?}" backup_dir="${2:?}"
+  local path="${1:?}" backup_dir expected_ns
+  backup_dir="$(mel_normalize_path "${2:?}")"
+  expected_ns="$(mel_normalize_path "${3:?}")"
+
   [[ -d "${backup_dir}" ]] || mel_die "Backup directory not found: ${backup_dir}"
+
+  # The backup MUST belong to this application's own namespace — never restore
+  # another app's database/commit into this environment.
+  [[ "${backup_dir}" != "${expected_ns}" ]] \
+    || mel_die "Refusing: '${backup_dir}' is the namespace root, not a specific backup."
+  case "${backup_dir}/" in
+    "${expected_ns}/"*) : ;;
+    *) mel_die "Refusing: backup '${backup_dir}' is not under this app's namespace '${expected_ns}'." ;;
+  esac
+
+  # It must actually be a backup (have a restorable artefact).
+  [[ -f "${backup_dir}/PREVIOUS_COMMIT" || -f "${backup_dir}/database.sql.gz" ]] \
+    || mel_die "Not a valid backup (no PREVIOUS_COMMIT or database.sql.gz): ${backup_dir}"
 
   if [[ -f "${backup_dir}/PREVIOUS_COMMIT" ]]; then
     local prev

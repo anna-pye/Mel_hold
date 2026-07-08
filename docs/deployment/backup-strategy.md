@@ -17,6 +17,14 @@ For each run, under `/home/mel/shared/backups/<app>/<YYYYmmdd-HHMMSS>/`:
 The database dump uses the application's **own** drush and therefore its own
 credentials — no credentials are hardcoded anywhere.
 
+### Fail-closed
+
+The backup is not best-effort. If the commit marker, code archive, or database
+dump cannot be produced, the deploy **aborts before any change** — you never get
+a "successful" deploy with no way back. The one exception is a genuine first
+deploy where the site has no database yet: that requires an explicit
+`MEL_ALLOW_NO_BACKUP=1` on the command, and it is logged.
+
 ## Isolation
 
 Backups are namespaced per application (`backups/myeventlane_hold/…`,

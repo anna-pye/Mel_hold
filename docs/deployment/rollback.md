@@ -41,7 +41,11 @@ drush cache:rebuild
 
 - It does **not** modify symlinks or document roots (operator-managed).
 - It does **not** touch `web/sites/default/files/` (never changed by deploy).
-- It does **not** affect any other application.
+- It does **not** affect any other application. The backup you name must live
+  under **this** app's own namespace (`shared/backups/<app>/…`) and contain a
+  real backup artefact; a path outside it, the namespace root itself, or an
+  empty backup list is refused — so another app's database can never be
+  restored into this environment.
 
 ## If there is no backup
 

@@ -52,7 +52,9 @@ mel_confirm "${ENV_LABEL}" "${AUTO_YES}"
 
 # --- Backup BEFORE any change. -----------------------------------------------
 mel_info "Creating pre-deploy backup…"
-BACKUP_DIR="$(mel_backup_create "${APP_NAME}" "${DEPLOY_PATH}" "${BACKUP_ROOT}")"
+if ! BACKUP_DIR="$(mel_backup_create "${APP_NAME}" "${DEPLOY_PATH}" "${BACKUP_ROOT}")"; then
+  mel_die "Pre-deploy backup failed — aborting before any change was made."
+fi
 mel_info "Backup: ${BACKUP_DIR}"
 
 trap 'echo "" >&2; echo "DEPLOY FAILED. Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-staging.sh ${BACKUP_DIR}" >&2' ERR
