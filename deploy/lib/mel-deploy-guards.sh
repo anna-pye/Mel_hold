@@ -408,14 +408,16 @@ mel_write_journal() {
   local app="${1:?}" env="${2:?}" branch="${3:?}" commit="${4:?}" build="${5:?}" \
         path="${6:?}" web_root="${7:?}" dtype="${8:?}" preflight="${9:?}" result="${10:?}" \
         backup_dir="${11:-}" deployments_root="${12:?}"
-  mkdir -p "${deployments_root}"
+  mkdir -p "${deployments_root}" 2>/dev/null || return 1
   local ts host user rollback file
   ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   host="$(hostname 2>/dev/null || echo unknown)"
   user="$(id -un 2>/dev/null || echo unknown)"
   if [[ -n "${backup_dir}" && -d "${backup_dir}" ]]; then rollback="true"; else rollback="false"; fi
   file="${deployments_root}/$(date +%Y-%m-%d-%H%M%S).json"
-  cat > "${file}" <<JSON
+  # Signal a genuine write failure so callers can warn (the trailing printf
+  # must not mask a failed cat).
+  if ! cat > "${file}" 2>/dev/null <<JSON
 {
   "application": "${app}",
   "environment": "${env}",
@@ -435,6 +437,9 @@ mel_write_journal() {
   "php_version": "${MEL_VER_PHP:-unknown}"
 }
 JSON
+  then
+    return 1
+  fi
   printf '%s' "${file}"
 }
 
@@ -452,9 +457,15 @@ mel_finalize_deploy() {
   mel_print_verify
 
   duration=$(( $(date +%s) - start_epoch ))
-  build="$(mel_next_build_number "${app}" "${deployments_root}")"
-  journal="$(mel_write_journal "${app}" "${env}" "${branch}" "${commit}" "${build}" \
-    "${path}" "${web_root}" "git" "PASS" "${MEL_VERIFY_RESULT}" "${backup_dir}" "${deployments_root}")"
+  # Journal/build are records of a deploy that already happened — a failure to
+  # write them must NOT be reported as (or conflated with) a verification
+  # failure. Guard them so this function's exit code reflects verification only.
+  build="$(mel_next_build_number "${app}" "${deployments_root}" 2>/dev/null || echo 0)"
+  if ! journal="$(mel_write_journal "${app}" "${env}" "${branch}" "${commit}" "${build}" \
+      "${path}" "${web_root}" "git" "PASS" "${MEL_VERIFY_RESULT}" "${backup_dir}" "${deployments_root}" 2>/dev/null)"; then
+    mel_warn "Deployment journal could not be written (the deploy itself is unaffected)."
+    journal="(journal write failed)"
+  fi
 
   cat <<SUMMARY
 

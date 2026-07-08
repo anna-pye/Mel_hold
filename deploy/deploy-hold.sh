@@ -76,7 +76,9 @@ mel_info "Backup: ${BACKUP_DIR}"
 # `|| mel_die`, which an ERR trap would miss), tell the operator how to roll
 # back. An EXIT trap fires on every exit path; the rc guard keeps it silent on
 # success.
-trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
+# The rollback command includes `cd` because rollback-hold.sh (like this script)
+# refuses to run unless the current directory is the Hold app dir.
+trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  cd ${DEPLOY_PATH} && ./deploy/rollback-hold.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
 
 mkdir -p "${LOG_ROOT}/${APP_NAME}"
 LOG_FILE="${LOG_ROOT}/${APP_NAME}/deploy-$(date +%Y%m%d-%H%M%S).log"
@@ -101,16 +103,19 @@ mel_info "Rebuilding caches…"
 "${MEL_DRUSH[@]}" cache:rebuild
 
 # --- Verify, journal, summarise (shared mel_verify; no duplicated logic). -----
+# mel_finalize_deploy returns non-zero ONLY when verification FAILs (journal /
+# summary hiccups are non-fatal inside it); the rollback decision keys on the
+# actual verification result, not on incidental finalize errors.
 DEPLOY_RESULT=0
 mel_finalize_deploy "${APP_NAME}" "${ENV_LABEL}" "${DEPLOY_PATH}" "${WEB_ROOT}" \
   "${BRANCH}" "${BACKUP_DIR}" "${START_EPOCH}" "${DEPLOYMENTS_ROOT}" || DEPLOY_RESULT=$?
 
-echo "finalise ${APP_NAME} result=${DEPLOY_RESULT} verify=${MEL_VERIFY_RESULT} at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
+echo "finalise ${APP_NAME} result=${DEPLOY_RESULT} verify=${MEL_VERIFY_RESULT:-UNKNOWN} at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
 
-if [[ "${DEPLOY_RESULT}" -ne 0 ]]; then
+if [[ "${MEL_VERIFY_RESULT:-FAIL}" == "FAIL" ]]; then
   mel_die "Deployment verification FAILED — review the report above and roll back if needed."
 fi
 
 echo ""
 echo "✅ Hold deploy complete (${MEL_VERIFY_RESULT}). Log: ${LOG_FILE}"
-echo "   Rollback (if needed): bash ${SCRIPT_DIR}/rollback-hold.sh ${BACKUP_DIR}"
+echo "   Rollback (if needed): cd ${DEPLOY_PATH} && ./deploy/rollback-hold.sh ${BACKUP_DIR}"
