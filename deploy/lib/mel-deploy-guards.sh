@@ -264,3 +264,195 @@ mel_rollback_restore() {
 
   mel_info "Rollback complete."
 }
+
+# ============================================================================
+# Verification, versions, journal, and final summary.
+#
+# Single source of truth for post-deploy verification: both the deploy scripts
+# (via mel_finalize_deploy) and the standalone deploy/verify-deployment.sh call
+# mel_verify, so there is no duplicated verification logic.
+# ============================================================================
+
+# Collect tool/runtime versions. Sets MEL_VER_{DRUPAL,PHP,COMPOSER}.
+mel_collect_versions() {
+  local path="${1:?}"
+  mel_set_drush "${path}"
+  MEL_VER_DRUPAL="$("${MEL_DRUSH[@]}" status --field=drupal-version 2>/dev/null || echo 'unknown')"
+  MEL_VER_PHP="$(php -r 'echo PHP_VERSION;' 2>/dev/null || echo 'unknown')"
+  MEL_VER_COMPOSER="$(composer --version 2>/dev/null | awk '{print $3}' || echo 'unknown')"
+  [[ -n "${MEL_VER_DRUPAL}" ]] || MEL_VER_DRUPAL="unknown"
+  [[ -n "${MEL_VER_PHP}" ]] || MEL_VER_PHP="unknown"
+  [[ -n "${MEL_VER_COMPOSER}" ]] || MEL_VER_COMPOSER="unknown"
+}
+
+# Read-only health verification. Args: app, path.
+# Sets MEL_VERIFY_RESULT (PASS|WARNING|FAIL) and MEL_VERIFY_LINES[] ("ST|label").
+# Never mutates anything; every check is defensive so one failure cannot abort.
+mel_verify() {
+  local app="${1:?}" path="${2:?}"
+  MEL_VERIFY_LINES=()
+  MEL_VERIFY_FAILS=0
+  MEL_VERIFY_WARNS=0
+  _add() {
+    MEL_VERIFY_LINES+=("$1|$2")
+    if [[ "$1" == "FAIL" ]]; then MEL_VERIFY_FAILS=$((MEL_VERIFY_FAILS + 1)); fi
+    if [[ "$1" == "WARN" ]]; then MEL_VERIFY_WARNS=$((MEL_VERIFY_WARNS + 1)); fi
+  }
+  mel_set_drush "${path}"
+  local D=("${MEL_DRUSH[@]}")
+
+  # Correct application (identity marker).
+  local id=""
+  [[ -f "${path}/.mel-application" ]] && id="$(tr -d '[:space:]' < "${path}/.mel-application")"
+  if [[ "${id}" == "${app}" ]]; then _add PASS "Correct application (${app})"; else _add FAIL "Application marker mismatch (got '${id:-none}')"; fi
+
+  # Correct document root.
+  if [[ "$(cd "${path}" 2>/dev/null && pwd)" == "${path}" && -f "${path}/web/index.php" ]]; then _add PASS "Document root is ${path}/web"; else _add FAIL "Document root missing (${path}/web/index.php)"; fi
+
+  # Git clean working tree.
+  if [[ -z "$(git -C "${path}" status --porcelain 2>/dev/null)" ]]; then _add PASS "Git working tree clean"; else _add WARN "Git working tree not clean"; fi
+
+  # Correct branch.
+  local br; br="$(git -C "${path}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+  if [[ "${br}" == "main" ]]; then _add PASS "On branch main"; else _add FAIL "On branch '${br}', expected main"; fi
+
+  # Expected commit (HEAD matches origin/main; no network fetch here).
+  local head origin
+  head="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo '')"
+  origin="$(git -C "${path}" rev-parse origin/main 2>/dev/null || echo '')"
+  if [[ -n "${origin}" && "${head}" == "${origin}" ]]; then _add PASS "At origin/main (${head:0:12})";
+  elif [[ -n "${origin}" ]]; then _add WARN "HEAD differs from origin/main (${head:0:12})";
+  else _add WARN "origin/main ref unavailable"; fi
+
+  # Composer installed.
+  if [[ -f "${path}/vendor/autoload.php" ]]; then _add PASS "Composer dependencies installed"; else _add FAIL "vendor/autoload.php missing"; fi
+
+  # Drupal bootstraps.
+  if "${D[@]}" status 2>/dev/null | grep -q 'Successful'; then _add PASS "Drupal bootstraps"; else _add FAIL "Drupal does not bootstrap"; fi
+
+  # Database reachable.
+  local dbs; dbs="$("${D[@]}" status --field=db-status 2>/dev/null || echo '')"
+  if [[ "${dbs}" == *Connected* ]]; then _add PASS "Database reachable"; else _add FAIL "Database not reachable"; fi
+
+  # Maintenance mode off.
+  local maint; maint="$("${D[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
+  if [[ "${maint}" != "1" ]]; then _add PASS "Maintenance mode off"; else _add FAIL "Site in maintenance mode"; fi
+
+  # Config clean.
+  if "${D[@]}" config:status 2>/dev/null | grep -qi 'No differences'; then _add PASS "Configuration in sync"; else _add WARN "Configuration drift detected"; fi
+
+  # No pending database updates.
+  if "${D[@]}" updatedb:status 2>/dev/null | grep -qiE 'No database updates|No pending'; then _add PASS "No pending database updates"; else _add WARN "Pending database updates"; fi
+
+  # Cron available (has run at least once).
+  local cron; cron="$("${D[@]}" state:get system.cron_last --format=string 2>/dev/null || echo '')"
+  if [[ -n "${cron}" ]]; then _add PASS "Cron available"; else _add WARN "Cron has never run"; fi
+
+  # Watchdog readable.
+  if "${D[@]}" watchdog:show --count=1 >/dev/null 2>&1; then _add PASS "Watchdog readable"; else _add WARN "Watchdog not readable (dblog disabled?)"; fi
+
+  if [[ ${MEL_VERIFY_FAILS} -gt 0 ]]; then MEL_VERIFY_RESULT="FAIL";
+  elif [[ ${MEL_VERIFY_WARNS} -gt 0 ]]; then MEL_VERIFY_RESULT="WARNING";
+  else MEL_VERIFY_RESULT="PASS"; fi
+}
+
+# Print the collected verification lines.
+mel_print_verify() {
+  echo "Verification:"
+  if [[ ${#MEL_VERIFY_LINES[@]} -eq 0 ]]; then echo "  (no checks run)"; return 0; fi
+  local line st label
+  for line in "${MEL_VERIFY_LINES[@]}"; do
+    st="${line%%|*}"; label="${line#*|}"
+    echo "  [${st}] ${label}"
+  done
+}
+
+# Monotonic per-application build number stored under the journal root.
+mel_next_build_number() {
+  local app="${1:?}" deployments_root="${2:?}"
+  local counter="${deployments_root}/.build-${app}" n=0
+  mkdir -p "${deployments_root}" 2>/dev/null || true
+  [[ -f "${counter}" ]] && n="$(cat "${counter}" 2>/dev/null || echo 0)"
+  [[ "${n}" =~ ^[0-9]+$ ]] || n=0
+  n=$((n + 1))
+  echo "${n}" > "${counter}" 2>/dev/null || true
+  printf '%s' "${n}"
+}
+
+# Write one deployment journal entry (JSON). Contains NO secrets. Echoes path.
+# Args: app env branch commit build path web_root dtype preflight result backup_dir deployments_root
+mel_write_journal() {
+  local app="${1:?}" env="${2:?}" branch="${3:?}" commit="${4:?}" build="${5:?}" \
+        path="${6:?}" web_root="${7:?}" dtype="${8:?}" preflight="${9:?}" result="${10:?}" \
+        backup_dir="${11:-}" deployments_root="${12:?}"
+  mkdir -p "${deployments_root}"
+  local ts host user rollback file
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  host="$(hostname 2>/dev/null || echo unknown)"
+  user="$(id -un 2>/dev/null || echo unknown)"
+  if [[ -n "${backup_dir}" && -d "${backup_dir}" ]]; then rollback="true"; else rollback="false"; fi
+  file="${deployments_root}/$(date +%Y-%m-%d-%H%M%S).json"
+  cat > "${file}" <<JSON
+{
+  "application": "${app}",
+  "environment": "${env}",
+  "branch": "${branch}",
+  "commit": "${commit}",
+  "build": ${build},
+  "timestamp": "${ts}",
+  "hostname": "${host}",
+  "deploy_user": "${user}",
+  "deployment_type": "${dtype}",
+  "web_root": "${web_root}",
+  "preflight_result": "${preflight}",
+  "deployment_result": "${result}",
+  "rollback_available": ${rollback},
+  "composer_version": "${MEL_VER_COMPOSER:-unknown}",
+  "drupal_version": "${MEL_VER_DRUPAL:-unknown}",
+  "php_version": "${MEL_VER_PHP:-unknown}"
+}
+JSON
+  printf '%s' "${file}"
+}
+
+# Orchestrate post-deploy: versions -> verify -> journal -> summary.
+# Returns non-zero only when verification FAILs. Args:
+#   app env path web_root branch backup_dir start_epoch deployments_root
+mel_finalize_deploy() {
+  local app="${1:?}" env="${2:?}" path="${3:?}" web_root="${4:?}" branch="${5:?}" \
+        backup_dir="${6:-}" start_epoch="${7:?}" deployments_root="${8:?}"
+  local commit build duration journal
+  commit="$(git -C "${path}" rev-parse HEAD 2>/dev/null || echo 'unknown')"
+
+  mel_collect_versions "${path}"
+  mel_verify "${app}" "${path}"
+  mel_print_verify
+
+  duration=$(( $(date +%s) - start_epoch ))
+  build="$(mel_next_build_number "${app}" "${deployments_root}")"
+  journal="$(mel_write_journal "${app}" "${env}" "${branch}" "${commit}" "${build}" \
+    "${path}" "${web_root}" "git" "PASS" "${MEL_VERIFY_RESULT}" "${backup_dir}" "${deployments_root}")"
+
+  cat <<SUMMARY
+
+──────────────────────────────────────────────────────────────
+  Deployment report
+──────────────────────────────────────────────────────────────
+  Application    : ${app}
+  Environment    : ${env}
+  Branch         : ${branch}
+  Commit         : ${commit}
+  Build          : ${build}
+  Drupal version : ${MEL_VER_DRUPAL}
+  PHP version    : ${MEL_VER_PHP}
+  Composer       : ${MEL_VER_COMPOSER}
+  Duration       : ${duration}s
+  Verification   : ${MEL_VERIFY_RESULT}
+  Journal        : ${journal}
+  Rollback       : ${backup_dir:-none}
+──────────────────────────────────────────────────────────────
+SUMMARY
+
+  [[ "${MEL_VERIFY_RESULT}" != "FAIL" ]] || return 1
+  return 0
+}

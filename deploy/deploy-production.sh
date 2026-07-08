@@ -21,6 +21,8 @@ readonly BRANCH="main"
 readonly REMOTE_MATCH="Mel_hold"
 readonly BACKUP_ROOT="/home/mel/shared/backups"
 readonly LOG_ROOT="/home/mel/shared/logs"
+readonly DEPLOYMENTS_ROOT="/home/mel/shared/deployments"
+readonly START_EPOCH="$(date +%s)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/mel-deploy-guards.sh
@@ -91,19 +93,17 @@ mel_info "Importing configuration…"
 mel_info "Rebuilding caches…"
 "${MEL_DRUSH[@]}" cache:rebuild
 
-# --- Health checks. ----------------------------------------------------------
-mel_info "Verifying site health…"
-"${MEL_DRUSH[@]}" status | grep -q 'Successful' || mel_die "Drupal did not bootstrap after deploy."
-maint="$("${MEL_DRUSH[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
-[[ "${maint}" != "1" ]] || mel_die "Site left in maintenance mode."
+# --- Verify, journal, summarise (shared mel_verify; no duplicated logic). -----
+DEPLOY_RESULT=0
+mel_finalize_deploy "${APP_NAME}" "${ENV_LABEL}" "${DEPLOY_PATH}" "${WEB_ROOT}" \
+  "${BRANCH}" "${BACKUP_DIR}" "${START_EPOCH}" "${DEPLOYMENTS_ROOT}" || DEPLOY_RESULT=$?
 
-echo "success ${APP_NAME} now at $(git rev-parse HEAD) at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
+echo "finalise ${APP_NAME} result=${DEPLOY_RESULT} verify=${MEL_VERIFY_RESULT} at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
 
-cat <<DONE
+if [[ "${DEPLOY_RESULT}" -ne 0 ]]; then
+  mel_die "Deployment verification FAILED — review the report above and roll back if needed."
+fi
 
-✅ Production deploy complete.
-   Now at : $(git rev-parse HEAD)
-   Backup : ${BACKUP_DIR}
-   Log    : ${LOG_FILE}
-   Rollback (if needed): bash ${SCRIPT_DIR}/rollback-production.sh ${BACKUP_DIR}
-DONE
+echo ""
+echo "✅ Production deploy complete (${MEL_VERIFY_RESULT}). Log: ${LOG_FILE}"
+echo "   Rollback (if needed): bash ${SCRIPT_DIR}/rollback-production.sh ${BACKUP_DIR}"
