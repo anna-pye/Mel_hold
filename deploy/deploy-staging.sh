@@ -57,7 +57,9 @@ if ! BACKUP_DIR="$(mel_backup_create "${APP_NAME}" "${DEPLOY_PATH}" "${BACKUP_RO
 fi
 mel_info "Backup: ${BACKUP_DIR}"
 
-trap 'echo "" >&2; echo "DEPLOY FAILED. Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-staging.sh ${BACKUP_DIR}" >&2' ERR
+# EXIT trap fires on every non-zero exit path (including a health check that
+# fails via `|| mel_die`, which an ERR trap would miss); silent on success.
+trap 'rc=$?; [[ ${rc} -eq 0 ]] || { echo "" >&2; echo "DEPLOY FAILED (exit ${rc}). Roll back with:" >&2; echo "  bash ${SCRIPT_DIR}/rollback-staging.sh ${BACKUP_DIR}" >&2; }; exit ${rc}' EXIT
 
 mkdir -p "${LOG_ROOT}/${APP_NAME}"
 LOG_FILE="${LOG_ROOT}/${APP_NAME}/deploy-$(date +%Y%m%d-%H%M%S).log"
@@ -88,7 +90,6 @@ maint="$("${MEL_DRUSH[@]}" state:get system.maintenance_mode --format=string 2>/
 [[ "${maint}" != "1" ]] || mel_die "Site left in maintenance mode."
 
 echo "success ${APP_NAME} now at $(git rev-parse HEAD) at $(date -u +%FT%TZ)" >> "${LOG_FILE}"
-trap - ERR
 
 cat <<DONE
 
