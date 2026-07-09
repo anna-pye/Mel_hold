@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Inner-page site footer: link columns + optional social + baseline.
+ *
+ * Variables:
+ * - mel_footer_menu: render array for the footer menu (2 levels = columns).
+ * - mel_has_social: bool, whether any social URL is configured.
+ * - mel_facebook_url / mel_instagram_url / mel_linkedin_url (+ *_label).
+ * - mel_footer_left / mel_footer_right: baseline lines.
+ */
+#}
+<footer class="mel-foot-wrap mel-foot-wrap--inner" role="contentinfo">
+  <div class="mel-foot-inner">
+    <nav class="mel-foot-nav" aria-label="{{ 'Footer'|t }}">
+      {{ mel_footer_menu }}
+
+      {% if mel_has_social %}
+        <div class="mel-foot-col mel-foot-col--social">
+          <h2 class="mel-foot-col__title">{{ 'Social'|t }}</h2>
+          <ul class="mel-foot-social">
+            {% if mel_facebook_url %}
+              <li><a href="{{ mel_facebook_url }}" rel="noopener noreferrer" target="_blank">{{ 'Facebook'|t }}</a></li>
+            {% endif %}
+            {% if mel_instagram_url %}
+              <li><a href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank">{{ 'Instagram'|t }}</a></li>
+            {% endif %}
+            {% if mel_linkedin_url %}
+              <li><a href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank">{{ 'LinkedIn'|t }}</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+    </nav>
+
+    <div class="mel-foot mel-foot--baseline">
+      <div>{{ mel_footer_left }}</div>
+      <div>{{ mel_footer_right }}</div>
+    </div>
+  </div>
+</footer>

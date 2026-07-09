@@ -1,15 +1,27 @@
 {#
 /**
  * @file
- * Default page layout (non-front routes).
+ * Default page layout (inner brochure pages): global header nav, titled content
+ * card, and multi-column footer. The holding front page and contact page use
+ * their own page--*.html.twig templates.
  */
 #}
 <a class="mel-skip" href="#main-content">{{ 'Skip to content'|t }}</a>
-<div class="mel-page mel-page--inner">
-  <div class="mel-messages" role="status" aria-live="polite">
+<div class="mel-wrap mel-wrap--inner">
+  <div class="mel-messages mel-messages--top" role="status" aria-live="polite">
     {{ mel_messages }}
   </div>
-  <main class="mel-main mel-main--inner" id="main-content" role="main">
-    {{ page.content }}
+
+  {% include '@myeventlane_hold_theme/includes/mel-header.html.twig' %}
+
+  <main id="main-content" class="mel-main mel-main--inner" role="main">
+    <article class="mel-card mel-prose mel-page-content">
+      {% if mel_page_title %}
+        <h1 class="mel-page-title">{{ mel_page_title }}</h1>
+      {% endif %}
+      {{ page.content }}
+    </article>
   </main>
+
+  {% include '@myeventlane_hold_theme/includes/mel-footer.html.twig' %}
 </div>

@@ -796,3 +796,257 @@ textarea:focus-visible {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   Inner brochure pages: global header nav, titled content card, footer.
+   Reuses existing tokens/components; no new design language.
+   ========================================================================== */
+
+.mel-wrap--inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header + primary navigation. */
+.mel-header--inner .mel-topbar--nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mel-nav {
+  display: flex;
+  align-items: center;
+}
+
+.mel-nav__panel .menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mel-nav__panel .menu a {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--mel-ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.mel-nav__panel .menu a:hover,
+.mel-nav__panel .menu a:focus-visible {
+  background: rgba(138, 125, 255, 0.12);
+}
+
+.mel-nav__panel .menu a.is-active {
+  background: linear-gradient(135deg, var(--mel-brand-1), var(--mel-brand-2));
+  color: #fff;
+}
+
+/* Mobile nav toggle (hidden on wide screens). */
+.mel-nav__toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(30, 30, 42, 0.12);
+  border-radius: 12px;
+  background: var(--mel-card);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.mel-nav__toggle-bar,
+.mel-nav__toggle-bar::before,
+.mel-nav__toggle-bar::after {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--mel-ink);
+  position: relative;
+}
+
+.mel-nav__toggle-bar::before { position: absolute; top: -6px; }
+.mel-nav__toggle-bar::after { position: absolute; top: 6px; }
+
+@media (max-width: 800px) {
+  .mel-nav__toggle {
+    display: inline-flex;
+  }
+
+  .mel-nav__panel {
+    display: none;
+    width: 100%;
+    order: 3;
+    margin-top: 12px;
+  }
+
+  .mel-nav__panel.is-open {
+    display: block;
+  }
+
+  .mel-nav {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .mel-nav__panel .menu {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mel-nav__panel .menu a {
+    display: block;
+  }
+}
+
+/* Titled content card. */
+.mel-main--inner {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  padding: 0 var(--mel-pad) clamp(32px, 6vw, 56px);
+}
+
+.mel-page-content {
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.mel-page-title {
+  margin: 0 0 0.6em;
+  font-size: var(--mel-h1);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--mel-ink);
+}
+
+.mel-page-content h2 {
+  font-size: clamp(20px, 3vw, 26px);
+  margin: 1.6em 0 0.5em;
+  color: var(--mel-ink);
+}
+
+.mel-page-content h2:first-of-type {
+  margin-top: 0;
+}
+
+.mel-page-content h3 {
+  font-size: clamp(17px, 2.4vw, 20px);
+  margin: 1.4em 0 0.4em;
+  color: var(--mel-ink);
+}
+
+.mel-page-content a {
+  color: #6f5cff;
+  text-decoration: underline;
+}
+
+.mel-page-content ul {
+  padding-left: 1.25em;
+}
+
+.mel-page-content li {
+  margin: 0.3em 0;
+}
+
+/* Current-status panel accent on the home page. */
+.mel-panel--status .mel-panel__h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mel-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mel-brand-3);
+  box-shadow: 0 0 0 4px rgba(123, 224, 214, 0.25);
+  flex: none;
+}
+
+/* Multi-column footer. */
+.mel-foot-wrap--inner {
+  flex: none;
+  border-top: 1px solid rgba(30, 30, 42, 0.08);
+  margin-top: auto;
+}
+
+.mel-foot-inner {
+  max-width: var(--mel-max);
+  margin: 0 auto;
+}
+
+.mel-foot-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: clamp(20px, 4vw, 36px);
+  padding-bottom: 22px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(30, 30, 42, 0.08);
+}
+
+/* Let footer menu top-level items become grid columns alongside Social. */
+.mel-foot-nav > .menu {
+  display: contents;
+}
+
+.mel-foot-nav > .menu > li {
+  list-style: none;
+}
+
+.mel-foot-nav > .menu > li > span,
+.mel-foot-col__title {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mel-ink);
+}
+
+.mel-foot-nav .menu .menu,
+.mel-foot-social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mel-foot-nav .menu .menu a,
+.mel-foot-social a {
+  color: var(--mel-muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.mel-foot-nav .menu .menu a:hover,
+.mel-foot-nav .menu .menu a:focus-visible,
+.mel-foot-social a:hover,
+.mel-foot-social a:focus-visible {
+  color: var(--mel-ink);
+  text-decoration: underline;
+}
+
+/* Keep focus states visible everywhere in the chrome (WCAG 2.4.7). */
+.mel-nav__panel .menu a:focus-visible,
+.mel-nav__toggle:focus-visible,
+.mel-foot-nav a:focus-visible,
+.mel-foot-social a:focus-visible {
+  outline: 2px solid #6f5cff;
+  outline-offset: 2px;
+}
