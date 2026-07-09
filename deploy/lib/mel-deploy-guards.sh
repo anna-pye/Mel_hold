@@ -376,29 +376,26 @@ mel_verify() {
   local maint; maint="$("${D[@]}" state:get system.maintenance_mode --format=string 2>/dev/null || echo 0)"
   if [[ "${maint}" != "1" ]]; then _add PASS "Maintenance mode off"; else _add FAIL "Site in maintenance mode"; fi
 
-  # Config clean. Use machine-readable JSON (an empty changelist == in sync) so
-  # the check does not depend on where Drush prints its "No differences" notice
-  # (Drush 13 emits it on stderr, which a stdout grep would miss). Distinguish a
-  # genuine empty result from a Drush *failure* — the `if` runs the command so
-  # its exit status is honoured (and it is set -e safe) rather than masking a
-  # non-zero exit as an empty list.
-  local cfg
-  if cfg="$("${D[@]}" config:status --format=json 2>/dev/null)"; then
-    cfg="$(printf '%s' "${cfg}" | tr -d '[:space:]')"
-    if [[ -z "${cfg}" || "${cfg}" == "[]" || "${cfg}" == "{}" ]]; then _add PASS "Configuration in sync"; else _add WARN "Configuration drift detected"; fi
-  else
-    _add WARN "Configuration status unavailable (drush error)"
-  fi
+  # Config clean / pending updates. Both read machine-readable JSON and classify
+  # on the STDOUT content first, using the exit code only as a tiebreaker for an
+  # empty result. This is robust across Drush versions: some emit a drift/pending
+  # changelist on stdout while exiting non-zero, and some print their success
+  # notice on stderr — so neither "exit code alone" nor "stdout grep alone" is
+  # reliable, but "content present == drift/pending, empty+success == clean,
+  # empty+failure == unavailable" is.
+  local cfg cfg_rc
+  cfg="$("${D[@]}" config:status --format=json 2>/dev/null)" && cfg_rc=0 || cfg_rc=$?
+  cfg="$(printf '%s' "${cfg}" | tr -d '[:space:]')"
+  if [[ -n "${cfg}" && "${cfg}" != "[]" && "${cfg}" != "{}" ]]; then _add WARN "Configuration drift detected";
+  elif [[ "${cfg}" == "[]" || "${cfg}" == "{}" || ${cfg_rc} -eq 0 ]]; then _add PASS "Configuration in sync";
+  else _add WARN "Configuration status unavailable (drush error)"; fi
 
-  # No pending database updates. Same JSON approach; a Drush failure is reported
-  # rather than silently treated as "none pending".
-  local upd
-  if upd="$("${D[@]}" updatedb:status --format=json 2>/dev/null)"; then
-    upd="$(printf '%s' "${upd}" | tr -d '[:space:]')"
-    if [[ -z "${upd}" || "${upd}" == "[]" || "${upd}" == "{}" ]]; then _add PASS "No pending database updates"; else _add WARN "Pending database updates"; fi
-  else
-    _add WARN "Update status unavailable (drush error)"
-  fi
+  local upd upd_rc
+  upd="$("${D[@]}" updatedb:status --format=json 2>/dev/null)" && upd_rc=0 || upd_rc=$?
+  upd="$(printf '%s' "${upd}" | tr -d '[:space:]')"
+  if [[ -n "${upd}" && "${upd}" != "[]" && "${upd}" != "{}" ]]; then _add WARN "Pending database updates";
+  elif [[ "${upd}" == "[]" || "${upd}" == "{}" || ${upd_rc} -eq 0 ]]; then _add PASS "No pending database updates";
+  else _add WARN "Update status unavailable (drush error)"; fi
 
   # Cron available (has run at least once).
   local cron; cron="$("${D[@]}" state:get system.cron_last --format=string 2>/dev/null || echo '')"
