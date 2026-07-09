@@ -10,16 +10,7 @@
     {{ mel_messages }}
   </div>
 
-  <header class="mel-header">
-    <div class="mel-topbar">
-      {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
-
-      <div class="mel-pill" role="status" aria-live="polite">
-        <span class="mel-pill-dot" aria-hidden="true"></span>
-        {{ mel_hero_kicker }}
-      </div>
-    </div>
-  </header>
+  {% include '@myeventlane_hold_theme/includes/mel-header.html.twig' %}
 
   <main id="main-content" class="mel-main mel-main--contact" role="main">
     <div class="mel-grid mel-grid--contact">
@@ -31,10 +22,5 @@
     </div>
   </main>
 
-  <footer class="mel-foot-wrap" role="contentinfo">
-    <div class="mel-foot">
-      <div>{{ mel_footer_left }}</div>
-      <div>{{ mel_footer_right }}</div>
-    </div>
-  </footer>
+  {% include '@myeventlane_hold_theme/includes/mel-footer.html.twig' %}
 </div>

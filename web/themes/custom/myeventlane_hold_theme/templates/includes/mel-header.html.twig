@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Inner-page site header: brand mark + primary navigation.
+ *
+ * Variables:
+ * - mel_main_menu: render array for the main menu.
+ */
+#}
+<header class="mel-header mel-header--inner">
+  <div class="mel-topbar mel-topbar--nav">
+    {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
+
+    <nav class="mel-nav" role="navigation" aria-label="{{ 'Main navigation'|t }}">
+      <button
+        class="mel-nav__toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mel-primary-nav"
+        data-mel-nav-toggle
+      >
+        <span class="mel-nav__toggle-bar" aria-hidden="true"></span>
+        <span class="mel-visually-hidden">{{ 'Menu'|t }}</span>
+      </button>
+      <div class="mel-nav__panel" id="mel-primary-nav">
+        {{ mel_main_menu }}
+      </div>
+    </nav>
+  </div>
+</header>
