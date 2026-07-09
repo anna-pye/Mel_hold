@@ -1,35 +1,56 @@
 {#
 /**
  * @file
- * Inner-page site footer: link columns + optional social + baseline.
+ * MyEventLane Hold global footer.
  *
- * Variables:
- * - mel_footer_menu: render array for the footer menu (2 levels = columns).
- * - mel_has_social: bool, whether any social URL is configured.
- * - mel_facebook_url / mel_instagram_url / mel_linkedin_url (+ *_label).
- * - mel_footer_left / mel_footer_right: baseline lines.
+ * Uses mel_footer_columns prepared in myeventlane_hold_theme.theme so the footer
+ * renders as a proper MEL component, not as default Drupal menu lists.
  */
 #}
 <footer class="mel-foot-wrap mel-foot-wrap--inner" role="contentinfo">
   <div class="mel-foot-inner">
-    <nav class="mel-foot-nav" aria-label="{{ 'Footer'|t }}">
-      {{ mel_footer_menu }}
+    <div class="mel-foot-brand">
+      {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
+      <p>{{ 'A community-first event platform preparing for launch.'|t }}</p>
+    </div>
+
+    <nav class="mel-foot-nav" aria-label="{{ 'Footer navigation'|t }}">
+      {% for column in mel_footer_columns %}
+        <section class="mel-foot-col" aria-labelledby="mel-foot-col-{{ loop.index }}">
+          <h2 class="mel-foot-col__title" id="mel-foot-col-{{ loop.index }}">{{ column.title }}</h2>
+          {% if column.below %}
+            <ul class="mel-foot-col__list" role="list">
+              {% for link_item in column.below %}
+                <li class="mel-foot-col__item">
+                  {% if link_item.url %}
+                    <a class="mel-foot-col__link{{ link_item.is_active ? ' is-active' : '' }}" href="{{ link_item.url }}"{{ link_item.is_active ? ' aria-current="page"' : '' }}>
+                      {{ link_item.title }}
+                    </a>
+                  {% else %}
+                    <span class="mel-foot-col__link mel-foot-col__link--nolink">{{ link_item.title }}</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </section>
+      {% endfor %}
 
       {% if mel_has_social %}
-        <div class="mel-foot-col mel-foot-col--social">
-          <h2 class="mel-foot-col__title">{{ 'Social'|t }}</h2>
-          <ul class="mel-foot-social">
+        <section class="mel-foot-col mel-foot-col--social" aria-labelledby="mel-foot-social-title">
+          <h2 class="mel-foot-col__title" id="mel-foot-social-title">{{ 'Social'|t }}</h2>
+          <ul class="mel-foot-col__list" role="list">
             {% if mel_facebook_url %}
-              <li><a href="{{ mel_facebook_url }}" rel="noopener noreferrer" target="_blank">{{ 'Facebook'|t }}</a></li>
+              <li class="mel-foot-col__item"><a class="mel-foot-col__link" href="{{ mel_facebook_url }}" rel="noopener noreferrer" target="_blank">{{ 'Facebook'|t }}</a></li>
             {% endif %}
             {% if mel_instagram_url %}
-              <li><a href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank">{{ 'Instagram'|t }}</a></li>
+              <li class="mel-foot-col__item"><a class="mel-foot-col__link" href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank">{{ 'Instagram'|t }}</a></li>
             {% endif %}
             {% if mel_linkedin_url %}
-              <li><a href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank">{{ 'LinkedIn'|t }}</a></li>
+              <li class="mel-foot-col__item"><a class="mel-foot-col__link" href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank">{{ 'LinkedIn'|t }}</a></li>
             {% endif %}
           </ul>
-        </div>
+        </section>
       {% endif %}
     </nav>
 

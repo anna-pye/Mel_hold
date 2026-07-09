@@ -1,13 +1,13 @@
 {#
 /**
  * @file
- * Inner-page site header: brand mark + primary navigation.
+ * MyEventLane Hold global header.
  *
- * Variables:
- * - mel_main_menu: render array for the main menu.
+ * Uses mel_main_links prepared in myeventlane_hold_theme.theme so the header
+ * never falls back to raw Drupal menu output.
  */
 #}
-<header class="mel-header mel-header--inner">
+<header class="mel-header mel-header--inner" role="banner">
   <div class="mel-topbar mel-topbar--nav">
     {% include '@myeventlane_hold_theme/includes/mel-brand.html.twig' %}
 
@@ -22,8 +22,21 @@
         <span class="mel-nav__toggle-bar" aria-hidden="true"></span>
         <span class="mel-visually-hidden">{{ 'Menu'|t }}</span>
       </button>
-      <div class="mel-nav__panel" id="mel-primary-nav">
-        {{ mel_main_menu }}
+
+      <div class="mel-nav__panel" id="mel-primary-nav" data-mel-nav-panel>
+        <ul class="mel-nav__list" role="list">
+          {% for item in mel_main_links %}
+            <li class="mel-nav__item">
+              {% if item.url %}
+                <a class="mel-nav__link{{ item.is_active ? ' is-active' : '' }}" href="{{ item.url }}"{{ item.is_active ? ' aria-current="page"' : '' }}>
+                  {{ item.title }}
+                </a>
+              {% else %}
+                <span class="mel-nav__link mel-nav__link--nolink">{{ item.title }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
       </div>
     </nav>
   </div>

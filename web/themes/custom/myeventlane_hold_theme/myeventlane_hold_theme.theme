@@ -30,6 +30,71 @@ function myeventlane_hold_theme_build_menu(string $menu_name): array {
   return $tree_service->build($tree);
 }
 
+
+/**
+ * Converts a Drupal menu tree into plain link data for bespoke MEL chrome.
+ *
+ * This avoids depending on Drupal's default menu Twig output for the public
+ * header/footer, which prevents raw bullet-list navigation when suggestions or
+ * cache state differ between environments.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function myeventlane_hold_theme_menu_items(string $menu_name): array {
+  $tree_service = \Drupal::menuTree();
+  $parameters = new MenuTreeParameters();
+  $parameters->onlyEnabledLinks();
+
+  $active_trail = \Drupal::service('menu.active_trail')->getActiveTrailIds($menu_name);
+  foreach (array_filter($active_trail) as $plugin_id) {
+    $parameters->addExpandedParents([$plugin_id]);
+  }
+
+  $tree = $tree_service->load($menu_name, $parameters);
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $tree = $tree_service->transform($tree, $manipulators);
+
+  return myeventlane_hold_theme_tree_items($tree, $active_trail);
+}
+
+/**
+ * Recursively converts menu tree elements into simple arrays.
+ *
+ * @param array<int|string, \Drupal\Core\Menu\MenuLinkTreeElement> $tree
+ *   Menu tree elements.
+ * @param array<int|string, string|null> $active_trail
+ *   Active menu trail plugin IDs.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function myeventlane_hold_theme_tree_items(array $tree, array $active_trail): array {
+  $items = [];
+
+  foreach ($tree as $element) {
+    if (!$element->access->isAllowed()) {
+      continue;
+    }
+
+    $link = $element->link;
+    $url = $link->getUrlObject();
+    $plugin_id = $link->getPluginId();
+    $is_nolink = $url->isRouted() && $url->getRouteName() === '<nolink>';
+
+    $items[] = [
+      'title' => $link->getTitle(),
+      'url' => $is_nolink ? NULL : $url,
+      'is_nolink' => $is_nolink,
+      'is_active' => in_array($plugin_id, $active_trail, TRUE),
+      'below' => myeventlane_hold_theme_tree_items($element->subtree, $active_trail),
+    ];
+  }
+
+  return $items;
+}
+
 /**
  * Implements hook_theme_suggestions_page_alter().
  */
@@ -147,9 +212,13 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
     || ($variables['mel_instagram_url'] !== '')
     || ($variables['mel_linkedin_url'] !== '');
 
-  // Global header nav + multi-column footer for inner pages.
+  // Global header nav + multi-column footer. Keep the render arrays for
+  // backwards compatibility, but expose plain arrays for bespoke MEL Twig so
+  // chrome never falls back to raw Drupal list styling.
   $variables['mel_main_menu'] = myeventlane_hold_theme_build_menu('main');
   $variables['mel_footer_menu'] = myeventlane_hold_theme_build_menu('footer');
+  $variables['mel_main_links'] = myeventlane_hold_theme_menu_items('main');
+  $variables['mel_footer_columns'] = myeventlane_hold_theme_menu_items('footer');
 
   // Resolve the current page title for inner templates (the page_title block
   // lives in an unrendered region, so inner pages need an explicit H1).
@@ -159,6 +228,29 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
     $title = \Drupal::service('title_resolver')->getTitle($request, $route);
     $variables['mel_page_title'] = is_array($title) ? \Drupal::service('renderer')->renderInIsolation($title) : $title;
   }
+
+  // Per-page hero (presentation only — no content/routing change). Keyed by the
+  // clean path so it follows the existing aliases. 'art' TRUE shows the MEL
+  // mascot; swap for a per-page pose when approved artwork is added.
+  $current_path = \Drupal::service('path.current')->getPath();
+  $alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $heroes = [
+    '/our-story' => ["The story behind Australia's community-first event marketplace.", TRUE],
+    '/what-is-myeventlane' => ['Helping people discover amazing events.', TRUE],
+    '/our-mission' => ['Why we are building MyEventLane.', FALSE],
+    '/organisers' => ['Helping organisers succeed.', TRUE],
+    '/community' => ['Building safer and more welcoming communities.', TRUE],
+    '/community-guidelines' => ['How we treat one another here.', FALSE],
+    '/trust-safety' => ['Book and host with confidence.', FALSE],
+    '/accessibility' => ['An experience everyone can use.', FALSE],
+    '/privacy' => ['Protecting your information.', TRUE],
+    '/terms' => ['The basics of using MyEventLane.', FALSE],
+    '/cookies' => ['How we use cookies.', FALSE],
+    '/pricing' => ['Fair, transparent pricing.', FALSE],
+    '/contact' => ["We'd love to hear from you.", TRUE],
+  ];
+  $variables['mel_hero_tagline'] = $heroes[$alias][0] ?? '';
+  $variables['mel_hero_art'] = $heroes[$alias][1] ?? FALSE;
 
   if (\Drupal::routeMatch()->getRouteName() === 'myeventlane_waitlist.holding_home') {
     $variables['is_front'] = TRUE;

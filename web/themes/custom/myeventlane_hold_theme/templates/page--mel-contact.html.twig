@@ -13,10 +13,25 @@
   {% include '@myeventlane_hold_theme/includes/mel-header.html.twig' %}
 
   <main id="main-content" class="mel-main mel-main--contact" role="main">
+    <header class="mel-hero-inner mel-hero-inner--art">
+      <div class="mel-hero-inner__text">
+        <h1 id="mel-contact-title" class="mel-hero-inner__title">{{ 'Contact MyEventLane'|t }}</h1>
+        <p class="mel-hero-inner__lead">{{ "We'd love to hear from you."|t }}</p>
+      </div>
+      <img
+        class="mel-hero-inner__art"
+        src="{{ base_path }}{{ directory }}/images/mel-mascot-thinking.webp"
+        alt=""
+        aria-hidden="true"
+        width="110"
+        height="179"
+        loading="lazy"
+        decoding="async"
+      />
+    </header>
+
     <div class="mel-grid mel-grid--contact">
       <section class="mel-card mel-contact-page" aria-labelledby="mel-contact-title">
-        {# Header region is unused in this theme’s page template; render the page title here. #}
-        <h1 id="mel-contact-title" class="mel-contact-page__title">{{ 'Contact MyEventLane'|t }}</h1>
         {{ page.content }}
       </section>
     </div>

@@ -1,0 +1,37 @@
+{#
+/**
+ * @file
+ * Theme override for menus (main nav + footer columns).
+ *
+ * The stable9 base template renders menus as CLASSLESS <ul> elements, so none
+ * of the theme's `.menu` selectors (.mel-nav__panel .menu, .mel-foot-nav .menu)
+ * ever matched — leaving raw bulleted lists. This override emits the `menu`
+ * class on every <ul> level so the existing MEL header/footer styling applies.
+ *
+ * Structure is otherwise identical to stable9's menu.html.twig; non-link
+ * items (<nolink>, used as footer column headings) still render as <span>.
+ */
+#}
+{% import _self as menus %}
+
+{{ menus.menu_links(items, attributes, 0) }}
+
+{% macro menu_links(items, attributes, menu_level) %}
+  {% import _self as menus %}
+  {% if items %}
+    {% if menu_level == 0 %}
+      <ul{{ attributes.addClass('menu') }}>
+    {% else %}
+      <ul class="menu">
+    {% endif %}
+    {% for item in items %}
+      <li{{ item.attributes.addClass('menu-item') }}>
+        {{ link(item.title, item.url) }}
+        {% if item.below %}
+          {{ menus.menu_links(item.below, attributes.removeClass('menu'), menu_level + 1) }}
+        {% endif %}
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
