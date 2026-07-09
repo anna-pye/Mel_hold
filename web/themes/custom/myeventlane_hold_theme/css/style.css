@@ -654,18 +654,37 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.65rem 1.1rem;
-  border-radius: 12px;
+  padding: 0.72rem 1.25rem;
+  border-radius: 999px;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   font-size: 0.95rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .mel-btn--primary {
   color: #fff;
   background: linear-gradient(120deg, var(--mel-brand-1), var(--mel-brand-2));
-  box-shadow: 0 10px 24px rgba(138, 125, 255, 0.35);
+  box-shadow: 0 12px 26px rgba(138, 125, 255, 0.32);
+}
+
+.mel-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(138, 125, 255, 0.38);
+}
+
+.mel-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--mel-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-btn,
+  .mel-btn--primary:hover {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* —— Contact pill (What’s next) + /contact page —— */
@@ -1231,6 +1250,33 @@ textarea:focus-visible {
   }
 
   .mel-hero-inner--art:hover .mel-hero-inner__art {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Micro-interactions — restrained lift on decorative cards; motion respected.
+   ========================================================================== */
+
+.mel-story__item,
+.mel-badge {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+}
+
+.mel-story__item:hover,
+.mel-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--mel-shadow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-story__item,
+  .mel-badge {
+    transition: none;
+  }
+
+  .mel-story__item:hover,
+  .mel-badge:hover {
     transform: none;
   }
 }
