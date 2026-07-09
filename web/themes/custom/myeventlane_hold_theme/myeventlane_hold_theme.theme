@@ -9,7 +9,26 @@ declare(strict_types=1);
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\myeventlane_waitlist\Form\WaitlistSignupForm;
+
+/**
+ * Builds a render array for a menu (enabled links only, access-checked).
+ *
+ * @return array<string, mixed>
+ */
+function myeventlane_hold_theme_build_menu(string $menu_name): array {
+  $tree_service = \Drupal::menuTree();
+  $parameters = new MenuTreeParameters();
+  $parameters->onlyEnabledLinks();
+  $tree = $tree_service->load($menu_name, $parameters);
+  $manipulators = [
+    ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+    ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+  ];
+  $tree = $tree_service->transform($tree, $manipulators);
+  return $tree_service->build($tree);
+}
 
 /**
  * Implements hook_theme_suggestions_page_alter().
@@ -117,10 +136,29 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
   }
   $variables['mel_footer_right'] = $footer_right;
 
+  $variables['mel_facebook_url'] = $config->get('facebook_url') ?: '';
+  $variables['mel_facebook_label'] = $config->get('facebook_label') ?: 'MyEventLane';
   $variables['mel_instagram_url'] = $config->get('instagram_url') ?: '';
   $variables['mel_instagram_label'] = $config->get('instagram_label') ?: '@myeventlane';
   $variables['mel_linkedin_url'] = $config->get('linkedin_url') ?: '';
   $variables['mel_linkedin_label'] = $config->get('linkedin_label') ?: 'MyEventLane';
+  // Only show the footer Social column when at least one URL is configured.
+  $variables['mel_has_social'] = ($variables['mel_facebook_url'] !== '')
+    || ($variables['mel_instagram_url'] !== '')
+    || ($variables['mel_linkedin_url'] !== '');
+
+  // Global header nav + multi-column footer for inner pages.
+  $variables['mel_main_menu'] = myeventlane_hold_theme_build_menu('main');
+  $variables['mel_footer_menu'] = myeventlane_hold_theme_build_menu('footer');
+
+  // Resolve the current page title for inner templates (the page_title block
+  // lives in an unrendered region, so inner pages need an explicit H1).
+  $request = \Drupal::request();
+  $route = \Drupal::routeMatch()->getRouteObject();
+  if ($route !== NULL) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+    $variables['mel_page_title'] = is_array($title) ? \Drupal::service('renderer')->renderInIsolation($title) : $title;
+  }
 
   if (\Drupal::routeMatch()->getRouteName() === 'myeventlane_waitlist.holding_home') {
     $variables['is_front'] = TRUE;
@@ -240,6 +278,17 @@ function myeventlane_hold_theme_form_system_theme_settings_alter(array &$form, F
     '#title' => t('“What’s next” intro paragraph'),
     '#default_value' => $theme->get('whats_next_intro'),
   ];
+  $form['mel']['facebook_url'] = [
+    '#type' => 'url',
+    '#title' => t('Facebook URL'),
+    '#default_value' => $theme->get('facebook_url'),
+    '#description' => t('Leave empty to hide the Facebook link. The footer Social column is hidden entirely when no social URLs are set.'),
+  ];
+  $form['mel']['facebook_label'] = [
+    '#type' => 'textfield',
+    '#title' => t('Facebook label'),
+    '#default_value' => $theme->get('facebook_label'),
+  ];
   $form['mel']['instagram_url'] = [
     '#type' => 'url',
     '#title' => t('Instagram URL'),
@@ -288,6 +337,8 @@ function myeventlane_hold_theme_settings_submit(array &$form, FormStateInterface
     ->set('waitlist_intro', $form_state->getValue('waitlist_intro'))
     ->set('waitlist_fineprint', $form_state->getValue('waitlist_fineprint'))
     ->set('whats_next_intro', $form_state->getValue('whats_next_intro'))
+    ->set('facebook_url', $form_state->getValue('facebook_url'))
+    ->set('facebook_label', $form_state->getValue('facebook_label'))
     ->set('instagram_url', $form_state->getValue('instagram_url'))
     ->set('instagram_label', $form_state->getValue('instagram_label'))
     ->set('linkedin_url', $form_state->getValue('linkedin_url'))
