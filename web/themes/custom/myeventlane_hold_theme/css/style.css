@@ -15,10 +15,11 @@
   --mel-brand-3: #7be0d6;
   --mel-brand-4: #ffd27a;
 
-  --mel-ring: 0 0 0 3px rgba(138, 125, 255, 0.25);
-  --mel-shadow: 0 18px 60px rgba(30, 30, 42, 0.12);
-  --mel-shadow-soft: 0 10px 25px rgba(30, 30, 42, 0.08);
-  --mel-radius: 22px;
+  --mel-ring: 0 0 0 3px rgba(138, 125, 255, 0.28);
+  --mel-shadow: 0 24px 70px rgba(30, 30, 42, 0.10);
+  --mel-shadow-soft: 0 12px 30px rgba(30, 30, 42, 0.07);
+  --mel-shadow-lift: 0 34px 84px rgba(30, 30, 42, 0.15);
+  --mel-radius: 26px;
 
   --mel-max: 1040px;
   --mel-pad: clamp(18px, 3vw, 28px);
@@ -49,11 +50,12 @@ body.mel-root {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   color: var(--mel-ink);
   background:
-    radial-gradient(1200px 800px at 15% 10%, rgba(138, 125, 255, 0.28), transparent 60%),
-    radial-gradient(1000px 700px at 85% 15%, rgba(255, 138, 199, 0.22), transparent 60%),
-    radial-gradient(900px 650px at 25% 85%, rgba(123, 224, 214, 0.24), transparent 55%),
-    radial-gradient(950px 700px at 90% 90%, rgba(255, 210, 122, 0.24), transparent 55%),
-    linear-gradient(135deg, var(--mel-bg-1), var(--mel-bg-2));
+    radial-gradient(1300px 900px at 12% 6%, rgba(138, 125, 255, 0.18), transparent 62%),
+    radial-gradient(1100px 780px at 88% 12%, rgba(255, 138, 199, 0.14), transparent 62%),
+    radial-gradient(1000px 720px at 22% 92%, rgba(123, 224, 214, 0.15), transparent 58%),
+    radial-gradient(1050px 760px at 92% 94%, rgba(255, 210, 122, 0.15), transparent 58%),
+    linear-gradient(160deg, var(--mel-bg-1), var(--mel-bg-2));
+  background-attachment: fixed;
   overflow-x: hidden;
 }
 
@@ -916,24 +918,34 @@ textarea:focus-visible {
   width: 100%;
   max-width: var(--mel-max);
   margin: 0 auto;
-  padding: 0 var(--mel-pad) clamp(32px, 6vw, 56px);
+  padding: 0 var(--mel-pad) clamp(48px, 9vw, 96px);
 }
 
 .mel-page-content {
-  padding: clamp(24px, 4vw, 44px);
+  padding: clamp(28px, 5vw, 60px);
 }
 
-.mel-page-title {
-  margin: 0 0 0.6em;
-  font-size: var(--mel-h1);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+.mel-prose {
+  font-size: 1.02rem;
+  line-height: 1.75;
   color: var(--mel-ink);
 }
 
+.mel-page-content > :first-child {
+  margin-top: 0;
+}
+
+.mel-page-content p {
+  max-width: 68ch;
+  margin: 0 0 1.15em;
+  color: #35354c;
+}
+
 .mel-page-content h2 {
-  font-size: clamp(20px, 3vw, 26px);
-  margin: 1.6em 0 0.5em;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 1.9em 0 0.55em;
   color: var(--mel-ink);
 }
 
@@ -942,22 +954,35 @@ textarea:focus-visible {
 }
 
 .mel-page-content h3 {
-  font-size: clamp(17px, 2.4vw, 20px);
-  margin: 1.4em 0 0.4em;
+  font-size: clamp(17px, 2.4vw, 21px);
+  margin: 1.6em 0 0.45em;
   color: var(--mel-ink);
 }
 
 .mel-page-content a {
   color: #6f5cff;
   text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.mel-page-content a:hover {
+  color: var(--mel-brand-2);
 }
 
 .mel-page-content ul {
-  padding-left: 1.25em;
+  max-width: 68ch;
+  padding-left: 1.3em;
+  margin: 0 0 1.15em;
 }
 
 .mel-page-content li {
-  margin: 0.3em 0;
+  margin: 0.5em 0;
+  line-height: 1.65;
+}
+
+.mel-page-content li::marker {
+  color: var(--mel-brand-1);
 }
 
 /* Current-status panel accent on the home page. */
