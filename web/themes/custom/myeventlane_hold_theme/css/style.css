@@ -1050,3 +1050,70 @@ textarea:focus-visible {
   outline: 2px solid #6f5cff;
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   Page heroes (inner pages) — title + supporting line + optional MEL art.
+   ========================================================================== */
+
+.mel-hero-inner {
+  max-width: var(--mel-max);
+  margin: 0 auto;
+  padding: clamp(28px, 6vw, 72px) var(--mel-pad) clamp(18px, 3vw, 30px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 5vw, 48px);
+}
+
+.mel-hero-inner__text {
+  max-width: 40ch;
+}
+
+.mel-hero-inner__title {
+  margin: 0;
+  font-size: var(--mel-h1);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--mel-ink);
+}
+
+.mel-hero-inner__lead {
+  margin: clamp(12px, 2vw, 18px) 0 0;
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.5;
+  color: var(--mel-muted);
+}
+
+.mel-hero-inner__art {
+  flex: none;
+  width: auto;
+  height: clamp(104px, 15vw, 158px);
+  filter: drop-shadow(0 20px 34px rgba(30, 30, 42, 0.16));
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mel-hero-inner--art:hover .mel-hero-inner__art {
+  transform: translateY(-7px) rotate(-2deg);
+}
+
+@media (max-width: 720px) {
+  .mel-hero-inner {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .mel-hero-inner__art {
+    height: 92px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel-hero-inner__art {
+    transition: none;
+  }
+
+  .mel-hero-inner--art:hover .mel-hero-inner__art {
+    transform: none;
+  }
+}

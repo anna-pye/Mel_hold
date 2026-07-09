@@ -1,9 +1,9 @@
 {#
 /**
  * @file
- * Default page layout (inner brochure pages): global header nav, titled content
- * card, and multi-column footer. The holding front page and contact page use
- * their own page--*.html.twig templates.
+ * Default page layout (inner brochure pages): global header nav, page hero,
+ * titled content card, and multi-column footer. The holding front page and
+ * contact page use their own page--*.html.twig templates.
  */
 #}
 <a class="mel-skip" href="#main-content">{{ 'Skip to content'|t }}</a>
@@ -15,10 +15,30 @@
   {% include '@myeventlane_hold_theme/includes/mel-header.html.twig' %}
 
   <main id="main-content" class="mel-main mel-main--inner" role="main">
-    <article class="mel-card mel-prose mel-page-content">
-      {% if mel_page_title %}
-        <h1 class="mel-page-title">{{ mel_page_title }}</h1>
+    <header class="mel-hero-inner{{ mel_hero_art ? ' mel-hero-inner--art' : '' }}">
+      <div class="mel-hero-inner__text">
+        {% if mel_page_title %}
+          <h1 class="mel-hero-inner__title">{{ mel_page_title }}</h1>
+        {% endif %}
+        {% if mel_hero_tagline %}
+          <p class="mel-hero-inner__lead">{{ mel_hero_tagline }}</p>
+        {% endif %}
+      </div>
+      {% if mel_hero_art %}
+        <img
+          class="mel-hero-inner__art"
+          src="{{ base_path }}{{ directory }}/images/mel-mascot-thinking.webp"
+          alt=""
+          aria-hidden="true"
+          width="110"
+          height="179"
+          loading="lazy"
+          decoding="async"
+        />
       {% endif %}
+    </header>
+
+    <article class="mel-card mel-prose mel-page-content">
       {{ page.content }}
     </article>
   </main>

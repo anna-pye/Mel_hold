@@ -160,6 +160,29 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
     $variables['mel_page_title'] = is_array($title) ? \Drupal::service('renderer')->renderInIsolation($title) : $title;
   }
 
+  // Per-page hero (presentation only — no content/routing change). Keyed by the
+  // clean path so it follows the existing aliases. 'art' TRUE shows the MEL
+  // mascot; swap for a per-page pose when approved artwork is added.
+  $current_path = \Drupal::service('path.current')->getPath();
+  $alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $heroes = [
+    '/our-story' => ["The story behind Australia's community-first event marketplace.", TRUE],
+    '/what-is-myeventlane' => ['Helping people discover amazing events.', TRUE],
+    '/our-mission' => ['Why we are building MyEventLane.', FALSE],
+    '/organisers' => ['Helping organisers succeed.', TRUE],
+    '/community' => ['Building safer and more welcoming communities.', TRUE],
+    '/community-guidelines' => ['How we treat one another here.', FALSE],
+    '/trust-safety' => ['Book and host with confidence.', FALSE],
+    '/accessibility' => ['An experience everyone can use.', FALSE],
+    '/privacy' => ['Protecting your information.', TRUE],
+    '/terms' => ['The basics of using MyEventLane.', FALSE],
+    '/cookies' => ['How we use cookies.', FALSE],
+    '/pricing' => ['Fair, transparent pricing.', FALSE],
+    '/contact' => ["We'd love to hear from you.", TRUE],
+  ];
+  $variables['mel_hero_tagline'] = $heroes[$alias][0] ?? '';
+  $variables['mel_hero_art'] = $heroes[$alias][1] ?? FALSE;
+
   if (\Drupal::routeMatch()->getRouteName() === 'myeventlane_waitlist.holding_home') {
     $variables['is_front'] = TRUE;
   }
