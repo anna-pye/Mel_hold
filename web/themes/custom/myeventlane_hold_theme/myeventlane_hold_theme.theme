@@ -45,10 +45,12 @@ function myeventlane_hold_theme_menu_items(string $menu_name): array {
   $parameters = new MenuTreeParameters();
   $parameters->onlyEnabledLinks();
 
+  // The active trail is used ONLY to flag is_active links in the items below —
+  // it must never constrain tree loading. (Feeding it to addExpandedParents()
+  // made MenuTreeStorage load only children of the trail links, so any page
+  // that itself appears in the menu collapsed the header/footer down to its
+  // own branch — e.g. /privacy rendered a one-column footer.)
   $active_trail = \Drupal::service('menu.active_trail')->getActiveTrailIds($menu_name);
-  foreach (array_filter($active_trail) as $plugin_id) {
-    $parameters->addExpandedParents([$plugin_id]);
-  }
 
   $tree = $tree_service->load($menu_name, $parameters);
   $manipulators = [
