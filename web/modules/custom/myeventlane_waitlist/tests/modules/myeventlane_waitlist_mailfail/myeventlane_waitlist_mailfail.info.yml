@@ -1,0 +1,6 @@
+name: 'MyEventLane Waitlist mail-failure test support'
+type: module
+description: 'Provides a mail plugin that always fails. Test support only.'
+package: Testing
+core_version_requirement: '^11'
+hidden: true
