@@ -317,11 +317,18 @@ $settings['config_sync_directory'] = $app_root . '/../config/sync';
 $settings['file_private_path'] = $app_root . '/../private';
 
 /**
- * Public base URL for generated links (set per environment).
+ * Canonical base URL for CLI-generated links (cron, queue workers).
+ *
+ * NOTE: the previous `$base_url = getenv('DRUPAL_BASE_URL')` here was a
+ * Drupal 7 mechanism that Drupal 8+ silently ignores — it never worked and
+ * produced http://default/... links in emails sent from cron. The working,
+ * Drush-native mechanism is the DRUSH_OPTIONS_URI environment variable
+ * (see deploy/production.env.example; DDEV sets it automatically). Web
+ * requests are unaffected — they always use the real request host. As a
+ * final safety net, WaitlistEmailManager refuses to send any email whose
+ * links resolve to the "default" host, so a missing variable suspends the
+ * mail queue with a clear log instead of sending broken links.
  */
-if ($base_url_env = getenv('DRUPAL_BASE_URL')) {
-  $base_url = $base_url_env;
-}
 
 /**
  * Waitlist: secret for hashing confirmation / unsubscribe tokens (never store raw tokens).

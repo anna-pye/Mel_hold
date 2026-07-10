@@ -24,7 +24,7 @@
         "drupal/gin_toolbar": "^3.0",
         "drupal/mailsystem": "^4.5",
         "drupal/metatag": "^2.2",
-        "drupal/pathauto": "^1.14",
+        "drupal/pathauto": "1.x-dev@dev",
         "drupal/postmark": "^1.5",
         "drupal/redirect": "^1.12",
         "drupal/schema_metatag": "^3.0",
@@ -109,5 +109,8 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "require-dev": {
+        "drupal/core-dev": "^11.4"
     }
 }

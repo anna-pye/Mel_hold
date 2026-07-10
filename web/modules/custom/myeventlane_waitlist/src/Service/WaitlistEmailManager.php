@@ -11,6 +11,7 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\myeventlane_waitlist\Exception\WaitlistCanonicalUrlException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -66,12 +67,22 @@ final class WaitlistEmailManager {
     }
     $expires = time() + $ttl;
 
+    // Build both links BEFORE mutating anything, and refuse to send an email
+    // whose links resolve to Drupal's placeholder host. That happens when a
+    // CLI process (drush cron, queue worker) has no canonical base URL
+    // configured — the resulting http://default/... links are useless to the
+    // subscriber. Throwing here (before the token update) leaves the row
+    // untouched and lets the queue worker suspend the queue so the item is
+    // retried once the environment is fixed.
+    $confirmUrl = Url::fromRoute('myeventlane_waitlist.confirm', ['token' => $rawConfirm], ['absolute' => TRUE])->toString();
+    $unsubUrl = Url::fromRoute('myeventlane_waitlist.unsubscribe', ['token' => $rawUnsub], ['absolute' => TRUE])->toString();
+    $this->assertCanonicalUrl($confirmUrl, $subscriberId, 'confirmation');
+
     $this->database->update('myeventlane_waitlist_subscriber')
       ->fields([
         'confirm_token' => $hashConfirm,
         'confirm_token_expires' => $expires,
         'unsubscribe_token' => $hashUnsub,
-        'last_sent_at' => time(),
         'changed' => time(),
       ])
       ->condition('id', $subscriberId)
@@ -79,14 +90,16 @@ final class WaitlistEmailManager {
 
     $langcode = $this->languageManager->getDefaultLanguage()->getId();
 
-    $confirmUrl = Url::fromRoute('myeventlane_waitlist.confirm', ['token' => $rawConfirm], ['absolute' => TRUE])->toString();
-    $unsubUrl = Url::fromRoute('myeventlane_waitlist.unsubscribe', ['token' => $rawUnsub], ['absolute' => TRUE])->toString();
-
     $body = $this->buildMelConfirmationEmailHtml($confirmUrl, $unsubUrl);
 
     $params = [
       'body' => $body,
       'subject' => (string) $this->t('Confirm your MyEventLane waitlist signup'),
+      // Background sends must never surface core's "Unable to send email…"
+      // messenger error in a browser session (web cron / automated_cron runs
+      // in a real visitor's request context). Empty string = core logs the
+      // failure but adds no messenger message; we log richly below instead.
+      '_error_message' => '',
     ];
 
     $config = $this->configFactory->get('myeventlane_waitlist.settings');
@@ -103,7 +116,46 @@ final class WaitlistEmailManager {
     );
 
     if (empty($result['result'])) {
-      $this->logger->error('Mail send reported failure for subscriber @id', ['@id' => $subscriberId]);
+      $this->logger->error('Waitlist mail failed: op=@op subscriber=@id recipient=@to mail_id=@mail_id result=@result — item will be requeued.', [
+        '@op' => 'confirmation',
+        '@id' => $subscriberId,
+        '@to' => $row->email,
+        '@mail_id' => 'myeventlane_waitlist_waitlist_confirm',
+        '@result' => var_export($result['result'] ?? NULL, TRUE),
+      ]);
+      // Throwing keeps the queue item (core releases it for retry) instead of
+      // silently deleting it — a transient transport failure must not lose the
+      // subscriber's confirmation email.
+      throw new \RuntimeException(sprintf('Waitlist confirmation mail failed for subscriber %d.', $subscriberId));
+    }
+
+    // Only record a send that actually happened.
+    $this->database->update('myeventlane_waitlist_subscriber')
+      ->fields(['last_sent_at' => time()])
+      ->condition('id', $subscriberId)
+      ->execute();
+
+    $this->logger->info('Waitlist mail sent: op=@op subscriber=@id recipient=@to', [
+      '@op' => 'confirmation',
+      '@id' => $subscriberId,
+      '@to' => $row->email,
+    ]);
+  }
+
+  /**
+   * Refuses URLs on Drupal's placeholder "default" host (no canonical base).
+   *
+   * @throws \Drupal\myeventlane_waitlist\Exception\WaitlistCanonicalUrlException
+   */
+  private function assertCanonicalUrl(string $url, int $subscriberId, string $op): void {
+    $host = (string) (parse_url($url, PHP_URL_HOST) ?: '');
+    if ($host === 'default') {
+      $this->logger->error('Waitlist mail blocked: op=@op subscriber=@id — generated URL uses the placeholder host (@url). Set DRUSH_OPTIONS_URI for this CLI environment (see deploy/production.env.example). The queue is suspended; no broken email was sent.', [
+        '@op' => $op,
+        '@id' => $subscriberId,
+        '@url' => $url,
+      ]);
+      throw new WaitlistCanonicalUrlException(sprintf('Canonical base URL unavailable (host "default") while sending %s for subscriber %d.', $op, $subscriberId));
     }
   }
 

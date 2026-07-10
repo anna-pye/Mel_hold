@@ -178,6 +178,10 @@ final class ContactForm extends FormBase {
     $params = [
       'subject' => (string) $this->t('MyEventLane contact: @name', ['@name' => $name]),
       'body' => $body,
+      // Suppress core MailManager's generic "Unable to send email…" messenger
+      // error; this form shows its own specific message on failure, and
+      // displaying both was confusing.
+      '_error_message' => '',
     ];
 
     $result = $this->mailManager->mail(
