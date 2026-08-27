@@ -5,6 +5,7 @@ global:
       css/style.css: {}
   js:
     js/mel-nav.js: {}
+    js/mel-path-switcher.js: {}
   dependencies:
     - core/drupal
     - core/once

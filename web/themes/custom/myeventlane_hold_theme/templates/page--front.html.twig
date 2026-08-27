@@ -32,15 +32,19 @@
             {{ mel_hero_gradient }} {{ mel_hero_subheading }}
           </h1>
           <p class="mel2-lead">{{ mel_hero_lead }}</p>
-          <div class="mel2-doors" aria-label="{{ 'Choose how you use events'|t }}">
-            <a class="mel2-btn mel2-btn--primary" href="#organisers">{{ 'I run events'|t }}</a>
-            <a class="mel2-btn mel2-btn--quiet" href="#attendees">{{ 'I go to events'|t }}</a>
+          <div class="mel2-doors" data-mel-path-switcher role="group" aria-label="{{ 'Choose how you use events'|t }}">
+            <button class="mel2-btn mel2-btn--quiet mel2-path-trigger" type="button" aria-controls="organisers" aria-expanded="false">
+              {{ 'I run events'|t }}
+            </button>
+            <button class="mel2-btn mel2-btn--quiet mel2-path-trigger" type="button" aria-controls="attendees" aria-expanded="false">
+              {{ 'I go to events'|t }}
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="organisers" class="mel2-section" aria-labelledby="mel2-organisers-title">
+    <section id="organisers" class="mel2-section mel2-path-panel" aria-labelledby="mel2-organisers-title">
       <div class="mel2-wrap">
         <div class="mel2-panel">
           <p class="mel2-eyebrow">{{ 'For organisers'|t }}</p>
@@ -58,7 +62,7 @@
       </div>
     </section>
 
-    <section id="attendees" class="mel2-section" aria-labelledby="mel2-attendees-title">
+    <section id="attendees" class="mel2-section mel2-path-panel" aria-labelledby="mel2-attendees-title">
       <div class="mel2-wrap">
         <div class="mel2-panel">
           <p class="mel2-eyebrow">{{ 'For attendees'|t }}</p>

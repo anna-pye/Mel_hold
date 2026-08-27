@@ -1864,6 +1864,17 @@ body.mel-root .mel2-page {
   background: #fdf3ed;
 }
 
+.mel2-path-trigger[aria-expanded="true"] {
+  color: #fff;
+  background: var(--mel2-coral);
+  border-color: var(--mel2-coral);
+}
+
+.mel2-path-trigger[aria-expanded="true"]:hover {
+  background: var(--mel2-coral-hover);
+  border-color: var(--mel2-coral-hover);
+}
+
 .mel2-btn:active {
   transform: translateY(1px);
 }
