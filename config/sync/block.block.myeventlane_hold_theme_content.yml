@@ -1,0 +1,22 @@
+uuid: 2a9d95b1-76be-4472-86c7-ca41c755ff7a
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - myeventlane_hold_theme
+_core:
+  default_config_hash: erQSEZF2XUjNmgTl0uNRBzmg18ZGXwUcw2FhApoeuHk
+id: myeventlane_hold_theme_content
+theme: myeventlane_hold_theme
+region: content
+weight: 0
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  label_display: '0'
+  provider: system
+visibility: {  }

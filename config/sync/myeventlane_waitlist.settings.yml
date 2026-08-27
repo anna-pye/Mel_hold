@@ -1,0 +1,20 @@
+_core:
+  default_config_hash: qmxm9Y0TFYPf45b2UhdXp-Gi49x0QhmGqYMXzt4SNeQ
+sender_name: MyEventLane
+sender_mail: info@myeventlane.com.au
+contact_mail: info@myeventlane.com.au
+consent_text: 'I agree to receive occasional updates about MyEventLane and understand I can unsubscribe at any time.'
+consent_version: '1'
+privacy_url: /privacy
+privacy_body: |-
+  <h2>Our community</h2>
+  <p>MyEventLane is built around the people who make local events happen — volunteers, small teams, independent promoters, venues, and the communities who show up. We want a platform that feels approachable and puts those people first.</p>
+  <h3>Being part of it</h3>
+  <p>A few short documents set out what we expect of one another and how we look after each other:</p>
+  <ul>
+    <li><a href="/community-guidelines">Community Guidelines</a> — how we treat one another here.</li>
+    <li><a href="/trust-safety">Trust &amp; Safety</a> — how we help keep events and people safe.</li>
+    <li><a href="/accessibility">Accessibility Statement</a> — our commitment to an inclusive experience.</li>
+  </ul>
+  <p>Have an idea, or want to introduce your community group? <a href="/contact">Contact us</a> — we would love to hear from you.</p>
+confirm_token_ttl: 86400

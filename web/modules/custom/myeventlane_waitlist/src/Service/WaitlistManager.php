@@ -46,6 +46,7 @@ final class WaitlistManager {
     ?string $interestType,
     Request $request,
     string $formVariant,
+    array $profile = [],
   ): string {
     $normalized = $this->normalizeEmail($email);
     $ip = $request->getClientIp() ?? '';
@@ -66,6 +67,14 @@ final class WaitlistManager {
 
     $attr = $this->attributionManager->collectFromRequest($request);
     $now = time();
+    // Full set, including NULLs, for the INSERT.
+    $profileInsert = $this->normalizeProfile($profile);
+    // Only values actually supplied, for UPDATEs. An attendee re-signup must
+    // not blank the organiser details captured on an earlier submission.
+    $profileUpdate = array_filter(
+      $profileInsert,
+      static fn($v) => $v !== NULL,
+    );
 
     $existing = $this->database->select('myeventlane_waitlist_subscriber', 's')
       ->fields('s')
@@ -85,7 +94,7 @@ final class WaitlistManager {
 
     if ($existing && $existing->status === 'pending') {
       $this->database->update('myeventlane_waitlist_subscriber')
-        ->fields([
+        ->fields($profileUpdate + [
           'email' => $email,
           'interest_type' => $interestType,
           'consent_given' => $consent ? 1 : 0,
@@ -116,7 +125,7 @@ final class WaitlistManager {
 
     if ($existing && $existing->status === 'unsubscribed') {
       $this->database->update('myeventlane_waitlist_subscriber')
-        ->fields([
+        ->fields($profileUpdate + [
           'email' => $email,
           'status' => 'pending',
           'interest_type' => $interestType,
@@ -153,7 +162,7 @@ final class WaitlistManager {
 
     try {
       $id = (int) $this->database->insert('myeventlane_waitlist_subscriber')
-        ->fields([
+        ->fields($profileInsert + [
           'email' => $email,
           'email_normalized' => $normalized,
           'first_name' => NULL,
@@ -198,7 +207,7 @@ final class WaitlistManager {
         ->fetchObject();
       if ($race && $race->status === 'pending') {
         $this->database->update('myeventlane_waitlist_subscriber')
-          ->fields([
+          ->fields($profileUpdate + [
             'email' => $email,
             'interest_type' => $interestType,
             'consent_given' => $consent ? 1 : 0,
@@ -303,6 +312,34 @@ final class WaitlistManager {
 
   public function normalizeEmail(string $email): string {
     return strtolower(trim($email));
+  }
+
+  /**
+   * Reduces a submitted profile array to the storable profile columns.
+   *
+   * Values are trimmed and truncated to their column length. Anything not in
+   * the allow-list is discarded. Empty values become NULL.
+   *
+   * @return array<string, string|null>
+   *   Normalised profile values keyed by their database column.
+   */
+  private function normalizeProfile(array $profile): array {
+    $lengths = [
+      'first_name' => 128,
+      'organisation' => 255,
+      'event_type' => 64,
+      'next_event_date' => 32,
+      'audience_size' => 64,
+      'current_platform' => 128,
+    ];
+
+    $clean = [];
+    foreach ($lengths as $key => $max) {
+      $value = trim((string) ($profile[$key] ?? ''));
+      $clean[$key] = $value === '' ? NULL : mb_substr($value, 0, $max);
+    }
+
+    return $clean;
   }
 
   private function hashIp(string $ip): string {

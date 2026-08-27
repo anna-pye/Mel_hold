@@ -41,6 +41,36 @@ function myeventlane_waitlist_schema(): array {
         'length' => 64,
         'not null' => FALSE,
       ],
+      'organisation' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => 'Organisation name, organiser signups only.',
+      ],
+      'event_type' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'Kind of event the organiser runs.',
+      ],
+      'next_event_date' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => FALSE,
+        'description' => 'Date of their next event, ISO 8601 (YYYY-MM-DD). Format enforced in the form.',
+      ],
+      'audience_size' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'Free text: roughly how many people they can reach.',
+      ],
+      'current_platform' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+        'description' => 'Free text: what they use now.',
+      ],
       'status' => [
         'type' => 'varchar',
         'length' => 32,
@@ -289,4 +319,51 @@ function myeventlane_waitlist_update_11002(): void {
   unset($interface['myeventlane_waitlist']);
   $interface['default'] = 'postmark';
   $config->set('interface', $interface)->save();
+}
+
+/**
+ * Add organiser profile columns to the waitlist subscriber table.
+ */
+function myeventlane_waitlist_update_11003(): void {
+  $schema = \Drupal::database()->schema();
+  $table = 'myeventlane_waitlist_subscriber';
+
+  $columns = [
+    'organisation' => [
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+      'description' => 'Organisation name, organiser signups only.',
+    ],
+    'event_type' => [
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => FALSE,
+      'description' => 'Kind of event the organiser runs.',
+    ],
+    'next_event_date' => [
+      'type' => 'varchar',
+      'length' => 32,
+      'not null' => FALSE,
+      'description' => 'Date of their next event, ISO 8601 (YYYY-MM-DD).',
+    ],
+    'audience_size' => [
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => FALSE,
+      'description' => 'Free text: roughly how many people they can reach.',
+    ],
+    'current_platform' => [
+      'type' => 'varchar',
+      'length' => 128,
+      'not null' => FALSE,
+      'description' => 'Free text: what they use now.',
+    ],
+  ];
+
+  foreach ($columns as $name => $spec) {
+    if (!$schema->fieldExists($table, $name)) {
+      $schema->addField($table, $name, $spec);
+    }
+  }
 }

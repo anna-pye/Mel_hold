@@ -1,0 +1,22 @@
+uuid: 3b0ac0c2-5894-44e8-b47c-0fc1ae38426c
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - myeventlane_hold_theme
+_core:
+  default_config_hash: eYL19CLDyinGTWYQfBD1DswWzglEotE_kHnHx3AxTXM
+id: myeventlane_hold_theme_powered
+theme: myeventlane_hold_theme
+region: header
+weight: 0
+provider: null
+plugin: system_powered_by_block
+settings:
+  id: system_powered_by_block
+  label: 'Powered by Drupal'
+  label_display: '0'
+  provider: system
+visibility: {  }

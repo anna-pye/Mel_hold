@@ -56,6 +56,11 @@ final class WaitlistExportController extends ControllerBase {
         'changed',
         'confirmed_at',
         'unsubscribed_at',
+        'organisation',
+        'event_type',
+        'next_event_date',
+        'audience_size',
+        'current_platform',
       ]);
       $q = $database->select('myeventlane_waitlist_subscriber', 's')
         ->fields('s')
@@ -85,6 +90,11 @@ final class WaitlistExportController extends ControllerBase {
           $row->changed,
           $row->confirmed_at,
           $row->unsubscribed_at,
+          $row->organisation,
+          $row->event_type,
+          $row->next_event_date,
+          $row->audience_size,
+          $row->current_platform,
         ]);
       }
       fclose($out);

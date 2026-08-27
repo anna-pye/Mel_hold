@@ -18,6 +18,25 @@ myeventlane_hold_theme.settings:
       type: text
     badges:
       type: text
+    organiser_panel_title:
+      type: string
+    organiser_panel_intro:
+      type: text
+    organiser_panel_points:
+      type: text
+      label: 'Organiser panel bullet points, one per line'
+    attendee_panel_title:
+      type: string
+    attendee_panel_intro:
+      type: text
+    status_title:
+      type: string
+    status_body:
+      type: text
+      label: 'Status paragraphs, one per line'
+    trust_items:
+      type: text
+      label: 'Trust badges, one per line'
     waitlist_intro:
       type: text
     waitlist_fineprint:
@@ -27,6 +46,10 @@ myeventlane_hold_theme.settings:
     whats_next:
       type: text
       label: 'Legacy HTML block (used if whats_next_intro empty)'
+    facebook_url:
+      type: string
+    facebook_label:
+      type: string
     instagram_url:
       type: string
     instagram_label:

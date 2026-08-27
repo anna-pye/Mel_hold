@@ -1,16 +1,37 @@
 brand_subtitle: 'early access'
-hero_kicker: 'Early access opening soon'
-hero_gradient: 'Discover and run local events'
-hero_subheading: 'with MyEventLane'
-hero_lead: 'MyEventLane is an event platform for community organisers, local hosts, and attendees. Create event pages, share free or paid events, manage RSVPs and ticketing, and be ready for launch.'
+hero_kicker: 'Early access — we are talking to organisers now'
+hero_gradient: 'Community events,'
+hero_subheading: 'made simpler'
+hero_lead: 'MyEventLane is an Australian event platform for community groups. Free RSVPs and paid ticket sales are processed through your own connected Stripe account. We are getting ready to open, and we are talking to organisers first.'
 badges: |
-  Event pages • simple to share
-  Free & paid events • flexible launch tools
-  RSVPs & ticketing • ready for early access
-  Built for communities • local organisers first
+  Event pages • quick to set up
+  Free RSVPs • guest lists and reminders
+  Ticketing • when you need it
+  Built here • for Australian community groups
+organiser_panel_title: 'You run events'
+organiser_panel_intro: 'We would like to hear from you before we open. Tell us what you run and we will get in touch. If it is a good fit we will set your first event up with you on a call, not hand you a help article.'
+organiser_panel_points: |
+  Markets, workshops, local gigs, fundraisers and fetes
+  Free RSVP events and paid ticketing in the same place
+  Guest lists, reminders, check-in and attendee messaging
+  Payments through your own connected Stripe account
+attendee_panel_title: 'You go to events'
+attendee_panel_intro: 'Leave your email and we will let you know when MyEventLane opens in your area. That is all we will use it for.'
+status_title: 'Where we are up to'
+status_body: |
+  MyEventLane is in final development and testing.
+  We are working with organisers, venues and community groups to get ready.
+  We are not open to the public yet.
+trust_items: |
+  Australian built
+  Privacy first
+  No spam
+  Unsubscribe anytime
 waitlist_intro: 'Join the early list for launch updates and first access when MyEventLane opens.'
-waitlist_fineprint: 'No spam. Just launch updates, early access news, and an unsubscribe link in every email.'
-whats_next_intro: 'Have a launch question or want to introduce your community? Contact MyEventLane and we’ll get back to you.'
+waitlist_fineprint: 'We will only email you about MyEventLane. Every email has a working unsubscribe link.'
+whats_next_intro: 'Have a question, or want to introduce your community group? Get in touch and we will come back to you.'
+facebook_url: ''
+facebook_label: 'MyEventLane'
 instagram_url: ''
 instagram_label: '@myeventlane'
 linkedin_url: ''

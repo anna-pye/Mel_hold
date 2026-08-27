@@ -1,0 +1,15 @@
+uuid: 90c5e68e-54fa-4c3a-ae9f-1d83c4f520ed
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: ghKMSMDwZawMVf7X1AMhqwNW0z5CWYvkQS68pRacTMA
+id: sitename
+label: Sitename
+description: 'The name of the site.'
+htmlElement: meta
+htmlValueAttribute: content
+attributes:
+  -
+    name: name
+    value: sitename
