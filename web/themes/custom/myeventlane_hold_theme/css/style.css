@@ -2032,3 +2032,25 @@ body.mel-root .mel2-page {
     gap: 16px;
   }
 }
+
+@media (min-width: 900px) {
+  .mel2-section:not(:first-child) .mel2-wrap,
+  .mel2-page .mel-topbar {
+    max-width: 60rem;
+  }
+
+  .mel2-panel {
+    padding: 36px 40px;
+  }
+
+  .mel2-page .mel-header {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .mel2-page .mel-brand-logo {
+    width: auto;
+    max-width: 360px;
+    max-height: 82px;
+  }
+}
