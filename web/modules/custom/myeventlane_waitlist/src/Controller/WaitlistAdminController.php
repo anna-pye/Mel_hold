@@ -43,6 +43,17 @@ final class WaitlistAdminController extends ControllerBase {
     $denom = $confirmed + $pending;
     $rate = $denom > 0 ? round(100 * $confirmed / $denom, 1) : 0.0;
 
+    $byInterest = $this->database->select('myeventlane_waitlist_subscriber', 's')
+      ->fields('s', ['interest_type'])
+      ->condition('status', 'confirmed');
+    $byInterest->addExpression('COUNT(s.id)', 'total');
+    $byInterest = $byInterest->groupBy('interest_type')
+      ->execute()
+      ->fetchAllKeyed();
+    $confirmedOrganisers = (int) ($byInterest['organiser'] ?? 0);
+    $confirmedAttendees = (int) ($byInterest['attendee'] ?? 0);
+    $confirmedUnclassified = $confirmed - $confirmedOrganisers - $confirmedAttendees;
+
     $recent = $this->database->select('myeventlane_waitlist_subscriber', 's')
       ->fields('s', ['id', 'email', 'status', 'created', 'utm_source', 'utm_campaign'])
       ->orderBy('created', 'DESC')
@@ -103,6 +114,7 @@ final class WaitlistAdminController extends ControllerBase {
         <div class="mel-admin-waitlist__stats">
           <p><strong>{{ "Total"|t }}:</strong> {{ total }}</p>
           <p><strong>{{ "Pending"|t }}:</strong> {{ pending }} — <strong>{{ "Confirmed"|t }}:</strong> {{ confirmed }} — <strong>{{ "Unsubscribed"|t }}:</strong> {{ unsub }}</p>
+          <p><strong>{{ "Confirmed organisers"|t }}:</strong> {{ confirmed_organisers }} — <strong>{{ "Confirmed attendees"|t }}:</strong> {{ confirmed_attendees }} — <strong>{{ "Not recorded"|t }}:</strong> {{ confirmed_unclassified }}</p>
           <p><strong>{{ "Confirmation rate (confirmed / confirmed+pending)"|t }}:</strong> {{ rate }}%</p>
         </div>',
       '#context' => [
@@ -110,6 +122,9 @@ final class WaitlistAdminController extends ControllerBase {
         'pending' => $pending,
         'confirmed' => $confirmed,
         'unsub' => $counts['unsubscribed'],
+        'confirmed_organisers' => $confirmedOrganisers,
+        'confirmed_attendees' => $confirmedAttendees,
+        'confirmed_unclassified' => $confirmedUnclassified,
         'rate' => $rate,
       ],
     ];
