@@ -135,7 +135,11 @@ function myeventlane_analytics_waitlist_signup_form_submit(array &$form, FormSta
   if ($form_state->get('honeypot_tripped')) {
     return;
   }
-  \Drupal::service('myeventlane_analytics.service')->track(AnalyticsEvents::WAITLIST_JOIN);
+  $interest_type = trim((string) $form_state->getValue('interest_type'));
+  \Drupal::service('myeventlane_analytics.service')->track(
+    AnalyticsEvents::WAITLIST_JOIN,
+    ['interest_type' => $interest_type],
+  );
 }
 
 /**

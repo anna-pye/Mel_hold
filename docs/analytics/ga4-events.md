@@ -9,7 +9,7 @@ All events are gated by `AnalyticsService::shouldTrack()`: never fired when `mel
 | `search` | Current route is `search.view_node_search` (the exact route Drupal core's `SearchPageRoutes` generates for the enabled default search page) and the `keys` query parameter is non-empty. `params.search_term` is the query, truncated to 100 chars. | `hook_page_attachments()` |
 | `login` | `hook_user_login()` — fires for every successful login regardless of role. | `myeventlane_analytics.module` |
 | `sign_up` | `user_register_form` submit, only when the current route is `user.register` (excludes admin-created accounts at `/admin/people/create`, which shares the same form ID). | `myeventlane_analytics.module` |
-| `waitlist_join` | `waitlist_signup_form` submit, when the honeypot was **not** tripped (`$form_state->get('honeypot_tripped')`). See "Why waitlist_join fires unconditionally" below. | `myeventlane_analytics.module` |
+| `waitlist_join` | `waitlist_signup_form` submit, when the honeypot was **not** tripped (`$form_state->get('honeypot_tripped')`). The `interest_type` parameter distinguishes `organiser` and `attendee` submissions. See "Why waitlist_join fires unconditionally" below. | `myeventlane_analytics.module` |
 | `contact_form_submit` | `myeventlane_contact_form` submit, when the honeypot was not tripped **and** `$form_state->getRedirect()` is set (only the genuine mail-accepted path calls `setRedirectUrl()`; the mail-failure path returns early with no redirect). | `myeventlane_analytics.module` |
 
 ## Why `waitlist_join` fires unconditionally on genuine submission

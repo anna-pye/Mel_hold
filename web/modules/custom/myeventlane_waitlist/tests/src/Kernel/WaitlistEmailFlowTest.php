@@ -8,6 +8,7 @@ use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\myeventlane_waitlist\Exception\WaitlistCanonicalUrlException;
 use Drupal\myeventlane_waitlist\Plugin\QueueWorker\WaitlistMailQueue;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -16,9 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
  * Covers: queue creation, queue processing, email delivery, confirmation and
  * unsubscribe tokens, generated URLs, the http://default guard, and failure
  * handling (failed sends must throw so the queue retains the item).
- *
- * @group myeventlane_waitlist
  */
+#[Group('myeventlane_waitlist')]
 final class WaitlistEmailFlowTest extends KernelTestBase {
 
   /**
@@ -48,20 +48,71 @@ final class WaitlistEmailFlowTest extends KernelTestBase {
    */
   public function testSignupCreatesSubscriberAndQueuesConfirmation(): void {
     $request = Request::create('http://localhost/waitlist/subscribe', 'POST');
+    $profile = [
+      'first_name' => 'Anna',
+      'organisation' => 'Preston Makers Market',
+      'event_type' => 'market',
+      'next_event_date' => '2027-03-15',
+      'audience_size' => 'About 400',
+      'current_platform' => 'A Google Form',
+    ];
 
     $result = $this->container->get('myeventlane_waitlist.manager')
-      ->processSignupRequest('kernel@example.com', TRUE, 'organiser', $request, 'test');
+      ->processSignupRequest('kernel@example.com', TRUE, 'organiser', $request, 'test', $profile);
     $this->assertSame('waitlist_neutral', $result);
 
     $row = $this->loadSubscriber('kernel@example.com');
     $this->assertNotEmpty($row);
     $this->assertSame('pending', $row->status);
+    $this->assertSame('organiser', $row->interest_type);
+    foreach ($profile as $column => $value) {
+      $this->assertSame($value, $row->{$column});
+    }
 
     $queue = $this->container->get('queue')->get('myeventlane_waitlist_mail');
     $this->assertSame(1, $queue->numberOfItems());
     $item = $queue->claimItem();
     $this->assertSame('confirmation', $item->data['op']);
     $this->assertSame((int) $row->id, (int) $item->data['subscriber_id']);
+  }
+
+  /**
+   * An attendee re-signup never erases an existing organiser profile.
+   */
+  public function testAttendeeResignupPreservesOrganiserProfile(): void {
+    $request = Request::create('http://localhost/waitlist/submit', 'POST');
+    $profile = [
+      'first_name' => 'Anna',
+      'organisation' => 'Preston Makers Market',
+      'event_type' => 'market',
+      'next_event_date' => '2027-03-15',
+      'audience_size' => 'About 400',
+      'current_platform' => 'A Google Form',
+    ];
+    $manager = $this->container->get('myeventlane_waitlist.manager');
+
+    $manager->processSignupRequest(
+      'preserve@example.com',
+      TRUE,
+      'organiser',
+      $request,
+      'embedded_organiser',
+      $profile,
+    );
+    $manager->processSignupRequest(
+      'preserve@example.com',
+      TRUE,
+      'attendee',
+      $request,
+      'embedded_attendee',
+    );
+
+    $row = $this->loadSubscriber('preserve@example.com');
+    $this->assertNotEmpty($row);
+    $this->assertSame('attendee', $row->interest_type);
+    foreach ($profile as $column => $value) {
+      $this->assertSame($value, $row->{$column});
+    }
   }
 
   /**

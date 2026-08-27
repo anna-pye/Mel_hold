@@ -454,48 +454,64 @@ function myeventlane_hold_theme_form_waitlist_signup_form_alter(array &$form, Fo
     return;
   }
 
-  $form['email']['#title'] = t('Email address');
-  $form['email']['#title_display'] = 'before';
+  $audience = $form['interest_type']['#value'] ?? WaitlistSignupForm::AUDIENCE_ATTENDEE;
+  $audience = $audience === WaitlistSignupForm::AUDIENCE_ORGANISER
+    ? WaitlistSignupForm::AUDIENCE_ORGANISER
+    : WaitlistSignupForm::AUDIENCE_ATTENDEE;
+  $is_standalone = \Drupal::routeMatch()->getRouteName() === 'myeventlane_waitlist.subscribe';
 
-  $submit = $form['actions']['submit'];
-  $submit['#value'] = t('Join the waitlist');
-  unset($form['actions']);
+  // The standalone page still uses the original single-row .mel-* layout.
+  // Audience-mode forms on the holding page keep their native field tree.
+  if ($is_standalone && $audience === WaitlistSignupForm::AUDIENCE_ATTENDEE) {
+    $submit = $form['actions']['submit'];
+    unset($form['actions']);
 
-  $form['row'] = [
-    '#type' => 'container',
-    '#attributes' => ['class' => ['mel-waitlist-form__row']],
-    '#weight' => 0,
-  ];
-  $form['row']['email'] = $form['email'];
-  unset($form['email']);
-  $form['row']['actions'] = [
-    '#type' => 'actions',
-    'submit' => $submit,
-  ];
+    $form['row'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['mel-waitlist-form__row']],
+      '#weight' => 0,
+    ];
+    $form['row']['email'] = $form['email'];
+    unset($form['email']);
+    $form['row']['actions'] = [
+      '#type' => 'actions',
+      'submit' => $submit,
+    ];
+  }
 
   $theme_config = \Drupal::config('myeventlane_hold_theme.settings');
   $fineprint = (string) ($theme_config->get('waitlist_fineprint') ?: '');
+  $fineprint_class = $is_standalone ? 'mel-fineprint' : 'mel2-fine';
   $form['fineprint'] = [
     '#type' => 'markup',
-    '#markup' => '<p class="mel-fineprint">' . Html::escape($fineprint) . '</p>',
-    '#weight' => 2,
+    '#markup' => '<p class="' . $fineprint_class . '">' . Html::escape($fineprint) . '</p>',
+    '#weight' => 20,
   ];
 
-  $form['consent']['#weight'] = 3;
+  if (isset($form['consent'])) {
+    $form['consent']['#weight'] = 10;
+  }
 
   $privacy = \Drupal::config('myeventlane_waitlist.settings')->get('privacy_url') ?: '/privacy';
+  $privacy_class = $is_standalone ? 'mel-panel-legal' : 'mel2-fine mel2-privacy';
   $form['panel_legal'] = [
     '#type' => 'markup',
-    '#markup' => '<p class="mel-panel-legal"><a href="' . Html::escape($privacy) . '">' . t('Privacy') . '</a></p>',
-    '#weight' => 4,
+    '#markup' => '<p class="' . $privacy_class . '"><a href="' . Html::escape($privacy) . '">' . t('Privacy') . '</a></p>',
+    '#weight' => 21,
   ];
 
-  $form['website']['#weight'] = -20;
-  $form['interest_type']['#weight'] = -15;
+  if (isset($form['website'])) {
+    $form['website']['#weight'] = -20;
+  }
+  if (isset($form['interest_type'])) {
+    $form['interest_type']['#weight'] = -15;
+  }
   foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $key) {
     if (isset($form[$key])) {
       $form[$key]['#weight'] = -15;
     }
   }
-  $form['form_variant']['#weight'] = 10;
+  if (isset($form['form_variant'])) {
+    $form['form_variant']['#weight'] = 30;
+  }
 }

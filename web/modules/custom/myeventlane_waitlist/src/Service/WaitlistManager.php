@@ -69,9 +69,12 @@ final class WaitlistManager {
     $now = time();
     // Full set, including NULLs, for the INSERT.
     $profileInsert = $this->normalizeProfile($profile);
-    // Only values actually supplied, for UPDATEs. An attendee re-signup must not
-    // blank the organiser details captured on an earlier submission.
-    $profileUpdate = array_filter($profileInsert, static fn($v) => $v !== NULL);
+    // Only values actually supplied, for UPDATEs. An attendee re-signup must
+    // not blank the organiser details captured on an earlier submission.
+    $profileUpdate = array_filter(
+      $profileInsert,
+      static fn($v) => $v !== NULL,
+    );
 
     $existing = $this->database->select('myeventlane_waitlist_subscriber', 's')
       ->fields('s')
@@ -312,15 +315,17 @@ final class WaitlistManager {
   }
 
   /**
-   * Reduces a submitted profile array to the five storable columns.
+   * Reduces a submitted profile array to the storable profile columns.
    *
    * Values are trimmed and truncated to their column length. Anything not in
    * the allow-list is discarded. Empty values become NULL.
    *
    * @return array<string, string|null>
+   *   Normalised profile values keyed by their database column.
    */
   private function normalizeProfile(array $profile): array {
     $lengths = [
+      'first_name' => 128,
       'organisation' => 255,
       'event_type' => 64,
       'next_event_date' => 32,
