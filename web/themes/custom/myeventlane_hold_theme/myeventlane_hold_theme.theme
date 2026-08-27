@@ -285,7 +285,12 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
   }
 
   if (!empty($variables['is_front'])) {
-    $variables['waitlist_form'] = \Drupal::formBuilder()->getForm(WaitlistSignupForm::class);
+    $variables['waitlist_form_organiser'] = \Drupal::formBuilder()
+      ->getForm(WaitlistSignupForm::class, WaitlistSignupForm::AUDIENCE_ORGANISER);
+    $variables['waitlist_form_attendee'] = \Drupal::formBuilder()
+      ->getForm(WaitlistSignupForm::class, WaitlistSignupForm::AUDIENCE_ATTENDEE);
+    // Kept so any other template referencing the old variable still works.
+    $variables['waitlist_form'] = $variables['waitlist_form_attendee'];
   }
 
   $waitlist = \Drupal::config('myeventlane_waitlist.settings');

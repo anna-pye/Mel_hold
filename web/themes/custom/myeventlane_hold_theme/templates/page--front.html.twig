@@ -1,13 +1,16 @@
 {#
 /**
  * @file
- * Front page — aligned with index-2.html (glassmorphism, two-column grid).
+ * Rebuilt MyEventLane holding page with distinct organiser and attendee paths.
  */
 #}
 <a class="mel-skip" href="#main-content">{{ 'Skip to content'|t }}</a>
-<div class="mel-wrap">
-  <div class="mel-messages mel-messages--top" role="status" aria-live="polite">
-    {{ mel_messages }}
+
+<div class="mel-wrap mel2-page">
+  <div class="mel2-wrap">
+    <div class="mel-messages mel-messages--top" role="status" aria-live="polite">
+      {{ mel_messages }}
+    </div>
   </div>
 
   <header class="mel-header">
@@ -21,111 +24,101 @@
     </div>
   </header>
 
-  <main id="main-content" class="mel-main" role="main">
-    <div class="mel-grid">
-      <section class="mel-card mel-hero" aria-labelledby="mel-hero-title">
-        <div class="mel-sparkles" aria-hidden="true"></div>
-
-        <div class="mel-hero-heading">
-          <h1 id="mel-hero-title" class="mel-hero-title">
-            <span class="mel-gradient-text">{{ mel_hero_gradient }}</span><br />
-            {{ mel_hero_subheading }}
+  <main id="main-content" class="mel2-main" role="main">
+    <section class="mel2-section" aria-labelledby="mel2-hero-title">
+      <div class="mel2-wrap">
+        <div class="mel2-stack mel2-stack--wide">
+          <h1 id="mel2-hero-title" class="mel2-h1">
+            {{ mel_hero_gradient }} {{ mel_hero_subheading }}
           </h1>
-          <img
-            class="mel-hero-mascot"
-            src="{{ base_path }}{{ directory }}/images/mel-mascot-thinking.webp"
-            alt=""
-            width="110"
-            height="179"
-            decoding="async"
-            aria-hidden="true"
-          />
+          <p class="mel2-lead">{{ mel_hero_lead }}</p>
+          <div class="mel2-doors" aria-label="{{ 'Choose how you use events'|t }}">
+            <a class="mel2-btn mel2-btn--primary" href="#organisers">{{ 'I run events'|t }}</a>
+            <a class="mel2-btn mel2-btn--quiet" href="#attendees">{{ 'I go to events'|t }}</a>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <p class="mel-lead">{{ mel_hero_lead }}</p>
-
-        <div class="mel-story" aria-label="{{ 'Why MyEventLane'|t }}">
-          <section class="mel-story__item" aria-labelledby="mel-story-problem">
-            <h2 id="mel-story-problem" class="mel-story__title">{{ 'Running community events should not be complicated.'|t }}</h2>
-            <p>{{ 'Local organisers need a simpler way to prepare, share, and manage events.'|t }}</p>
-          </section>
-          <section class="mel-story__item" aria-labelledby="mel-story-solution">
-            <h2 id="mel-story-solution" class="mel-story__title">{{ 'MyEventLane brings the essentials together.'|t }}</h2>
-            <p>{{ 'Create event pages, support free or paid events, and manage RSVPs and ticketing with simple tools.'|t }}</p>
-          </section>
-          <section class="mel-story__item" aria-labelledby="mel-story-invitation">
-            <h2 id="mel-story-invitation" class="mel-story__title">{{ 'Be part of launch.'|t }}</h2>
-            <p>{{ 'Join the waitlist for early access and launch updates as MyEventLane gets ready.'|t }}</p>
-          </section>
+    <section id="organisers" class="mel2-section" aria-labelledby="mel2-organisers-title">
+      <div class="mel2-wrap">
+        <div class="mel2-panel">
+          <p class="mel2-eyebrow">{{ 'For organisers'|t }}</p>
+          <h2 id="mel2-organisers-title" class="mel2-h2">{{ mel_organiser_panel_title }}</h2>
+          <p class="mel2-lead">{{ mel_organiser_panel_intro }}</p>
+          {% if mel_organiser_panel_points is not empty %}
+            <ul class="mel2-points">
+              {% for point in mel_organiser_panel_points %}
+                <li>{{ point }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {{ waitlist_form_organiser }}
         </div>
+      </div>
+    </section>
 
-        {% if mel_badge_items is not empty %}
-          <ul class="mel-badges" aria-label="{{ 'What is landing first'|t }}">
-            {% for item in mel_badge_items %}
-              <li class="mel-badge">
-                <span class="mel-icon" aria-hidden="true">
-                  {% if item.icon == 'calendar' %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18"></path><path d="M7 3v4"></path><path d="M17 3v4"></path><rect x="3" y="7" width="18" height="14" rx="2"></rect><path d="M7 11h4"></path></svg>
-                  {% elseif item.icon == 'ticketing' %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="7" cy="7" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
-                  {% elseif item.icon == 'pin' %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0 1 18 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  {% else %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4-9 4-9-4 9-4Z"></path><path d="M3 10l9 4 9-4"></path><path d="M3 18l9 4 9-4"></path></svg>
-                  {% endif %}
-                </span>
-                {{ item.main }}{% if item.sub %} <span>• {{ item.sub }}</span>{% endif %}
-              </li>
+    <section id="attendees" class="mel2-section" aria-labelledby="mel2-attendees-title">
+      <div class="mel2-wrap">
+        <div class="mel2-panel">
+          <p class="mel2-eyebrow">{{ 'For attendees'|t }}</p>
+          <h2 id="mel2-attendees-title" class="mel2-h2">{{ mel_attendee_panel_title }}</h2>
+          <p class="mel2-lead">{{ mel_attendee_panel_intro }}</p>
+          {{ waitlist_form_attendee }}
+        </div>
+      </div>
+    </section>
+
+    <section class="mel2-section" aria-labelledby="mel2-status-title">
+      <div class="mel2-wrap">
+        <div class="mel2-panel">
+          <p class="mel2-eyebrow">{{ 'Launch status'|t }}</p>
+          <h2 id="mel2-status-title" class="mel2-h2">{{ mel_status_title }}</h2>
+          <div class="mel2-stack">
+            {% for paragraph in mel_status_body %}
+              <p class="mel2-lead">{{ paragraph }}</p>
             {% endfor %}
-          </ul>
-        {% endif %}
-      </section>
-
-      <aside class="mel-card mel-side" aria-label="{{ 'Stay in the loop'|t }}">
-        <div class="mel-panel mel-panel--status">
-          <h2 class="mel-panel__h">
-            <span class="mel-status-dot" aria-hidden="true"></span>
-            {{ 'Current status'|t }}
-          </h2>
-          <p class="mel-panel__p">{{ 'MyEventLane is currently in final development and testing.'|t }}</p>
-          <p class="mel-panel__p">{{ 'We are working with organisers, venues and community groups to prepare for launch.'|t }}</p>
-          <p class="mel-panel__p">{{ 'Want to hear when we launch? Join our mailing list below.'|t }}</p>
+          </div>
+          {% if mel_trust_items is not empty %}
+            <ul class="mel2-trust" aria-label="{{ 'Our commitments'|t }}">
+              {% for item in mel_trust_items %}
+                <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
+      </div>
+    </section>
 
-        <div class="mel-panel">
-          <h2 class="mel-panel__h">{{ 'Join the launch waitlist'|t }}</h2>
-          <p class="mel-panel__p">{{ mel_waitlist_intro }}</p>
-          {{ waitlist_form }}
-          <ul class="mel-trust" aria-label="{{ 'Waitlist commitments'|t }}">
-            <li>{{ 'Australian built'|t }}</li>
-            <li>{{ 'Privacy first'|t }}</li>
-            <li>{{ 'No spam'|t }}</li>
-            <li>{{ 'Unsubscribe anytime'|t }}</li>
-          </ul>
-        </div>
-
-        <div class="mel-panel">
-          <h2 class="mel-panel__h">{{ 'Have a question?'|t }}</h2>
-          <p class="mel-panel__p">{{ mel_whats_next_intro }}</p>
-
-          <div class="mel-links" aria-label="{{ 'Contact options'|t }}">
-            <a class="mel-pill-cta" href="{{ path('myeventlane_waitlist.contact') }}">
+    <section class="mel2-section" aria-labelledby="mel2-contact-title">
+      <div class="mel2-wrap">
+        <div class="mel2-panel">
+          <p class="mel2-eyebrow">{{ 'Contact'|t }}</p>
+          <h2 id="mel2-contact-title" class="mel2-h2">{{ 'Have a question?'|t }}</h2>
+          <p class="mel2-lead">{{ mel_whats_next_intro }}</p>
+          <div class="mel2-doors" aria-label="{{ 'Contact and social links'|t }}">
+            <a class="mel2-btn mel2-btn--primary" href="{{ path('myeventlane_waitlist.contact') }}">
               {{ 'Contact MyEventLane'|t }}
             </a>
+            {% if mel_facebook_url %}
+              <a class="mel2-btn mel2-btn--quiet" href="{{ mel_facebook_url }}" rel="noopener noreferrer" target="_blank">
+                {{ 'Facebook'|t }}{% if mel_facebook_label %} — {{ mel_facebook_label }}{% endif %}
+              </a>
+            {% endif %}
             {% if mel_instagram_url %}
-              <a class="mel-linkbtn" href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank" aria-label="{{ 'Follow on Instagram'|t }}">
-                <strong>{{ 'Instagram'|t }}</strong> <span>{{ mel_instagram_label }}</span>
+              <a class="mel2-btn mel2-btn--quiet" href="{{ mel_instagram_url }}" rel="noopener noreferrer" target="_blank">
+                {{ 'Instagram'|t }}{% if mel_instagram_label %} — {{ mel_instagram_label }}{% endif %}
               </a>
             {% endif %}
             {% if mel_linkedin_url %}
-              <a class="mel-linkbtn" href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank" aria-label="{{ 'Follow on LinkedIn'|t }}">
-                <strong>{{ 'LinkedIn'|t }}</strong> <span>{{ mel_linkedin_label }}</span>
+              <a class="mel2-btn mel2-btn--quiet" href="{{ mel_linkedin_url }}" rel="noopener noreferrer" target="_blank">
+                {{ 'LinkedIn'|t }}{% if mel_linkedin_label %} — {{ mel_linkedin_label }}{% endif %}
               </a>
             {% endif %}
           </div>
         </div>
-      </aside>
-    </div>
+      </div>
+    </section>
   </main>
 
   {% include '@myeventlane_hold_theme/includes/mel-footer.html.twig' %}

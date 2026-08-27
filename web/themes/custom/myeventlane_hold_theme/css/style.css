@@ -1725,3 +1725,310 @@ body.toolbar-fixed.toolbar-horizontal.toolbar-tray-open .mel-header--inner {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   MEL2 — rebuilt holding page. Added 2026-08. Mobile first at 390px.
+   Namespaced so the .mel-* rules used by /contact, /privacy and
+   /waitlist/subscribe are untouched.
+   ========================================================================== */
+:root {
+  --mel2-coral: #f26d5b;
+  --mel2-coral-hover: #e55c49;
+  --mel2-coral-ink: #b84a3a;
+  --mel2-lavender: #7c83fd;
+  --mel2-lavender-soft: #eef0ff;
+  --mel2-apricot: #f6c47a;
+  --mel2-bg: #fff9f5;
+  --mel2-surface: #fff;
+  --mel2-line: #f0dfd5;
+  --mel2-line-strong: #e3ccbe;
+  --mel2-text: #24303a;
+  --mel2-text-2: #5b6670;
+  --mel2-text-3: #7c8791;
+  --mel2-radius: 16px;
+  --mel2-radius-lg: 24px;
+  --mel2-shadow: 0 1px 2px rgba(36, 48, 58, 0.05), 0 8px 24px -12px rgba(36, 48, 58, 0.16);
+}
+
+/*
+ * The site body paints a fixed lavender/pink gradient which clashes with the
+ * coral palette. This override is scoped to the rebuilt holding page only.
+ */
+body.mel-root .mel2-page {
+  position: relative;
+  z-index: 0;
+  background: var(--mel2-bg);
+}
+
+.mel2-wrap {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.mel2-section {
+  padding: 44px 0;
+}
+
+.mel2-section + .mel2-section {
+  border-top: 1px solid var(--mel2-line);
+}
+
+.mel2-h1 {
+  margin: 0;
+  color: var(--mel2-text);
+  font-size: clamp(1.9rem, 8vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.mel2-h2 {
+  margin: 0;
+  color: var(--mel2-text);
+  font-size: clamp(1.35rem, 5.4vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.mel2-lead {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--mel2-text-2);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.mel2-eyebrow {
+  margin: 0;
+  color: var(--mel2-coral-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.mel2-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mel2-stack--wide {
+  gap: 28px;
+}
+
+.mel2-doors {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mel2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.mel2-btn--primary {
+  color: #fff;
+  background: var(--mel2-coral);
+}
+
+.mel2-btn--primary:hover {
+  background: var(--mel2-coral-hover);
+}
+
+.mel2-btn--quiet {
+  color: var(--mel2-coral-ink);
+  background: var(--mel2-surface);
+  border: 1.5px solid var(--mel2-coral);
+}
+
+.mel2-btn--quiet:hover {
+  background: #fdf3ed;
+}
+
+.mel2-btn:active {
+  transform: translateY(1px);
+}
+
+.mel2-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 20px;
+  background: var(--mel2-surface);
+  border: 1px solid var(--mel2-line-strong);
+  border-radius: var(--mel2-radius-lg);
+  box-shadow: var(--mel2-shadow);
+}
+
+.mel2-points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.mel2-points li {
+  color: var(--mel2-text-2);
+  font-size: 0.97rem;
+}
+
+/* Forms */
+.mel2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mel2-form .form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.mel2-form label {
+  color: var(--mel2-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.mel2-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  color: var(--mel2-text);
+  font: inherit;
+  font-size: 16px;
+  background: var(--mel2-bg);
+  border: 1.5px solid var(--mel2-line-strong);
+  border-radius: 10px;
+}
+
+.mel2-input::placeholder {
+  color: var(--mel2-text-3);
+}
+
+.mel2-form .description {
+  color: var(--mel2-text-3);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+/*
+ * The label is the checkbox hit area. Its padding provides the 44px minimum
+ * touch target while the checkbox itself remains visually compact.
+ */
+.mel2-form .form-item--checkbox,
+.mel2-form .form-type-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0;
+  background: var(--mel2-lavender-soft);
+  border-radius: 10px;
+}
+
+.mel2-form .form-item--checkbox label,
+.mel2-form .form-type-checkbox label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.mel2-consent {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--mel2-coral);
+  cursor: pointer;
+}
+
+.mel2-fine {
+  color: var(--mel2-text-3);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.mel2-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  color: var(--mel2-text-3);
+  font-size: 0.82rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.mel2-wrap :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--mel2-lavender);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mel2-wrap * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .mel2-wrap {
+    padding: 0 32px;
+  }
+
+  .mel2-section {
+    padding: 60px 0;
+  }
+
+  .mel2-doors {
+    flex-direction: row;
+  }
+
+  .mel2-btn {
+    width: auto;
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .mel2-panel {
+    padding: 30px 28px;
+  }
+
+  .mel2-form--organiser .mel2-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
