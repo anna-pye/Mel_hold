@@ -148,6 +148,17 @@ function myeventlane_hold_theme_parse_badges(string $badges_raw): array {
 }
 
 /**
+ * Parses a multi-line theme setting into non-empty, trimmed lines.
+ *
+ * @return array<int, string>
+ */
+function myeventlane_hold_theme_parse_lines(string $raw): array {
+  $lines = preg_split('/\r\n|\r|\n/', $raw) ?: [];
+  $lines = array_map('trim', $lines);
+  return array_values(array_filter($lines, static fn(string $line): bool => $line !== ''));
+}
+
+/**
  * Implements hook_preprocess_page().
  */
 function myeventlane_hold_theme_preprocess_page(array &$variables): void {
@@ -174,6 +185,21 @@ function myeventlane_hold_theme_preprocess_page(array &$variables): void {
 
   $badges_raw = (string) ($config->get('badges') ?: '');
   $variables['mel_badge_items'] = myeventlane_hold_theme_parse_badges($badges_raw);
+
+  $variables['mel_organiser_panel_title'] = $config->get('organiser_panel_title') ?: 'You run events';
+  $variables['mel_organiser_panel_intro'] = $config->get('organiser_panel_intro') ?: 'We would like to hear from you before we open. Tell us what you run and we will get in touch. If it is a good fit we will set your first event up with you on a call, not hand you a help article.';
+  $organiser_panel_points = (string) ($config->get('organiser_panel_points') ?: "Markets, workshops, local gigs, fundraisers and fetes\nFree RSVP events and paid ticketing in the same place\nGuest lists, reminders, check-in and attendee messaging\nPayments through your own connected Stripe account");
+  $variables['mel_organiser_panel_points'] = myeventlane_hold_theme_parse_lines($organiser_panel_points);
+
+  $variables['mel_attendee_panel_title'] = $config->get('attendee_panel_title') ?: 'You go to events';
+  $variables['mel_attendee_panel_intro'] = $config->get('attendee_panel_intro') ?: 'Leave your email and we will let you know when MyEventLane opens in your area. That is all we will use it for.';
+
+  $variables['mel_status_title'] = $config->get('status_title') ?: 'Where we are up to';
+  $status_body = (string) ($config->get('status_body') ?: "MyEventLane is in final development and testing.\nWe are working with organisers, venues and community groups to get ready.\nWe are not open to the public yet.");
+  $variables['mel_status_body'] = myeventlane_hold_theme_parse_lines($status_body);
+
+  $trust_items = (string) ($config->get('trust_items') ?: "Australian built\nPrivacy first\nNo spam\nUnsubscribe anytime");
+  $variables['mel_trust_items'] = myeventlane_hold_theme_parse_lines($trust_items);
 
   $waitlist_intro = $config->get('waitlist_intro');
   if ($waitlist_intro === NULL || $waitlist_intro === '') {
@@ -357,6 +383,49 @@ function myeventlane_hold_theme_form_system_theme_settings_alter(array &$form, F
     '#title' => t('Feature badges (up to four lines: “Main • Sub”)'),
     '#default_value' => $theme->get('badges'),
   ];
+  $form['mel']['organiser_panel_title'] = [
+    '#type' => 'textfield',
+    '#title' => t('Organiser panel title'),
+    '#default_value' => $theme->get('organiser_panel_title'),
+  ];
+  $form['mel']['organiser_panel_intro'] = [
+    '#type' => 'textarea',
+    '#title' => t('Organiser panel introduction'),
+    '#default_value' => $theme->get('organiser_panel_intro'),
+  ];
+  $form['mel']['organiser_panel_points'] = [
+    '#type' => 'textarea',
+    '#title' => t('Organiser panel bullet points'),
+    '#default_value' => $theme->get('organiser_panel_points'),
+    '#description' => t('Enter one bullet point per line.'),
+  ];
+  $form['mel']['attendee_panel_title'] = [
+    '#type' => 'textfield',
+    '#title' => t('Attendee panel title'),
+    '#default_value' => $theme->get('attendee_panel_title'),
+  ];
+  $form['mel']['attendee_panel_intro'] = [
+    '#type' => 'textarea',
+    '#title' => t('Attendee panel introduction'),
+    '#default_value' => $theme->get('attendee_panel_intro'),
+  ];
+  $form['mel']['status_title'] = [
+    '#type' => 'textfield',
+    '#title' => t('Status section title'),
+    '#default_value' => $theme->get('status_title'),
+  ];
+  $form['mel']['status_body'] = [
+    '#type' => 'textarea',
+    '#title' => t('Status paragraphs'),
+    '#default_value' => $theme->get('status_body'),
+    '#description' => t('Enter one paragraph per line.'),
+  ];
+  $form['mel']['trust_items'] = [
+    '#type' => 'textarea',
+    '#title' => t('Trust badges'),
+    '#default_value' => $theme->get('trust_items'),
+    '#description' => t('Enter one trust badge per line.'),
+  ];
   $form['mel']['waitlist_intro'] = [
     '#type' => 'textarea',
     '#title' => t('Waitlist panel intro'),
@@ -428,6 +497,14 @@ function myeventlane_hold_theme_settings_submit(array &$form, FormStateInterface
     ->set('hero_subheading', $form_state->getValue('hero_subheading'))
     ->set('hero_lead', $form_state->getValue('hero_lead'))
     ->set('badges', $form_state->getValue('badges'))
+    ->set('organiser_panel_title', $form_state->getValue('organiser_panel_title'))
+    ->set('organiser_panel_intro', $form_state->getValue('organiser_panel_intro'))
+    ->set('organiser_panel_points', $form_state->getValue('organiser_panel_points'))
+    ->set('attendee_panel_title', $form_state->getValue('attendee_panel_title'))
+    ->set('attendee_panel_intro', $form_state->getValue('attendee_panel_intro'))
+    ->set('status_title', $form_state->getValue('status_title'))
+    ->set('status_body', $form_state->getValue('status_body'))
+    ->set('trust_items', $form_state->getValue('trust_items'))
     ->set('waitlist_intro', $form_state->getValue('waitlist_intro'))
     ->set('waitlist_fineprint', $form_state->getValue('waitlist_fineprint'))
     ->set('whats_next_intro', $form_state->getValue('whats_next_intro'))
