@@ -47,6 +47,8 @@ whats_next_intro: 'Have a question, or want to introduce your community group? G
 whats_next: |-
   <p>Questions? Email us at <a href="mailto:info@myeventlane.com.au">info@myeventlane.com.au</a></p>
   <p>Follow progress on your favourite channels when we announce them.</p>
+facebook_url: ''
+facebook_label: MyEventLane
 instagram_url: ''
 instagram_label: ''
 linkedin_url: ''
@@ -57,5 +59,3 @@ footer_note: '© MyEventLane. All rights reserved. This holding page is lightwei
 meta_title: 'MyEventLane — Coming soon'
 meta_description: 'MyEventLane is almost here. Join the waitlist for a calmer way to plan and run events.'
 og_image_url: ''
-facebook_url: ''
-facebook_label: 'MyEventLane'
